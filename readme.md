@@ -1,8 +1,8 @@
-### CITS5505 Assignment 2 Group Project  
+# CITS5505 Assignment 2 Group Project  
   
-## Note: This is private repository. Do not share it to others.  
+## Note: This is a private repository. Do not share it with others.  
   
-# Due date: 5pm on Sunday, May 19th, 2024 (GMT+8)  
+### Due date: 5 PM on Sunday, May 19th, 2024 (GMT+8)  
   
 The Assignment 2 is asked to build a request forum application, which allows users to create accounts, post their own requests and answer other people's requests.  
   
