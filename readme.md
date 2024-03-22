@@ -11,9 +11,9 @@ The Assignment 2 is asked to build a request forum application, which allows use
 Text goes here...  
   
 #### Group members  
-| Name  | Student ID |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| Name  | Student ID | Github ID |
+| ------------- | ------------- | ------------- |
+| Content Cell  | Content Cell  | Content Cell |
+| Content Cell  | Content Cell  | Content Cell |
 ------  
 For full assignment description, see [https://github.com/xosadmin/cits5505Proj/description.md](description.md)  
