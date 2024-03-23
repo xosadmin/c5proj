@@ -17,3 +17,5 @@ Text goes here...
 | Content Cell  | Content Cell  | Content Cell |
 ------  
 For full assignment description, see [https://github.com/xosadmin/cits5505Proj/description.md](description.md)  
+  
+![Cover Photo](http://inews.gtimg.com/newsapp_match/0/15236301881/0)  
