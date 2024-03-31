@@ -8,7 +8,9 @@
 The Assignment 2 is asked to build a request forum application, which allows users to create accounts, post their own requests and answer other people's requests.  
   
 #### How to get started  
-Text goes here...  
+- Clone this project  
+- Install dependencies by `pip install requirements.txt`  
+- Use the command `flask --app app run` to start the web server  
   
 #### Group members  
 | Name  | Student ID | Github ID |
