@@ -1,0 +1,64 @@
+PRAGMA journal_mode = MEMORY;
+PRAGMA synchronous = OFF;
+PRAGMA foreign_keys = OFF;
+PRAGMA ignore_check_constraints = OFF;
+PRAGMA auto_vacuum = NONE;
+PRAGMA secure_delete = OFF;
+BEGIN TRANSACTION;
+
+CREATE TABLE Users(
+    Balance INT,
+    PRIMARY KEY UserID
+);
+
+CREATE TABLE Transaction(
+    TransactionID INT NOT NULL,
+    ItemID INT NOT NULL,
+    FOREIGN KEY(UserID) REFERENCES Users(UserID),
+    FOREIGN KEY(ItemID) REFERENCES Shopitems(ItemID)
+);
+
+CREATE TABLE Requests(
+    RequestID INT NOT NULL,
+    RequestName TEXT NOT NULL,
+    Rewards INT NOT NULL,
+    Details TEXT NOT NULL,
+    Time_Limit DATE NOT NULL,
+    PRIMARY KEY RequestID,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Communities(
+    ThreadID INT NOT NULL,
+    ThreadTitle TEXT NOT NULL,
+    ThreadDetails TEXT NOT NULL,
+    PRIMARY KEY ThreadID,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Rewards(
+    R_Item_ID INT NOT NULL,
+    FOREIGN KEY (R_Item_ID) REFERENCES Reward_Items(itemID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Shopitems(
+    ItemID INT NOT NULL,
+    ItemName TEXT NOT NULL,
+    ItemDescription TEXT NOT NULL,
+    Price INT NOT NULL,
+    PRIMARY KEY ItemID
+);
+
+CREATE TABLE Reward_Items(
+    ItemID INT NOT NULL,
+    ItemName TEXT NOT NULL,
+    ItemDescription TEXT NOT NULL,
+    PRIMARY KEY ItemID
+);
+
+COMMIT;
+PRAGMA ignore_check_constraints = ON;
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
+PRAGMA synchronous = NORMAL;
