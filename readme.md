@@ -18,7 +18,7 @@ The Assignment 2 is asked to build a request forum application, which allows use
 | Hanxun Xu  | 23885505  | [https://github.com/xosadmin](xosadmin) |
 | Jikang Song  | 23877962  | [https://github.com/jikang1116](jikang1116) |
 | Phyo Phyo Wut Yee Khine | 23650578 | [https://github.com/Phyo09](Phyo09) |
-| Name... | SID... | GithubID... |
+| Chunhui Chu | 24074951 | [https://github.com/TonyChyu](TonyChyu) |
 ------  
 For full assignment description, see [https://github.com/xosadmin/cits5505Proj/description.md](description.md)  
   
