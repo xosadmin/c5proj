@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Request - Requests - Adventurer Guild</title>
+    <title>Answer Request - Requests - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -30,26 +30,18 @@
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="pageBanner">New Request</h1>
+            <h1 id="pageBanner">Answer Request</h1>
             <div class="newthreadandrequest">
-                <form method="POST" action="/donewrequest">
+                <form method="POST" action="/doanswerrequest">
                     <div class="form-group fillForms">
-                        <label for="title">Request Title</label>
-                        <input type="text" class="form-control" id="title" aria-describedby="requesttitle" placeholder="Request Title">
+                        <label for="title">Request Title and content</label>
+                        <p>{{requestTitle}}</p>
+                        <p>{{requestContent}}</p>
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
                         <textarea class="form-control" id="content" rows="4" cols="50"></textarea>
-                        <small>Do you need LLM for compose contents? <a href="#newthreadandrequest" onclick="loadLLM(1)">Click here to ask LLM to generate content for you</a></small>
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="rewards">Rewards</label>
-                        <input type="number" class="form-control" id="rewards" aria-describedby="rewards" placeholder="Rewards">
-                        <small>You have {{balance}} coins available for rewards.</small>
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="timelimit">Time Limitation</label>
-                        <input type="number" class="form-control" id="timelimit" aria-describedby="timelimit" placeholder="Time Limitation (Days)">
+                        <small>Do you need LLM for compose contents? <a href="#newthreadandrequest" onclick="loadLLM(2)">Click here to ask LLM to generate content for you</a></small>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </form>

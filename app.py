@@ -53,6 +53,14 @@ try:
                                RewardName='test'
                                )
     
+    @app.route('/answerrequest/<requestid>')
+    def answerRequest():
+        return render_template('answerrequest.html',
+                               requestid = '',
+                               requestTitle = '',
+                               requestContent = ''
+                               )
+
     @app.route("/rewards/<username>")
     def rewardPage():
         return render_template('rewards.html', username='username')
