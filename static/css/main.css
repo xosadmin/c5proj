@@ -1,0 +1,70 @@
+a {
+    text-decoration: none;
+}
+
+body {
+    background-image: url({{url_for('static', filename='img/background.jpg')}});
+}
+
+/* Global Settings end */
+
+.listcontents {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.listcontents tr:hover{
+    background-color: rgb(168,168,168);
+}
+
+.navigationBar {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+.loginandsignup {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.loginandsignup .fillForms {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.newthreadandrequest {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.profileimages {
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
+    height: 30%;
+}
+
+#mainContent {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+#mainContent #homepageBanner {
+    text-align: center;
+}
+
+#mainContent #new {
+    text-align: right;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 16pt;
+}
+
+#pageBanner {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 25pt;
+}

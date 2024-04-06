@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - Adventurer Guild</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+<body>
+  <nav class="navbar navbar-default navigationBar rounded-pill">
+    <div class="container-fluid">
+        <div class="navbar-header">
+        <a class="navbar-brand" href="#">Adventurer Guild</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/profile/{{username}}">Home</a></li>
+                <li><a href="/requests">Request List</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/community">Community</a></li>
+                <li class="active"><a href="/rewards/{{username}}">Rewards</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+  </nav>
+      <div id="mainContent">
+            <h1 id="pageBanner">Rewards for {{username}}</h1>
+            <table class="table table-striped listcontents">
+                <tbody>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Reward Name</th>
+                    <th scope="col">Time</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+      </div>
+</body>
+</html>

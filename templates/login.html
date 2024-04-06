@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - Adventurer Guild</title>
+    <title>Login - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -19,18 +19,29 @@
     </div>
     <div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="/login">Login</a></li>
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="#">Login</a></li>
             <li><a href="/register">Sign Up</a></li>
         </ul>
     </div>
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="homepageBanner">Welcome to Adventurer Guild!</h1>
+            <h1 id="homepageBanner">Welcome come back!</h1>
             <div class="loginandsignup">
-                <button type="button" class="btn btn-default btn-lg" id="login">Login</button>
-                <button type="button" class="btn btn-primary btn-lg" id="register">Sign Up</button>
+                <form method="POST" action="/dologin">
+                    <div class="form-group fillForms">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email Address">
+                    </div>
+                    <div class="form-group fillForms">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                  </form>
+                <br>
+                <p>Haven't signup yet? <a href="/register" title="Register">Sign Up Now!</a></p>
             </div>
       </div>
 </body>
