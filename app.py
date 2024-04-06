@@ -6,8 +6,6 @@ import randomprofile as rp
 
 app = Flask(__name__)
 
-DATABASE = 'database/main.db'
-
 try:
     @app.route("/")
     def homepage():

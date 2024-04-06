@@ -1,3 +1,7 @@
+import sqlite3
+
+DATABASE = 'database/main.db'
+
 def get_db():
     dbconnect = getattr(g, '_database', None)
     if dbconnect is None:
