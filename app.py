@@ -39,6 +39,14 @@ try:
     def newRequest():
         return render_template('newrequest.html', balance='0')
     
+    @app.route("/doregister",methods=['POST'])
+    def doregister():
+        return render_template('register_complete.html')
+    
+    @app.route("/dologin",methods=['POST'])
+    def dologin():
+        return render_template('login_complete.html')
+    
     @app.route('/profile')
     def profilePage():
         return render_template('profile.html',
@@ -60,6 +68,14 @@ try:
                                requestTitle = '',
                                requestContent = ''
                                )
+    
+    @app.route("/todo")
+    def todoList():
+        return render_template('todo.html', 
+                               requestid='',
+                               title='',
+                               npc=''
+                              )
 
     @app.route("/rewards/<username>")
     def rewardPage():

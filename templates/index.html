@@ -27,10 +27,14 @@
     </div>
   </nav>
       <div id="mainContent">
+        <div>
+          <img src="{{url_for('static',filename='img/bannerImage.png')}}" alt="Homepage Banner" id="homepageBannerImg">
+        </div>
             <h1 id="homepageBanner">Welcome to Adventurer Guild!</h1>
+            <br>
             <div class="loginandsignup">
-                <button type="button" class="btn btn-default btn-lg" id="login">Login</button>
-                <button type="button" class="btn btn-primary btn-lg" id="register">Sign Up</button>
+                <button type="button" class="btn btn-default btn-lg" id="login" onclick="window.location.href='/login'">Login</button>
+                <button type="button" class="btn btn-primary btn-lg" id="register" onclick="window.location.href='/register'">Sign Up</button>
             </div>
       </div>
 </body>

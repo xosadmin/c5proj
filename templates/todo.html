@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Requests - Adventurer Guild</title>
+    <title>To-do List - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -19,9 +19,9 @@
         </div>
         <div>
             <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li class="active"><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
+                <li><a href="/profile/{{username}}">Home</a></li>
+                <li><a href="/requests">Request List</a></li>
+                <li class="active"><a href="/todo">To-do List</a></li>
                 <li><a href="/shop">Shop</a></li>
                 <li><a href="/community">Community</a></li>
                 <li><a href="/rewards/{{username}}">Rewards</a></li>
@@ -31,23 +31,21 @@
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="pageBanner">Requests</h1>
-            <div id="new">
-                <p><a href="/newrequest" title="New Requests">New Requests</a></p>
-            </div>
+            <h1 id="pageBanner">To-do List</h1>
+            <br>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
+                    <th scope="col">Request ID</th>
+                    <th scope="col">Request Title</th>
                     <th scope="col">NPC</th>
-                    <th scope="col">Rewards</th>
-                    <th scope="col">Time Limit</th>
+                    <th scope="col">Answer</th>
                 </tr>
                 <tr>
-                    <td>1</td>
-                    <td></td>
-                    <td></td>
+                    <td>{{requestid}}</td>
+                    <td>{{title}}</td>
+                    <td>{{npc}}</td>
+                    <td><a href="/answerrequest/{{requestid}}" title="Answer Request">Answer</a></td>
                 </tr>
                 </tbody>
             </table>
