@@ -262,13 +262,14 @@ try:
     
     @app.route("/thread/<id>", methods=['GET'])
     def threadDetails(id):
+        thread_title = getThreadTitle(id)
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM threads WHERE threadID=?", (id,))
         result = cursor.fetchall()
         getdb.close()
         if result:
-            return render_template("thread_details.html", result=result, threadID=id)
+            return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:
             return render_template("thread_details.html", errmsg=f"We cannot find any content.")
     
@@ -357,6 +358,14 @@ try:
     @app.route("/api/llmanswer")
     def llmans():
         return llm.llmAnswers()
+    
+    @app.route("/api/threadtitle/<id>",methods=["GET"])
+    def getThreadTitle(id):
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT title FROM community WHERE threadID=?",(id,))
+        result = cursor.fetchone()
+        return result[0] # Remove ('')
 
 except Exception as e:
     print("File missing. Cannot proceed. Exiting system...")
