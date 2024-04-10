@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community - Adventurer Guild</title>
+    <title>Thread Detail - {{threadID}} - Community - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -31,33 +31,37 @@
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="pageBanner">Community</h1>
-            <div id="searchBar">
-                <form method="POST" action="/docommsearch">
-                    <p>Search: </p>
-                    <p><input type="text" class="form-control" id="keyword" name="keyword" aria-describedby="searchcolumn" placeholder="Insert Keywords to search" required></p>
-                    <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
-                </form>
+            <h1 id="pageBanner">{{threadName}}</h1>
+            <div id="threadContents">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>User ID</td>
+                            <td>Content</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for resultitem in result %}
+                    <tr>
+                        <td>{{ resultitem[0] }}</td>
+                        <td>{{ resultitem[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <br>
             </div>
-            <div id="new">
-                <p><a href="/newthread" title="New Thread">New Thread</a></p>
+            <div class="newthreadandrequest">
+                <form method="POST" action="/donewthread">
+                    <div class="form-group fillForms">
+                        <label for="content">Contents</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
+                    </div>
+                    <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
+                  </form>
+                  <br>
+                  <p><a href="/community" title="Back">Back to community</a></p>
             </div>
-            <table class="table table-striped listcontents">
-                <tbody>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Author</th>
-                </tr>
-                {% for resultitem in result %}
-                <tr>
-                    <td>{{ resultitem[0] }}</td>
-                    <td><a href="thread/{{resultitem[1]}}" title="View Details">{{ resultitem[1] }}</a></td>
-                    <td>{{ resultitem[2] }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
       </div>
 </body>
 </html>

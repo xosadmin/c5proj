@@ -33,20 +33,27 @@
       <div id="mainContent">
             <h1 id="pageBanner">To-do List</h1>
             <br>
+            <p>Note: Click on Request ID to see request details.</p>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
+                    <th scope="col">To-Do Quest ID</th>
                     <th scope="col">Request ID</th>
-                    <th scope="col">Request Title</th>
-                    <th scope="col">NPC</th>
+                    <th scope="col">Request Status</th>
                     <th scope="col">Answer</th>
                 </tr>
+                {% for resultitem in result %}
                 <tr>
-                    <td>{{requestid}}</td>
-                    <td>{{title}}</td>
-                    <td>{{npc}}</td>
-                    <td><a href="/answerrequest/{{requestid}}" title="Answer Request">Answer</a></td>
+                    <td>{{ resultitem[0] }}</td>
+                    <td><a href="requestdetails/{{resultitem[2]}}" title="View Details" target="_blank">{{ resultitem[2] }}</a></td>
+                    <td>{{ resultitem[3] }}</td>
+                    {% if resultitem[3] == "Accepted" %}
+                        <td><a href="answerrequest/{{resultitem[2]}}" title="Answer Request">Answer</a></td>
+                    {% else %}
+                        <td>Answer submitted</td>
+                    {% endif %}
                 </tr>
+                {% endfor %}
                 </tbody>
             </table>
       </div>

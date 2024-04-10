@@ -71,3 +71,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+function confirmAcceptRequest(id) {
+    var acceptUrl = "/doacceptrequest/" + id ;
+    window.location.href = acceptUrl;
+}
+
+function denyAcceptRequest() {
+    window.location.href = "/requests";
+}

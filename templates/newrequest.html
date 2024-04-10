@@ -31,6 +31,9 @@
     </div>
   </nav>
       <div id="mainContent">
+            {% if errmsg %}
+                <div class="alert alert-danger">{{ errormsg }}</div>
+            {% endif %}
             <h1 id="pageBanner">New Request</h1>
             <div class="newthreadandrequest">
                 <form method="POST" action="/donewrequest">
