@@ -65,7 +65,7 @@ try:
         return render_template('newrequest.html', balance='0')
     
     @app.route("/logout")
-    def newRequest():
+    def logoutPage():
         return render_template('logout.html')
     
     @app.route("/donewthread",methods=['GET','POST'])
@@ -176,11 +176,11 @@ try:
     def rewardPage():
         return render_template('rewards.html', username='username')
     
-    @app.route("/llmrequest")
+    @app.route("/api/llmrequest")
     def llmreq():
         return llm.llmRequests()
     
-    @app.route("/llmanswer")
+    @app.route("/api/llmanswer")
     def llmans():
         return llm.llmAnswers()
 

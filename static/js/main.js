@@ -1,10 +1,10 @@
 function loadLLM(flag) {
     postfix = "";
     if (flag === 1) {
-        postfix = "/llmrequest";
+        postfix = "/api/llmrequest";
     }
     else if (flag === 2) {
-        postfix = "/llmanswer";
+        postfix = "/api/llmanswer";
     }
     else {
         console.error("Invalid input!");
