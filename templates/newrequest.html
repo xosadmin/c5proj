@@ -36,21 +36,21 @@
                 <form method="POST" action="/donewrequest">
                     <div class="form-group fillForms">
                         <label for="title">Request Title</label>
-                        <input type="text" class="form-control" id="title" aria-describedby="requesttitle" placeholder="Request Title" required>
+                        <input type="text" class="form-control" id="title" name="title" aria-describedby="requesttitle" placeholder="Request Title" required>
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
-                        <textarea class="form-control" id="content" rows="4" cols="50" required></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
                         <small>Do you need LLM for compose contents? <a href="#newthreadandrequest" onclick="loadLLM(1)">Click here to ask LLM to generate content for you</a></small>
                     </div>
                     <div class="form-group fillForms">
                         <label for="rewards">Rewards</label>
-                        <input type="number" class="form-control" id="rewards" aria-describedby="rewards" placeholder="Rewards">
+                        <input type="number" class="form-control" id="rewards" name="rewards" aria-describedby="rewards" placeholder="Rewards">
                         <small>You have {{balance}} coins available for rewards.</small>
                     </div>
                     <div class="form-group fillForms">
                         <label for="timelimit">Time Limitation</label>
-                        <input type="number" class="form-control" id="timelimit" aria-describedby="timelimit" placeholder="Time Limitation (Days)" required>
+                        <input type="number" class="form-control" id="timelimit" name="timelimit" aria-describedby="timelimit" placeholder="Time Limitation (Days)" required>
                     </div>
                     <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
                   </form>
