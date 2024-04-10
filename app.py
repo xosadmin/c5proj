@@ -299,10 +299,22 @@ try:
             return render_template("todo.html", result=result)
         else:
             return render_template("todo.html", errmsg=f"We cannot find any content.")
+        
+    @app.route("/leaderboard")
+    def leaderBoard():
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT * FROM users ORDER BY coins")
+        result = cursor.fetchall()
+        getdb.close()
+        if result:
+            return render_template("leaderboard.html", result=result)
+        else:
+            return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
 
-    @app.route("/rewards/<username>")
-    def rewardPage():
-        return render_template('rewards.html', username='username')
+    # @app.route("/rewards/<username>")
+    # def rewardPage():
+    #     return render_template('rewards.html', username='username')
     
     @app.route("/api/llmrequest")
     def llmreq():
