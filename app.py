@@ -20,7 +20,7 @@ def get_db():
 def checkEmail(email):
     getdb = get_db()
     cursor = getdb.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=?",(email))
+    cursor.execute("SELECT * FROM users WHERE email=?",(email,))
     result = cursor.fetchone()
     if result is not None: # If email is exists in the system
         return -1
@@ -110,6 +110,26 @@ try:
                 return redirect(url_for('newThread', errmsg="Internal Error"))
         else:
             return redirect(url_for('newThread', errmsg="Invalid Request!"))
+
+    @app.route("/donewthreadreply", methods=['GET', 'POST'])
+    def doNewThreadReply():
+        if request.method == "POST":
+            userID = "1"
+            content = request.form['content']
+            threadUUID = request.form['threadID']
+            try:
+                getdb = get_db()  # Create an object to connect to the database
+                cursor = getdb.cursor()  # Create a cursor to interact with the DB
+                cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",
+                               (threadUUID, userID, content))
+                getdb.commit()
+                getdb.close()
+                return redirect(url_for('communityPage'))
+            except Exception as e:
+                print(e)
+                return redirect(url_for('newThread', errmsg="Internal Error"))
+        else:
+            return redirect(url_for('newThread', errmsg="Invalid Request!"))
     
     @app.route("/donewrequest",methods=['GET','POST'])
     def donewrequests():
@@ -130,8 +150,8 @@ try:
                 return redirect(url_for('newRequest', errmsg="Internal Error"))
         else:
             return redirect(url_for('newRequest', errmsg="Invalid Request!"))
-    
-    @app.route("/doregister",methods=['GET','POST'])
+
+    @app.route("/doregister", methods=['GET', 'POST'])
     def doregister():
         if request.method == "POST":
             email = request.form['email']
@@ -139,15 +159,16 @@ try:
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    getdb = get_db() # Create an object to connect to the database
-                    cursor = getdb.cursor() # Create a cursor to interact with the DB
-                    cursor.execute("INSERT INTO users (email,password,coins) VALUES (?,?,10)",(email,password))
+                    getdb = get_db()  # Create an object to connect to the database
+                    cursor = getdb.cursor()  # Create a cursor to interact with the DB
+                    cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email,password))
                     getdb.commit()
                     getdb.close()
                     return render_template("register_complete.html")
                 else:
                     return redirect(url_for('registerPage', errormsg="Email already exists"))
-            except:
+            except Exception as e:
+                print(e)
                 return redirect(url_for('registerPage', errormsg="An error occurred"))
         else:
             return redirect(url_for('registerPage', errormsg="Invalid request"))
@@ -241,14 +262,13 @@ try:
     
     @app.route("/thread/<id>", methods=['GET'])
     def threadDetails(id):
-        id = request.args.get('id')  # assuming the form field is named 'keyword'
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM threads WHERE threadID=?", (id,))
         result = cursor.fetchall()
         getdb.close()
         if result:
-            return render_template("thread_details.html", result=result)
+            return render_template("thread_details.html", result=result, threadID=id)
         else:
             return render_template("thread_details.html", errmsg=f"We cannot find any content.")
     
@@ -263,7 +283,21 @@ try:
             return render_template("accept_request.html", result=result)
         else:
             return render_template("accept_request.html", errmsg=f"We cannot find any content.")
-        
+
+
+    @app.route("/myrequest", methods=['GET'])
+    def myRequest():
+        userID = "1"
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT * FROM requests WHERE userID=?",(userID))
+        result = cursor.fetchone()
+        getdb.close()
+        if result:
+            return render_template("myrequest.html", result=result)
+        else:
+            return render_template("myrequest.html", errmsg=f"We cannot find any content.")
+
     @app.route("/requestdetails/<id>", methods=['GET'])
     def requestDetails(id):
         getdb = get_db()  # Create an object to connect to the database

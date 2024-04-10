@@ -40,7 +40,8 @@
                 </form>
             </div>
             <div id="new">
-                <p><a href="/newrequest" title="New Requests">New Requests</a></p>
+                <p><a href="/myrequest" title="My requests">My Requests</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                    <a href="/newrequest" title="New Requests">New Requests</a></p>
             </div>
             <table class="table table-striped listcontents">
                 <tbody>
@@ -56,7 +57,7 @@
                         <tr>
                             <td>{{ resultitem[0] }}</td>
                             <td><a href="acceptrequest/{{resultitem[0]}}" title="View Details">{{ resultitem[1] }}</a></td>
-                            <td>{{ resultitem[5] }}</td>
+                            <td><a href="profile/{{resultitem[5]}}" title="View Details">{{ resultitem[5] }}</a></td>
                             <td>{{ resultitem[3] }}</td>
                             <td>{{ resultitem[4] }}</td>
                         </tr>

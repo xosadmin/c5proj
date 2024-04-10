@@ -93,11 +93,10 @@ body {
 }
 
 #threadContents {
+    border: solid 1px black;
+    text-align: center;
     margin-left: auto;
     margin-right: auto;
-    font-size: 16pt;
-}
-
-#threadContents table {
-    border: solid 0.5px black;
+    font-size: 12pt;
+    width: 80%;
 }

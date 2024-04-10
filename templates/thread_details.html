@@ -32,19 +32,19 @@
   </nav>
       <div id="mainContent">
             <h1 id="pageBanner">{{threadName}}</h1>
-            <div id="threadContents">
-                <table>
+            <div>
+                <table id="threadContents" class="table table-striped listcontents">
                     <thead>
                         <tr>
-                            <td>User ID</td>
-                            <td>Content</td>
+                            <td class="col">User ID</td>
+                            <td class="col">Content</td>
                         </tr>
                     </thead>
                     <tbody>
                     {% for resultitem in result %}
                     <tr>
-                        <td>{{ resultitem[0] }}</td>
-                        <td>{{ resultitem[1] }}</td>
+                        <td><a href="/profile/{{resultitem[1]}}" title="View user info" target="_blank">{{ resultitem[1] }}</a></td>
+                        <td>{{ resultitem[2] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -52,9 +52,10 @@
                 <br>
             </div>
             <div class="newthreadandrequest">
-                <form method="POST" action="/donewthread">
+                <form method="POST" action="/donewthreadreply">
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
+                        <input type="hidden" id="threadID" name="threadID" value="{{threadID}}">
                         <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
                     </div>
                     <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
