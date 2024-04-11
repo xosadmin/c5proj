@@ -9,8 +9,8 @@ The Assignment 2 is asked to build a request forum application, which allows use
   
 #### How to get started  
 - Clone this project  
-- Install dependencies by `pip install -r requirements.txt`  
-- Use the command `flask --app app run` to start the web server  
+- Install dependencies by `pip install -r requirements.txt` (Use `pip install -r requirements.txt --break-system-packages` if you are working on Linux)  
+- Use the command `flask run`(Use `flask run --host=0.0.0.0` if debug on productive server) to start the web server  
   
 #### Group members  
 | Name  | Student ID | Github ID |
