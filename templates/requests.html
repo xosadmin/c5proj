@@ -69,8 +69,8 @@
                             <td><a href="profile/{{resultitem[5]}}" title="View Details">{{ resultitem[5] }}</a></td>
                             <td>{{ resultitem[3] }}</td>
                             <td>{{ resultitem[4] }}</td>
-                            {% if userID == resultitem[5] %}
-                                <td><a href="/deleterequest/{{resultitem[5]}}" title="Delete Request">Delete Request</a></td>
+                            {% if userid|int == resultitem[5]|int %}
+                                <td><a href="/deleterequest/{{resultitem[5]}}/{{resultitem[0]}}" title="Delete Request">Delete Request</a></td>
                             {% else %}
                                 <td>No permission</td>
                             {% endif %}

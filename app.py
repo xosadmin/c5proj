@@ -61,32 +61,37 @@ try:
             print(e)
             return render_template('community.html', errmsg="Internal Error")
 
-    @app.route("/requests", methods=["GET"])
+    @app.route("/requests")
     def requestPage():
         try:
-            userID = "1"
-            coins = getCoins(userID)
+            currentUserID = "1"
+            coins = getCoins(currentUserID)
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM requests")
             result = cursor.fetchall()
             getdb.close()
-            return render_template('requests.html', result=result, coins=coins, userID=userID)
+            return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
             print(e)
             return render_template('requests.html', errmsg="Internal Error")
 
-    @app.route("/shop")
+    @app.route("/shop",methods=["GET"])
     def shopPage():
-        return render_template('shop.html')
+        userID = "1"
+        currentCoin = getCoins(userID)
+        return render_template('shop.html',coins=currentCoin)
     
     @app.route("/newthread")
     def newThread():
         return render_template('newthread.html')
     
-    @app.route("/newrequest")
+    @app.route("/newrequest",methods=["GET"])
     def newRequest():
-        return render_template('newrequest.html', balance='0')
+        msg = request.args.get('msg', 'null')
+        userID = "1"
+        currentCoin = getCoins(userID)
+        return render_template('newrequest.html', balance=currentCoin,msg=msg)
     
     @app.route("/logout")
     def logoutPage():
@@ -106,7 +111,7 @@ try:
                 cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",(threadUUID,userID,content))
                 getdb.commit()
                 getdb.close()
-                return redirect(url_for('communityPage', infomsg="New thread created. Please back to community."))
+                return "<script>alert('New thread recorded.');window.location.href='/community';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
@@ -126,7 +131,7 @@ try:
                                (threadUUID, userID, content))
                 getdb.commit()
                 getdb.close()
-                return redirect(url_for('communityPage', infomsg="New reply recorded. Please turn back to thread details."))
+                return "<script>alert('New reply recorded.');window.location.href='/thread/"+ threadUUID +"';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
@@ -137,22 +142,27 @@ try:
     def donewrequests():
         if request.method == "POST":
             userID = "1"
+            currentCoins = getCoins(userID)
             title = request.form['title']
             content = request.form['content']
             rewards = request.form['rewards']
             timelimit = request.form['timelimit']
-            try:
-                getdb = get_db() # Create an object to connect to the database
-                cursor = getdb.cursor() # Create a cursor to interact with the DB
-                cursor.execute("INSERT INTO requests (title,content,rewards,timelimit,userID) VALUES (?,?,?,?,?)",(title,content,rewards,timelimit,userID))
-                getdb.commit()
-                getdb.close()
-                return redirect(url_for('requestPage', infomsg="New request created. Please back to Request Center."))
-            except Exception as e:
-                print("[ERROR] donewrequests: " + str(e))
-                return redirect(url_for('newRequest', errmsg="Internal Error"))
+            if int(rewards) <= int(currentCoins):
+                try:
+                    getdb = get_db() # Create an object to connect to the database
+                    cursor = getdb.cursor() # Create a cursor to interact with the DB
+                    cursor.execute("INSERT INTO requests (title,content,rewards,timelimit,userID) VALUES (?,?,?,?,?)",(title,content,rewards,timelimit,userID))
+                    getdb.commit()
+                    setCoins(userID,int(rewards),"minus")
+                    getdb.close()
+                    return "<script>alert('New request posted.');window.location.href='/requests';</script>"
+                except Exception as e:
+                    print("[ERROR] donewrequests: " + str(e))
+                    return redirect(url_for('newRequest', msg="Internal Error!"))
+            else:
+                return redirect(url_for('newRequest', msg="Insufficient Balance!"))
         else:
-            return redirect(url_for('newRequest', errmsg="Invalid Request!"))
+            return redirect(url_for('newRequest', msg="Invalid Request!"))
 
     @app.route("/doregister", methods=['GET', 'POST'])
     def doregister():
@@ -260,8 +270,8 @@ try:
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE requests SET status='Completed', answer=? WHERE requestID=?", (content,requestID))
-        cursor.execute("UPDATE todo SET Status='Completed' WHERE requireID=?", (requestID))
-        setCoins(userID,rewards) # Automatically add coins to adventurers
+        cursor.execute("UPDATE todo SET Status='Completed' WHERE requireID=?", (requestID,))
+        setCoins(userID,rewards,"plus") # Automatically add coins to adventurers
         getdb.commit()
         getdb.close()
         return redirect(url_for('todoList',infomsg="You have completed the request."))
@@ -289,8 +299,21 @@ try:
         if result:
             return render_template("accept_request.html", result=result)
         else:
-            return render_template("accept_request.html", errmsg=f"We cannot find any content.")
+            return render_template("accept_request.html", errmsg=f"We cannot find any content.")   
 
+    @app.route("/deleterequest/<userid>/<requestid>", methods=['GET'])
+    def deleteRequest(userid,requestid):
+        currentUserID = "1"
+        state = getRequestInfo(requestid,"state")
+        if int(userid) == int(currentUserID) and state == "Available": # Only userID matches and status is Available can delete
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("DELETE FROM requests WHERE requestID=?", (requestid,))
+            getdb.commit()
+            getdb.close()
+            return "<script>alert('Request Deleted Successfully.');window.location.href='/requests';</script>"
+        else:
+            return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
 
     @app.route("/myrequest", methods=['GET'])
     def myRequest():
@@ -346,7 +369,7 @@ try:
     def leaderBoard():
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM users ORDER BY coins")
+        cursor.execute("SELECT * FROM users ORDER BY coins DESC")
         result = cursor.fetchall()
         getdb.close()
         if result:
@@ -385,10 +408,15 @@ try:
             print("[ERROR] getCoins: " + str(e))
             return -1
     
-    def setCoins(id,amount):
+    def setCoins(id,amount,act):
         try:
             currentCoins = getCoins(id)
-            newCoinAmount = int(currentCoins) + int(amount)
+            if act == "plus":
+                newCoinAmount = int(currentCoins) + int(amount)
+            elif act == "minus":
+                newCoinAmount = int(currentCoins) - int(amount)
+            else:
+                newCoinAmount = int(currentCoins) # Unknown action
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("UPDATE users SET coins=? WHERE userID=?",(newCoinAmount,id))
@@ -397,6 +425,22 @@ try:
         except Exception as e:
             print("[ERROR] setCoins: " + str(e))
             return -1
+        
+    def getRequestInfo(requestID,action):
+        if action == "userID":
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("SELECT userID FROM requests WHERE requestID=?",(requestID,))
+            result = cursor.fetchone()
+            return result[0]
+        elif action == "state":
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("SELECT status FROM requests WHERE requestID=?",(requestID,))
+            result = cursor.fetchone()
+            return result[0]
+        else:
+            print("[ERROR] getRequestInfo: Invalid action!")
 
 except Exception as e:
     print("File missing. Cannot proceed. Exiting system...")
