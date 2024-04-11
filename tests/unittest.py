@@ -1,6 +1,5 @@
 import unittest
-from ..app import *
-from .. import llm
+from ..llm import llm
 
 class TestAuth(unittest.TestCase):
     def test_email_exists(self):
