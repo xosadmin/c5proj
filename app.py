@@ -64,12 +64,14 @@ try:
     @app.route("/requests", methods=["GET"])
     def requestPage():
         try:
+            userID = "1"
+            coins = getCoins(userID)
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM requests")
             result = cursor.fetchall()
             getdb.close()
-            return render_template('requests.html', result=result)
+            return render_template('requests.html', result=result, coins=coins)
         except Exception as e:
             print(e)
             return render_template('requests.html', errmsg="Internal Error")
@@ -368,7 +370,7 @@ try:
         return result[0] # Remove ('')
     
     @app.route("/api/getcoins/<id>",methods=["GET"])
-    def getThreadTitle(id):
+    def getCoins(id):
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
