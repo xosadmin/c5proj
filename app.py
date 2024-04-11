@@ -315,13 +315,13 @@ try:
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
 
-    @app.route("/myrequest", methods=['GET'])
+    @app.route("/myrequest")
     def myRequest():
         userID = "1"
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE userID=?",(userID))
-        result = cursor.fetchone()
+        result = cursor.fetchall()
         getdb.close()
         if result:
             return render_template("myrequest.html", result=result)
