@@ -366,6 +366,14 @@ try:
         cursor.execute("SELECT title FROM community WHERE threadID=?",(id,))
         result = cursor.fetchone()
         return result[0] # Remove ('')
+    
+    @app.route("/api/getcoins/<id>",methods=["GET"])
+    def getThreadTitle(id):
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
+        result = cursor.fetchone()
+        return result[0] # Remove ('')
 
 except Exception as e:
     print("File missing. Cannot proceed. Exiting system...")

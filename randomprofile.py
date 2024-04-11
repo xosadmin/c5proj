@@ -6,6 +6,7 @@ nouns = ['tiger', 'dragon', 'eagle', 'phoenix', 'wolf', 'lion', 'panther', 'hawk
 adjectives = ['fierce', 'mighty', 'swift', 'majestic', 'powerful', 'savage', 'brave', 'wild', 'elegant',
               'mysterious', 'ferocious', 'legendary', 'cunning', 'fearless', 'noble', 'sly', 'graceful',
               'furious', 'bold', 'mystical']
+passwordDict = "1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+[]\;',./<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def randomCountry():
@@ -20,3 +21,10 @@ def randomNickname():
 def randomEmail():
     composeEmailAddr = nouns[random.randint(0,len(nouns)-1)] + random.randint(0,1000) + "@test.com"
     return composeEmailAddr
+
+def generatePassword(length):
+    lenpwddict = len(passwordDict)
+    composePassword = ""
+    for i in range(0,length):
+        composePassword += passwordDict[random.randint(0,lenpwddict-1)]
+    return composePassword
