@@ -71,7 +71,7 @@ try:
             cursor.execute("SELECT * FROM requests")
             result = cursor.fetchall()
             getdb.close()
-            return render_template('requests.html', result=result, coins=coins)
+            return render_template('requests.html', result=result, coins=coins, userID=userID)
         except Exception as e:
             print(e)
             return render_template('requests.html', errmsg="Internal Error")
@@ -106,7 +106,7 @@ try:
                 cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",(threadUUID,userID,content))
                 getdb.commit()
                 getdb.close()
-                return redirect(url_for('communityPage'))
+                return redirect(url_for('communityPage', infomsg="New thread created. Please back to community."))
             except Exception as e:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
@@ -126,7 +126,7 @@ try:
                                (threadUUID, userID, content))
                 getdb.commit()
                 getdb.close()
-                return redirect(url_for('communityPage'))
+                return redirect(url_for('communityPage', infomsg="New reply recorded. Please turn back to thread details."))
             except Exception as e:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
@@ -147,8 +147,9 @@ try:
                 cursor.execute("INSERT INTO requests (title,content,rewards,timelimit,userID) VALUES (?,?,?,?,?)",(title,content,rewards,timelimit,userID))
                 getdb.commit()
                 getdb.close()
-                return redirect(url_for('requests'))
-            except:
+                return redirect(url_for('requestPage', infomsg="New request created. Please back to Request Center."))
+            except Exception as e:
+                print("[ERROR] donewrequests: " + str(e))
                 return redirect(url_for('newRequest', errmsg="Internal Error"))
         else:
             return redirect(url_for('newRequest', errmsg="Invalid Request!"))
@@ -187,7 +188,7 @@ try:
             getdb.close()
             if result:
                 userid = result[0] # The first column in the result
-                return redirect(url_for('profilePage', userid=userid)) # If username and password is correct
+                return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
             else:
                 return redirect(url_for('loginPage', errormsg="Wrong username/password input!"))
         else:
@@ -252,12 +253,15 @@ try:
         
     @app.route("/doanswerrequest", methods=['POST'])
     def doAnswerRequest():
+        userID = request.form["userID"]
+        rewards = request.form["rewards"]
         requestID = request.form['requestID']
         content = request.form['content']
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE requests SET status='Completed', answer=? WHERE requestID=?", (content,requestID))
         cursor.execute("UPDATE todo SET Status='Completed' WHERE requireID=?", (requestID))
+        setCoins(userID,rewards) # Automatically add coins to adventurers
         getdb.commit()
         getdb.close()
         return redirect(url_for('todoList',infomsg="You have completed the request."))
@@ -327,13 +331,14 @@ try:
     @app.route("/todo")
     def todoList():
         userID = "1"
+        coin = getCoins(userID)
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM todo WHERE userID=?", (userID))
         result = cursor.fetchall()
         getdb.close()
         if result:
-            return render_template("todo.html", result=result)
+            return render_template("todo.html", result=result, coins=coin)
         else:
             return render_template("todo.html", errmsg=f"We cannot find any content.")
         
@@ -369,13 +374,29 @@ try:
         result = cursor.fetchone()
         return result[0] # Remove ('')
     
-    @app.route("/api/getcoins/<id>",methods=["GET"])
     def getCoins(id):
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
-        result = cursor.fetchone()
-        return result[0] # Remove ('')
+        try:
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
+            result = cursor.fetchone()
+            return result[0] # Remove ('')
+        except Exception as e:
+            print("[ERROR] getCoins: " + str(e))
+            return -1
+    
+    def setCoins(id,amount):
+        try:
+            currentCoins = getCoins(id)
+            newCoinAmount = int(currentCoins) + int(amount)
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("UPDATE users SET coins=? WHERE userID=?",(newCoinAmount,id))
+            getdb.commit()
+            return 0
+        except Exception as e:
+            print("[ERROR] setCoins: " + str(e))
+            return -1
 
 except Exception as e:
     print("File missing. Cannot proceed. Exiting system...")

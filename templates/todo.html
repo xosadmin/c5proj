@@ -32,6 +32,14 @@
   </nav>
       <div id="mainContent">
             <h1 id="pageBanner">To-do List</h1>
+            {% if errmsg %}
+                <div class="alert alert-danger">{{ errormsg }}</div>
+            {% elif infomsg%}
+                <div class="alert alert-info">{{ infomsg }}</div>
+            {% endif %}
+            <div id="showcoins">
+                <p>Your coins: {{coins}}</p>
+            </div>
             <br>
             <p>Note: Click on Request ID to see request details.</p>
             <table class="table table-striped listcontents">
