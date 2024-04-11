@@ -207,14 +207,14 @@ try:
     @app.route("/docommsearch", methods=['GET', 'POST'])
     def doCommSearch():
         if request.method == "POST":
-            keyword = request.form['keyword']  # assuming the form field is named 'keyword'
+            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT * FROM community WHERE threadID=? OR title=?", (keyword, keyword))
+            cursor.execute("SELECT * FROM community WHERE threadID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
             getdb.close()
             if result:
-                return render_template("search_result.html", act="thread", result=result, infomsg=f"We have found result(s) based on your keyword '{keyword}'")
+                return render_template("search_result.html", act="thread", result=result, redosearch="docommsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
                 return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
         else:
@@ -223,14 +223,14 @@ try:
     @app.route("/doreqsearch", methods=['GET', 'POST'])
     def doReqSearch():
         if request.method == "POST":
-            keyword = request.form['keyword']  # assuming the form field is named 'keyword'
+            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT * FROM requests WHERE requestID=? OR title=?", (keyword, keyword))
+            cursor.execute("SELECT * FROM requests WHERE requestID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE ", ('%' + keyword + '%', '%' + keyword + '%'))
             result = cursor.fetchall()
             getdb.close()
             if result:
-                return render_template("search_result.html", act="answerrequest", result=result, infomsg=f"We have found result(s) based on your keyword '{keyword}'")
+                return render_template("search_result.html", act="answerrequest", result=result, redosearch="doreqsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
                 return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
         else:
@@ -376,10 +376,6 @@ try:
             return render_template("leaderboard.html", result=result)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
-
-    # @app.route("/rewards/<username>")
-    # def rewardPage():
-    #     return render_template('rewards.html', username='username')
     
     @app.route("/api/llmrequest")
     def llmreq():

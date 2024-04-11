@@ -38,8 +38,8 @@
             {% endif %}
             <h1 id="pageBanner">Search Result</h1>
             <div id="searchBar">
-                <form method="POST" action="/docommsearch">
-                    <p>Search: <input type="text" class="form-control" id="search" name="search" value="{{content}}" required></p>
+                <form method="POST" action="/{{redosearch}}">
+                    <p>Search: <input type="text" class="form-control" id="keyword" name="keyword" value="" required></p>
                     <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
                 </form>
             </div>
@@ -49,7 +49,7 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Title</th>
-                    <th scope="col">Author</th>
+                    <th scope="col">Author/Content</th>
                 </tr>
                 {% for resultitem in result %}
                 <tr>
