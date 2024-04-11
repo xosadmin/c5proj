@@ -6,7 +6,7 @@ nouns = ['tiger', 'dragon', 'eagle', 'phoenix', 'wolf', 'lion', 'panther', 'hawk
 adjectives = ['fierce', 'mighty', 'swift', 'majestic', 'powerful', 'savage', 'brave', 'wild', 'elegant',
               'mysterious', 'ferocious', 'legendary', 'cunning', 'fearless', 'noble', 'sly', 'graceful',
               'furious', 'bold', 'mystical']
-passwordDict = "1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+[]\;',./<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+passwordDict = "1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+[];',.-~<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def randomCountry():
