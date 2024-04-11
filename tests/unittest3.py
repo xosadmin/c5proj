@@ -1,5 +1,5 @@
 import unittest
-from ..app import donewthreads
+from ..app import donewthreads,donewthreadreply
 from flask import Flask
 
 class TestDonewThreads(unittest.TestCase):
