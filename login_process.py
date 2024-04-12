@@ -1,18 +1,17 @@
 from flask import *
 import datetime as dt
 from app import *
+import randomprofile as rp
 from functools import wraps
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = "UWA_c1ts_5505_as51gnm3nt2" # Secret Key for all sessions
-app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
-
 def login_required(func):
         @wraps(func)
         def decorated_function(*args, **kwargs):
-            if ifLogin() == -1 or request.cookies.get("session") is None:
-                return redirect(url_for('loginPage',errmsg="Please login before accessing function."))
+            encryptedSession = request.cookies.get("session")
+            if ifLogin() == -1 or encryptedSession is None:
+                return redirect(url_for('loginPage',errormsg="Please login before accessing function."))
             return func(*args, **kwargs)
         return decorated_function
 

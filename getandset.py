@@ -24,16 +24,14 @@ def checkEmail(email):
     else:
         return 0
 
-try:
-    @app.route("/api/threadtitle/<id>",methods=["GET"])
-    def getThreadTitle(id):
+def getThreadTitle(id):
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT title FROM community WHERE threadID=?",(id,))
         result = cursor.fetchone()
         return result[0] # Remove ('')
 
-    def getCoins(id):
+def getCoins(id):
         try:
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -44,7 +42,7 @@ try:
             print("[ERROR] getCoins: " + str(e))
             return -1
     
-    def setCoins(id,amount,act):
+def setCoins(id,amount,act):
         try:
             currentCoins = getCoins(id)
             if act == "plus":
@@ -62,7 +60,7 @@ try:
             print("[ERROR] setCoins: " + str(e))
             return -1
         
-    def getRequestInfo(requestID,action):
+def getRequestInfo(requestID,action):
         if action == "userID":
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -84,7 +82,21 @@ try:
         else:
             print("[ERROR] getRequestInfo: Invalid action!")
 
-except Exception as e:
-    print("Unexpected error occured.")
-    print("Detail: " + str(e))
-    exit(-1)
+def getUserInfo(userID, action):
+        print("[Info] getUserInfo: executing action " + action)
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        if action == "email":
+            cursor.execute("SELECT email FROM users WHERE userID=?", (userID,))
+        elif action == "coins":
+            cursor.execute("SELECT coins FROM users WHERE userID=?", (userID,))
+        elif action == "avatar":
+            cursor.execute("SELECT avatar FROM users WHERE userID=?", (userID,))
+        else:
+            return None
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            print("[ERROR] getUserInfo: Invalid action or Null Value!")
+            return None

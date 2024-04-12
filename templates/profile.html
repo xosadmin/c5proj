@@ -19,7 +19,7 @@
             </div>
             <div>
                 <ul class="nav navbar-nav">
-                    <li  class="active"><a href="/profile/{{username}}">Home</a></li>
+                    <li class="active"><a href="/profile">Home</a></li>
                     <li><a href="/requests">Request List</a></li>
                     <li><a href="/todo">To-do List</a></li>
                     <li><a href="/shop">Shop</a></li>
@@ -31,12 +31,13 @@
         </div>
       </nav>
       <div id="mainContent">
-        {% if errmsg %}
-                <div class="alert alert-danger">{{ errormsg }}</div>
+            {% if infomsg %}
+                <div class="alert alert-info">{{ infomsg }}</div>
             {% endif %}
             <h1 id="pageBanner">My Profile</h1>
-            <div class="profileimages">
-                <img src="{{url_for('static',filename='nft/{{nftid}}.png')}}" alt="Avatar">
+            <div class="profileimgdiv">
+                <img src="{{ url_for('static', filename='nft/' + nftid + '.png') }}" alt="Avatar" class="profileimages">
+                <p>Avatar</p>
             </div>
             <br>
             <table class="table table-striped listcontents">

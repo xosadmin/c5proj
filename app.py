@@ -8,7 +8,7 @@ import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
-app.config['SECRET_KEY'] = "UWA_c1ts_5505_as51gnm3nt2" # Secret Key for all sessions
+app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
 app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
 db.init_app(app)
 
@@ -240,6 +240,7 @@ try:
     @login_required
     def profilePage():
         try:
+            infomsg = request.args.get('infomsg', '')
             userID = getSession("userid")
             getdb = get_db()
             cursor = getdb.cursor()
@@ -251,17 +252,20 @@ try:
                 return render_template('profile.html', errmsg="User not found")
             cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userID,)) # NFT Images
             nft_details = cursor.fetchall()
+            avatar_id = str(getUserInfo(userID,"avatar"))
             getdb.close()
             return render_template('profile.html',
                                 user_details = user_details,
                                 nft_details = nft_details,
                                 rcountry = rcountry,
-                                rnickname = rnickname
+                                rnickname = rnickname,
+                                nftid = avatar_id,
+                                infomsg = infomsg
                                 )
         except Exception as e:
             print(f"An error occurred: " + str(e))
             return render_template('profile.html', errmsg="An internal error occurred")
-    
+
     @app.route('/answerrequest/<requestid>')
     @login_required
     def answerRequest(requestid):

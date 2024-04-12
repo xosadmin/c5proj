@@ -1,4 +1,5 @@
 import pycountry,random
+import secrets
 
 countries = list(pycountry.countries)
 nouns = ['tiger', 'dragon', 'eagle', 'phoenix', 'wolf', 'lion', 'panther', 'hawk', 'bear', 'shark', 'snake', 'fox',
@@ -28,3 +29,6 @@ def generatePassword(length):
     for i in range(0,length):
         composePassword += passwordDict[random.randint(0,lenpwddict-1)]
     return composePassword
+
+def randomSessionKey(length):
+    return secrets.token_hex(length)
