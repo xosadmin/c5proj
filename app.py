@@ -1,31 +1,16 @@
 from flask import *
-import sqlite3
 import llm
 from sqlmodels import *
+from getandset import *
+from login_process import *
 import randomprofile as rp
 import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
+app.config['SECRET_KEY'] = "UWA_c1ts_5505_as51gnm3nt2" # Secret Key for all sessions
+app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
 db.init_app(app)
-
-DATABASE = 'database/main.db'
-
-def get_db():
-    dbconnect = getattr(g, '_database', None)
-    if dbconnect is None:
-        dbconnect = g._database = sqlite3.connect(DATABASE)
-    return dbconnect
-
-def checkEmail(email):
-    getdb = get_db()
-    cursor = getdb.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=?",(email,))
-    result = cursor.fetchone()
-    if result is not None: # If email is exists in the system
-        return -1
-    else:
-        return 0
 
 try:
     @app.route("/")
@@ -49,6 +34,7 @@ try:
             return render_template('register.html')
 
     @app.route("/community", methods=["GET"])
+    @login_required
     def communityPage():
         try:
             getdb = get_db()  # Create an object to connect to the database
@@ -62,9 +48,10 @@ try:
             return render_template('community.html', errmsg="Internal Error")
 
     @app.route("/requests")
+    @login_required
     def requestPage():
         try:
-            currentUserID = "1"
+            currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -77,30 +64,38 @@ try:
             return render_template('requests.html', errmsg="Internal Error")
 
     @app.route("/shop",methods=["GET"])
+    @login_required
     def shopPage():
-        userID = "1"
+        userID = getSession("userid")
         currentCoin = getCoins(userID)
         return render_template('shop.html',coins=currentCoin)
     
     @app.route("/newthread")
+    @login_required
     def newThread():
         return render_template('newthread.html')
     
     @app.route("/newrequest",methods=["GET"])
+    @login_required
     def newRequest():
         msg = request.args.get('msg', 'null')
-        userID = "1"
+        userID = getSession("userid")
         currentCoin = getCoins(userID)
         return render_template('newrequest.html', balance=currentCoin,msg=msg)
     
     @app.route("/logout")
+    @login_required
     def logoutPage():
-        return render_template('logout.html')
+        destroySession()
+        response = make_response(render_template('logout.html'))
+        response.set_cookie('session','',expires=0)
+        return response
     
     @app.route("/donewthread",methods=['GET','POST'])
+    @login_required
     def donewthreads():
         if request.method == "POST":
-            userID = "1"
+            userID = getSession("userid")
             title = request.form['title']
             content = request.form['content']
             try:
@@ -119,9 +114,10 @@ try:
             return redirect(url_for('newThread', errmsg="Invalid Request!"))
 
     @app.route("/donewthreadreply", methods=['GET', 'POST'])
+    @login_required
     def doNewThreadReply():
         if request.method == "POST":
-            userID = "1"
+            userID = getSession("userid")
             content = request.form['content']
             threadUUID = request.form['threadID']
             try:
@@ -139,9 +135,10 @@ try:
             return redirect(url_for('newThread', errmsg="Invalid Request!"))
     
     @app.route("/donewrequest",methods=['GET','POST'])
+    @login_required
     def donewrequests():
         if request.method == "POST":
-            userID = "1"
+            userID = getSession("userid")
             currentCoins = getCoins(userID)
             title = request.form['title']
             content = request.form['content']
@@ -198,6 +195,7 @@ try:
             getdb.close()
             if result:
                 userid = result[0] # The first column in the result
+                setSession(userid,email)
                 return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
             else:
                 return redirect(url_for('loginPage', errormsg="Wrong username/password input!"))
@@ -205,6 +203,7 @@ try:
             return redirect(url_for('loginPage', errormsg="Invalid Request!")) # If the user attempts to use GET method to pass the data
         
     @app.route("/docommsearch", methods=['GET', 'POST'])
+    @login_required
     def doCommSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
@@ -221,6 +220,7 @@ try:
             return render_template("search_result.html", errmsg="Invalid Request!")
         
     @app.route("/doreqsearch", methods=['GET', 'POST'])
+    @login_required
     def doReqSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
@@ -236,18 +236,20 @@ try:
         else:
             return render_template("search_result.html", errmsg="Invalid Request!")
     
-    @app.route('/profile/<userid>', methods=["GET"])
-    def profilePage(userid):
+    @app.route('/profile')
+    @login_required
+    def profilePage():
         try:
+            userID = getSession("userid")
             getdb = get_db()
             cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
-            cursor.execute("SELECT * FROM users WHERE userID=?", (userid,))
+            cursor.execute("SELECT * FROM users WHERE userID=?", (userID,)) # User Info
             user_details = cursor.fetchall()
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userid,))
+            cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userID,)) # NFT Images
             nft_details = cursor.fetchall()
             getdb.close()
             return render_template('profile.html',
@@ -257,16 +259,11 @@ try:
                                 rnickname = rnickname
                                 )
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error occurred: " + str(e))
             return render_template('profile.html', errmsg="An internal error occurred")
-
-    @app.route('/profile')
-    def defaultProfile():
-        return "<script>alert('Invalid Request!');history.back();</script>"
-    # If user do not pass the userID, the profile will not be shown up
-    # and navigate user back to the previous page
     
     @app.route('/answerrequest/<requestid>')
+    @login_required
     def answerRequest(requestid):
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -279,6 +276,7 @@ try:
             return render_template("answerrequest.html", errmsg=f"We cannot find any content.")
         
     @app.route("/doanswerrequest", methods=['POST'])
+    @login_required
     def doAnswerRequest():
         userID = request.form["userID"]
         rewards = request.form["rewards"]
@@ -294,6 +292,7 @@ try:
         return redirect(url_for('todoList',infomsg="You have completed the request."))
     
     @app.route("/thread/<id>", methods=['GET'])
+    @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
         getdb = get_db()  # Create an object to connect to the database
@@ -307,6 +306,7 @@ try:
             return render_template("thread_details.html", errmsg=f"We cannot find any content.")
     
     @app.route("/acceptrequest/<id>", methods=['GET'])
+    @login_required
     def acceptRequest(id):
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -319,22 +319,26 @@ try:
             return render_template("accept_request.html", errmsg=f"We cannot find any content.")   
 
     @app.route("/deleterequest/<userid>/<requestid>", methods=['GET'])
+    @login_required
     def deleteRequest(userid,requestid):
-        currentUserID = "1"
+        currentuserID = getSession("userid")
         state = getRequestInfo(requestid,"state")
-        if int(userid) == int(currentUserID) and state == "Available": # Only userID matches and status is Available can delete
+        currentReqRewards = getRequestInfo(requestid,"rewards")
+        if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
             getdb = get_db()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("DELETE FROM requests WHERE requestID=?", (requestid,))
             getdb.commit()
+            setCoins(currentuserID,int(currentReqRewards),"plus") # Refund reward if delete request
             getdb.close()
-            return "<script>alert('Request Deleted Successfully.');window.location.href='/requests';</script>"
+            return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
 
     @app.route("/myrequest")
+    @login_required
     def myRequest():
-        userID = "1"
+        userID = getSession("userid")
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE userID=?",(userID))
@@ -346,6 +350,7 @@ try:
             return render_template("myrequest.html", errmsg=f"We cannot find any content.")
 
     @app.route("/requestdetails/<id>", methods=['GET'])
+    @login_required
     def requestDetails(id):
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -358,31 +363,34 @@ try:
             return render_template("requestDetail.html", errmsg=f"We cannot find any content.")
         
     @app.route("/doacceptrequest/<id>", methods=['GET'])
+    @login_required
     def doAcceptRequest(id):
-        userid = "1"
+        userID = getSession("userid")
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE requests SET status='accepted' WHERE requestID=?", (id,))
-        cursor.execute("INSERT INTO todo (userID,requireID,Status) VALUES (?,?,?)", (userid,id,"Accepted"))
+        cursor.execute("INSERT INTO todo (userID,requireID,Status) VALUES (?,?,?)", (userID,id,"Accepted"))
         getdb.commit()
         getdb.close()
         return redirect(url_for('todoList'))
 
     @app.route("/todo")
+    @login_required
     def todoList():
-        userID = "1"
-        coin = getCoins(userID)
+        currentUserID = getSession("userid")
+        coins = getCoins(currentUserID)
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM todo WHERE userID=?", (userID))
+        cursor.execute("SELECT * FROM todo WHERE userID=?", (currentUserID,))
         result = cursor.fetchall()
         getdb.close()
         if result:
-            return render_template("todo.html", result=result, coins=coin)
+            return render_template("todo.html", result=result, coins=coins)
         else:
-            return render_template("todo.html", errmsg=f"We cannot find any content.")
+            return render_template("todo.html", errmsg=f"We cannot find any content.", coins=coins)
         
     @app.route("/leaderboard")
+    @login_required
     def leaderBoard():
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -401,59 +409,6 @@ try:
     @app.route("/api/llmanswer")
     def llmans():
         return llm.llmAnswers()
-    
-    @app.route("/api/threadtitle/<id>",methods=["GET"])
-    def getThreadTitle(id):
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT title FROM community WHERE threadID=?",(id,))
-        result = cursor.fetchone()
-        return result[0] # Remove ('')
-    
-    def getCoins(id):
-        try:
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
-            result = cursor.fetchone()
-            return result[0] # Remove ('')
-        except Exception as e:
-            print("[ERROR] getCoins: " + str(e))
-            return -1
-    
-    def setCoins(id,amount,act):
-        try:
-            currentCoins = getCoins(id)
-            if act == "plus":
-                newCoinAmount = int(currentCoins) + int(amount)
-            elif act == "minus":
-                newCoinAmount = int(currentCoins) - int(amount)
-            else:
-                newCoinAmount = int(currentCoins) # Unknown action
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("UPDATE users SET coins=? WHERE userID=?",(newCoinAmount,id))
-            getdb.commit()
-            return 0
-        except Exception as e:
-            print("[ERROR] setCoins: " + str(e))
-            return -1
-        
-    def getRequestInfo(requestID,action):
-        if action == "userID":
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT userID FROM requests WHERE requestID=?",(requestID,))
-            result = cursor.fetchone()
-            return result[0]
-        elif action == "state":
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT status FROM requests WHERE requestID=?",(requestID,))
-            result = cursor.fetchone()
-            return result[0]
-        else:
-            print("[ERROR] getRequestInfo: Invalid action!")
 
 except Exception as e:
     print("File missing. Cannot proceed. Exiting system...")
