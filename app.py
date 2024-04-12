@@ -278,13 +278,14 @@ try:
     @app.route('/answerrequest/<requestid>')
     @login_required
     def answerRequest(requestid):
+        userID = getSession("userid")
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE requestID=?", (requestid,))
         result = cursor.fetchone()
         getdb.close()
         if result:
-            return render_template("answerrequest.html", result=result)
+            return render_template("answerrequest.html", result=result, userID=userID)
         else:
             return render_template("answerrequest.html", errmsg=f"We cannot find any content.")
 
@@ -302,7 +303,7 @@ try:
         setCoins(userID,rewards,"plus") # Automatically add coins to adventurers
         getdb.commit()
         getdb.close()
-        return redirect(url_for('todoList',infomsg="You have completed the request."))
+        return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
     
     @app.route("/thread/<id>", methods=['GET'])
     @login_required
@@ -432,6 +433,7 @@ try:
     @login_required
     def todoList():
         currentUserID = getSession("userid")
+        infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
@@ -439,7 +441,7 @@ try:
         result = cursor.fetchall()
         getdb.close()
         if result:
-            return render_template("todo.html", result=result, coins=coins)
+            return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
             return render_template("todo.html", errmsg=f"We cannot find any content.", coins=coins)
         

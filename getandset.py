@@ -55,10 +55,8 @@ def setCoins(id,amount,act):
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("UPDATE users SET coins=? WHERE userID=?",(newCoinAmount,id))
             getdb.commit()
-            return 0
         except Exception as e:
             print("[ERROR] setCoins: " + str(e))
-            return -1
         
 def getRequestInfo(requestID,action):
         getdb = get_db()  # Create an object to connect to the database
