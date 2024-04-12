@@ -36,23 +36,25 @@
             {% endif %}
             <h1 id="pageBanner">My Profile</h1>
             <div class="profileimages">
-                <img src="{{url_for('static',filename='nft/{{username}}_avator.png')}}" alt="Avator">
+                <img src="{{url_for('static',filename='nft/{{nftid}}.png')}}" alt="Avatar">
             </div>
             <br>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
+                    <th scope="col">User ID</th>
                     <th scope="col">Email Address</th>
                     <th scope="col">Nickname</th>
                     <th scope="col">Location</th>
                     <th scope="col">Coins</th>
                 </tr>
-                {% for user_details in user_details %}
+                {% for useritems in user_details %}
                 <tr>
-                    <td>{{user_details[0]}}</td>
-                    <td>{{user_details[1]}}</td>
-                    <td>{{user_details[2]}}</td>
-                    <td>{{user_details[3]}}</td>
+                    <td>{{useritems[0]}}</td>
+                    <td>{{useritems[1]}}</td>
+                    <td>{{rnickname}}</td>
+                    <td>{{rcountry}}</td>
+                    <td>{{useritems[3]}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -61,18 +63,19 @@
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
-                    <th scope="col">Item</th>
-                    <th scope="col">Name</th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Item ID</th>
+                    <th scope="col">Set as avatar</th>
                 </tr>
-                {% for nft_details in nft_details %}
+                {% for nftitem in nft_details %}
                 <tr>
-                    <td>{{nft_details[0]}}</td>
-                    <td>{{nft_details[1]}}</td>
+                    <td>{{nftitem[0]}}</td>
+                    <td>{{nftitem[2]}}</td>
+                    <td>Set as gravatar</td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
-            
       </div>
 </body>
 </html>

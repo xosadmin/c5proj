@@ -239,25 +239,32 @@ try:
     @app.route('/profile/<userid>', methods=["GET"])
     def profilePage(userid):
         try:
-           
             getdb = get_db()
             cursor = getdb.cursor()
+            rcountry = rp.randomCountry()
+            rnickname = rp.randomNickname()
             cursor.execute("SELECT * FROM users WHERE userID=?", (userid,))
-            user_details = cursor.fetchone()
+            user_details = cursor.fetchall()
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
             cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userid,))
             nft_details = cursor.fetchall()
             getdb.close()
             return render_template('profile.html',
-                                user_details =user_details,
-                                nft_details=nft_details,
-        
-                                ) # Assuming the nickname is the username, adjust as needed
+                                user_details = user_details,
+                                nft_details = nft_details,
+                                rcountry = rcountry,
+                                rnickname = rnickname
+                                )
         except Exception as e:
             print(f"An error occurred: {e}")
             return render_template('profile.html', errmsg="An internal error occurred")
 
+    @app.route('/profile')
+    def defaultProfile():
+        return "<script>alert('Invalid Request!');history.back();</script>"
+    # If user do not pass the userID, the profile will not be shown up
+    # and navigate user back to the previous page
     
     @app.route('/answerrequest/<requestid>')
     def answerRequest(requestid):
