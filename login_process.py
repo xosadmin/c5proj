@@ -8,12 +8,12 @@ app = Flask(__name__)
 
 def login_required(func):
         @wraps(func)
-        def decorated_function(*args, **kwargs):
+        def logreq(*args, **kwargs):
             encryptedSession = request.cookies.get("session")
             if ifLogin() == -1 or encryptedSession is None:
                 return redirect(url_for('loginPage',errormsg="Please login before accessing function."))
             return func(*args, **kwargs)
-        return decorated_function
+        return logreq
 
 def ifLogin():
         tempUserid = getSession("userid")

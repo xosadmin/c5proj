@@ -61,26 +61,19 @@ def setCoins(id,amount,act):
             return -1
         
 def getRequestInfo(requestID,action):
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
         if action == "userID":
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT userID FROM requests WHERE requestID=?",(requestID,))
-            result = cursor.fetchone()
-            return result[0]
         elif action == "state":
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT status FROM requests WHERE requestID=?",(requestID,))
-            result = cursor.fetchone()
-            return result[0]
         elif action == "rewards":
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT rewards FROM requests WHERE requestID=?",(requestID,))
-            result = cursor.fetchone()
-            return result[0]
         else:
             print("[ERROR] getRequestInfo: Invalid action!")
+            return -1
+        result = cursor.fetchone()
+        return result[0]
 
 def getUserInfo(userID, action):
         print("[Info] getUserInfo: executing action " + action)
