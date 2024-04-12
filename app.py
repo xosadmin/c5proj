@@ -237,17 +237,27 @@ try:
             return render_template("search_result.html", errmsg="Invalid Request!")
     
     @app.route('/profile/<userid>', methods=["GET"])
-    def profilePage(id):
-        return render_template('profile.html',
-                               email='1@1.com',
-                               nickname=rp.randomNickname(),
-                               location=rp.randomCountry(),
-                               coins='0',
-                               nftid='1',
-                               nftname='test',
-                               RewardID='1',
-                               RewardName='test'
-                               )
+    def profilePage(userid):
+        try:
+           
+            getdb = get_db()
+            cursor = getdb.cursor()
+            cursor.execute("SELECT * FROM users WHERE userID=?", (userid,))
+            user_details = cursor.fetchone()
+            if user_details is None:
+                return render_template('profile.html', errmsg="User not found")
+            cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userid,))
+            nft_details = cursor.fetchall()
+            getdb.close()
+            return render_template('profile.html',
+                                user_details =user_details
+                                nft_details=nft_details,
+        
+                                ) # Assuming the nickname is the username, adjust as needed
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return render_template('profile.html', errmsg="An internal error occurred")
+
     
     @app.route('/answerrequest/<requestid>')
     def answerRequest(requestid):
