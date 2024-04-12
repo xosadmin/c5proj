@@ -250,7 +250,7 @@ try:
             nft_details = cursor.fetchall()
             getdb.close()
             return render_template('profile.html',
-                                user_details =user_details
+                                user_details =user_details,
                                 nft_details=nft_details,
         
                                 ) # Assuming the nickname is the username, adjust as needed

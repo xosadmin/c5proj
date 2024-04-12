@@ -31,6 +31,9 @@
         </div>
       </nav>
       <div id="mainContent">
+        {% if errmsg %}
+                <div class="alert alert-danger">{{ errormsg }}</div>
+            {% endif %}
             <h1 id="pageBanner">My Profile</h1>
             <div class="profileimages">
                 <img src="{{url_for('static',filename='nft/{{username}}_avator.png')}}" alt="Avator">
@@ -44,12 +47,14 @@
                     <th scope="col">Location</th>
                     <th scope="col">Coins</th>
                 </tr>
+                {% for user_details in user_details %}
                 <tr>
-                    <td>{{email}}</td>
-                    <td>{{nickname}}</td>
-                    <td>{{location}}</td>
-                    <td>{{coins}}</td>
+                    <td>{{user_details[0]}}</td>
+                    <td>{{user_details[1]}}</td>
+                    <td>{{user_details[2]}}</td>
+                    <td>{{user_details[3]}}</td>
                 </tr>
+                {% endfor %}
                 </tbody>
             </table>
             <h3>My NFT Items</h3>
@@ -59,25 +64,15 @@
                     <th scope="col">Item</th>
                     <th scope="col">Name</th>
                 </tr>
+                {% for nft_details in nft_details %}
                 <tr>
-                    <td><img src="{{url_for('static',filename='nft/{{nftid}}.png')}}" class="profileimages" alt="Avator"></td>
-                    <td>{{name}}</td>
+                    <td>{{nft_details[0]}}</td>
+                    <td>{{nft_details[1]}}</td>
                 </tr>
+                {% endfor %}
                 </tbody>
             </table>
-            <h3>My Rewards</h3>
-            <table class="table table-striped listcontents">
-                <tbody>
-                <tr>
-                    <th scope="col">Reward ID</th>
-                    <th scope="col">Name</th>
-                </tr>
-                <tr>
-                    <td>{{RewardID}}</td>
-                    <td>{{RewardName}}</td>
-                </tr>
-                </tbody>
-            </table>
+            
       </div>
 </body>
 </html>
