@@ -61,18 +61,19 @@
                 </tbody>
             </table>
             <h3>My NFT Items</h3>
+            <p><a href="/setavatar/default" title="Restore Default Avatar">Restore Default Avatar</a></p>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
                     <th scope="col">Transaction ID</th>
-                    <th scope="col">Item ID</th>
+                    <th scope="col">Item Preview</th>
                     <th scope="col">Set as avatar</th>
                 </tr>
                 {% for nftitem in nft_details %}
                 <tr>
                     <td>{{nftitem[0]}}</td>
-                    <td>{{nftitem[2]}}</td>
-                    <td>Set as gravatar</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + nftitem[2]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td><a href="/setavatar/{{nftitem[2]}}" title="Set as avatar">Set as avatar</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

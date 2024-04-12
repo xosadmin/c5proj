@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - Adventurer Guild</title>
+    <title>Confirm Payment - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -22,7 +22,7 @@
                 <li><a href="/profile">Home</a></li>
                 <li><a href="/requests">Request List</a></li>
                 <li><a href="/todo">To-do List</a></li>
-                <li class="active"><a href="/shop">Shop</a></li>
+                <li><a href="/shop">Shop</a></li>
                 <li><a href="/community">Community</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
                 <li><a href="/logout">Logout</a></li>
@@ -31,13 +31,11 @@
     </div>
   </nav>
       <div id="mainContent">
-            {% if infomsg %}
-                <div class="alert alert-info">{{ infomsg }}</div>
-            {% endif %}
-            <h1 id="pageBanner">Shop</h1>
-            <div id="showcoins">
-                <p>Your coins: {{coins}}</p>
-            </div>
+            <h1 id="pageBanner">Confirm Payment</h1>
+            <p>Please confirm you will purchase following item.</p>
+            <p>This request will be shown on your profile.</p>
+            <br>
+            <h3>Item Details</h3>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
@@ -45,19 +43,20 @@
                     <th scope="col">Item Preview</th>
                     <th scope="col">Item Name</th>
                     <th scope="col">Price</th>
-                    <th scope="col">Buy</th>
                 </tr>
-                {% for item in results %}
                 <tr>
-                    <td>{{item[0]}}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + item[0]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
-                    <td>{{item[1]}}</td>
-                    <td>$$ {{item[2]}}</td>
-                    <td><a href="/confirmpayment/{{item[0]}}" title="Buy">Buy</a></td>
+                    <td>{{ result[0] }}</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + result[0]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td>{{ result[1] }}</td>
+                    <td>$$ {{ result[2] }}</td>
                 </tr>
-                {% endfor %}
                 </tbody>
             </table>
+            <div id="confirmAccept">
+                <p>Warning: you cannot ask for refund once you confirm payment.</p>
+                <button type="button" class="btn btn-success" onclick="confirmPayment({{ result[0] }})">Yes, I confirm</button>
+                <button type="button" class="btn btn-danger" id="denyAccept" onclick="denyPayment()">No, I need to do further consideration</button>
+            </div>
       </div>
 </body>
 </html>

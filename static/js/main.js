@@ -80,3 +80,12 @@ function confirmAcceptRequest(id) {
 function denyAcceptRequest() {
     window.location.href = "/requests";
 }
+
+function confirmPayment(id) {
+    var acceptUrl = "/dopayment/" + id ;
+    window.location.href = acceptUrl;
+}
+
+function denyPayment() {
+    window.location.href = "/shop";
+}

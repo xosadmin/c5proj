@@ -68,7 +68,16 @@ try:
     def shopPage():
         userID = getSession("userid")
         currentCoin = getCoins(userID)
-        return render_template('shop.html',coins=currentCoin)
+        infomsg = request.args.get("infomsg","")
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT * FROM shop")
+        result = cursor.fetchall()
+        getdb.close()
+        if result:
+            return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
+        else:
+            return render_template('shop.html', coins=currentCoin, infomsg="Unexpected error")
     
     @app.route("/newthread")
     @login_required
@@ -278,7 +287,7 @@ try:
             return render_template("answerrequest.html", result=result)
         else:
             return render_template("answerrequest.html", errmsg=f"We cannot find any content.")
-        
+
     @app.route("/doanswerrequest", methods=['POST'])
     @login_required
     def doAnswerRequest():
@@ -321,6 +330,19 @@ try:
             return render_template("accept_request.html", result=result)
         else:
             return render_template("accept_request.html", errmsg=f"We cannot find any content.")   
+        
+    @app.route("/confirmpayment/<id>", methods=['GET'])
+    @login_required
+    def confirmPayment(id):
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT * FROM shop WHERE itemID=?", (id,))
+        result = cursor.fetchone()
+        getdb.close()
+        if result:
+            return render_template("confirm_buy.html", result=result)
+        else:
+            return render_template("confirm_buy.html", errmsg=f"We cannot find any content.")   
 
     @app.route("/deleterequest/<userid>/<requestid>", methods=['GET'])
     @login_required
@@ -377,6 +399,34 @@ try:
         getdb.commit()
         getdb.close()
         return redirect(url_for('todoList'))
+
+    @app.route("/setavatar/<id>", methods=['GET'])
+    @login_required
+    def doSetAvatar(id):
+        userID = getSession("userid")
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("UPDATE users SET avatar=? WHERE userID=?", (id,userID))
+        getdb.commit()
+        getdb.close()
+        return redirect(url_for('profilePage',infomsg="Avatar updated."))
+    
+    @app.route("/dopayment/<id>", methods=['GET'])
+    @login_required
+    def doPayment(id):
+        userID = getSession("userid")
+        itemPrice = getItemInfo(id,"price")
+        userCoins = getUserInfo(userID,"coins")
+        if userCoins >= itemPrice:
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("INSERT INTO transactions (userID,itemID) VALUES (?,?)", (userID,id))
+            getdb.commit()
+            setCoins(userID,itemPrice,"minus")
+            getdb.close()
+            return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
+        else:
+            return redirect(url_for('shopPage', infomsg="Insufficient Balance!"))
 
     @app.route("/todo")
     @login_required
