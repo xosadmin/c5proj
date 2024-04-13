@@ -30,10 +30,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     isValid = false;
                 }
             }
-            
+    
             function validateEmail() {
                 const email = document.getElementById('email');
-                if (!email || email.value.length === 0 || !email.value.includes('@')) {
+                if (email.value.length === 0 || !email.value.includes('@')) {
                     alert('Please enter a valid email address.');
                     isValid = false;
                 }
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 function validatePasswordMatch() {
                     const password = document.getElementById('password');
                     const repeatPassword = document.getElementById('repeat-password');
-                    if (!password || !repeatPassword || password.value !== repeatPassword.value) {
+                    if (password.value !== repeatPassword.value) {
                         alert('Passwords do not match.');
                         isValid = false;
                     }

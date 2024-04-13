@@ -509,7 +509,7 @@ try:
         return llm.llmAnswers()
 
 except Exception as e:
-    print("File missing. Cannot proceed. Exiting system...")
+    print("Error occured. Cannot proceed. Exiting system...")
     print("Details: " + str(e))
     exit(-1)
 # If file is missing, the program cannot start
