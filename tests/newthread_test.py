@@ -1,5 +1,5 @@
 import unittest
-from ..app import donewthreads,donewthreadreply
+import app
 from flask import Flask
 
 class TestDonewThreads(unittest.TestCase):
@@ -19,31 +19,24 @@ class TestDonewThreads(unittest.TestCase):
             self.assertTrue('communityPage' in response.location)  
     
     def test_donewthreads_get_invalid(self):
-        
         with self.app as client:
             response = client.get('/donewthread')
-            
-            self.assertEqual(response.status_code, 302) 
+        self.assertEqual(response.status_code, 302)
 
-     def test_doNewThreadReply_post_success(self):
-        
+    def test_doNewThreadReply_post_success(self):
         with self.app as client:
             response = client.post('/donewthreadreply', data={
                 'threadID': 'some-unique-thread-id',
                 'content': 'Reply content for the thread.'
             })
-           
             self.assertEqual(response.status_code, 302)  
             self.assertTrue('communityPage' in response.location)  
 
     def test_doNewThreadReply_get_invalid(self):
-        
         with self.app as client:
             response = client.get('/donewthreadreply')
             self.assertEqual(response.status_code, 302)  
             self.assertTrue('newThread?errmsg=Invalid Request!' in response.location)  
- 
-            
 
 if __name__ == '__main__':
     unittest.main()

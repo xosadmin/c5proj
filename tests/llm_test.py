@@ -1,5 +1,5 @@
 import unittest
-from ..llm import llmAnswers,llmRequests
+import llm
 
 class TestLLM(unittest.TestCase):
     def test_llmreq(self):

@@ -20,7 +20,7 @@ def randomNickname():
     return composeName
 
 def randomEmail():
-    composeEmailAddr = nouns[random.randint(0,len(nouns)-1)] + random.randint(0,1000) + "@test.com"
+    composeEmailAddr = nouns[random.randint(0,len(nouns)-1)] + str(random.randint(0,1000)) + "@test.com"
     return composeEmailAddr
 
 def generatePassword(length):

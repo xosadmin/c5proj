@@ -1,49 +1,48 @@
 import unittest
-from ..app import *
-from ..randomprofile import *
-
-generatedEmail = randomEmail()
-generatedPassword = generatePassword(10)
+import app
+import getandset as gs
+import llm
+import login_process as lp
+import randomprofile as rp
 
 class TestAuth(unittest.TestCase):
-    # def setUp(self):
-    #     app.config['TESTING'] = True
-    #     self.app = app.test_client()
+    def setUp(self):
+        self.app = app.app
+        self.gs = gs
+        self.llm = llm
+        self.lp = lp
+        app.app.config['TESTING'] = True
+        self.client = self.app.test_client()
+        self.generatedEmail = str(rp.randomEmail())
+        self.generatedPassword = str(rp.generatePassword(10))
 
     def test_email_exists(self):
-        email = "test@test.com"
-        getReturn = app.checkEmail(email)
-        self.assertEqual(getReturn, 0) 
-        # Test checkEmail() function
-        # The "test@test.com" already in the database. It is expected to return 0
-
-    def test_dologin_success(self):
-        with self.app as client:
-            response = client.post('/dologin', data={
-                'username': 'test@test.com',  
-                'password': '123'
-            })
-            self.assertEqual(response.status_code, 302)  
-            self.assertTrue('/requests' in response.location, "Should redirect to the home page")
-
-    def test_dologin_failure(self):
-        #Test that an invalid login returns to the login page with an error.
-        with self.app as client:
-            response = client.post('/dologin', data={
-                'username': 'invalidUser@test.com',
-                'password': 'wrongPassword'
-            })
-           
-            self.assertEqual(response.status_code, 302)  
-            self.assertTrue('/login?errormsg' in response.location, "Should redirect back to login with an error")
+        with self.app.test_request_context():
+            email = "test@test.com"
+            getReturn = self.gs.checkEmail(email)
+            self.assertEqual(getReturn, 0)
 
     def test_register_post(self):
-        with self.app as client:
-            response = self.app.post('/doregister', data={'email': generatedEmail, 'password': generatedPassword})
+        response = self.client.post('/doregister', data={
+            'email': self.generatedEmail, 'password': self.generatedPassword
+        })
+        self.assertEqual(response.status_code, 200)
 
-            self.assertEqual(response.status_code, 200)  
-            self.assertTrue('/doregister' in response.location)
+    def test_dologin_success(self):
+        response = self.client.post('/dologin', data={
+            'username': self.generatedEmail,
+            'password': self.generatedPassword
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/requests', response.headers['Location'])
 
+    def test_dologin_failure(self):
+        response = self.client.post('/dologin', data={
+            'username': 'invalidUser@test.com',
+            'password': 'wrongPassword'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login?errormsg', response.headers['Location'])
 
 if __name__ == '__main__':
     unittest.main()
