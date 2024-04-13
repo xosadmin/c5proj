@@ -58,6 +58,114 @@ try:
         except Exception as e:
             print(e)
             return render_template('community.html', errmsg="Internal Error")
+        
+    @app.route("/chat")
+    @login_required
+    def chatPage():
+        lastid = -1
+        userID = getSession("userid")
+        infomsg = request.args.get("infomsg","")
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT DISTINCT * FROM chats WHERE dstUserID=? OR srcUserID=?",(userID,userID)) # Avoid from repeat result
+        result = cursor.fetchall()
+        getdb.close()
+        if result:
+            return render_template('chat.html', results=result, infomsg=infomsg)
+        else:
+            return render_template('chat.html', infomsg="No chat. Do you want to set up a new one?")
+    
+    @app.route("/chat/<chatid>")
+    @login_required
+    def chatDetailsPage(chatid):
+        dstuser = getChatInfo(chatid,"dstuser")
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        cursor.execute("SELECT * FROM chats WHERE chatID=?",(chatid,))
+        result = cursor.fetchall()
+        getdb.close()
+        if result:
+            return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
+        else:
+            return render_template('chat_details.html', infomsg="Unexpected error")
+        
+    @app.route("/dochatreply",methods=['GET','POST'])
+    @login_required
+    def doChatReply():
+        if request.method == "POST":
+            userID = getSession("userid")
+            chatID = request.form['chatID']
+            content = request.form['content']
+            dstuser = getChatInfo(chatID,"srcuser")
+            time = str(getTime())
+            try:
+                getdb = get_db() # Create an object to connect to the database
+                cursor = getdb.cursor() # Create a cursor to interact with the DB
+                cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatID,userID,dstuser,time,content))
+                # When send reply, source user will become destination user
+                getdb.commit()
+                getdb.close()
+                return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
+            except Exception as e:
+                print(e)
+                return redirect(url_for('chatPage', errmsg="Internal Error"))
+        else:
+            return redirect(url_for('chatPage', errmsg="Invalid Request!"))
+        
+    @app.route("/deletechat/<chatid>", methods=['GET'])
+    @login_required
+    def deleteChat(chatid):
+        currentuserID = getSession("userid")
+        dstuser = getChatInfo(chatid,"dstuser")
+        srcuser = getChatInfo(chatid,"srcuser")
+        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("DELETE FROM chats WHERE chatID=?", (chatid,))
+            getdb.commit()
+            getdb.close()
+            return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
+        else:
+            return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
+        
+    @app.route("/newchat",methods=['GET','POST'])
+    @login_required
+    def donewchat():
+        if request.method == "POST":
+            chatUUID = str(uuid.uuid4())
+            userID = getSession("userid")
+            dstuser = request.form['dstuser']
+            content = request.form['content']
+            time = str(getTime())
+            try:
+                getdb = get_db() # Create an object to connect to the database
+                cursor = getdb.cursor() # Create a cursor to interact with the DB
+                cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatUUID,userID,dstuser,time,content))
+                getdb.commit()
+                getdb.close()
+                return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
+            except Exception as e:
+                print(e)
+                return redirect(url_for('chatPage', errmsg="Internal Error"))
+        else:
+            return render_template("newchat.html")
+        
+    @app.route("/dochatsearch", methods=['GET', 'POST'])
+    @login_required
+    def doChatSearch():
+        if request.method == "POST":
+            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
+            getdb = get_db()  # Create an object to connect to the database
+            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+            cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
+            result = cursor.fetchall()
+            getdb.close()
+            if result:
+                return render_template("search_result.html", act="chat", result=result, redosearch="dochatsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
+            else:
+                return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
+        else:
+            return render_template("search_result.html", errmsg="Invalid Request!")
 
     @app.route("/requests")
     @login_required

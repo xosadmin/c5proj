@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thread Detail - {{threadID}} - Community - Adventurer Guild</title>
+    <title>Chatroom - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -23,16 +23,16 @@
                 <li><a href="/requests">Request List</a></li>
                 <li><a href="/todo">To-do List</a></li>
                 <li><a href="/shop">Shop</a></li>
-                <li class="active"><a href="/community">Community</a></li>
+                <li><a href="/community">Community</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
-                <li><a href="/chat">Chatroom</a></li>
+                <li class="active"><a href="/chat">Chatroom</a></li>
                 <li><a href="/logout">Logout</a></li>
             </ul>
         </div>
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="pageBanner">{{threadName}}</h1>
+            <h1 id="pageBanner">Chat with {{dstUser}}</h1>
             <br>
             <div>
                 <table id="threadContents" class="table table-striped listcontents">
@@ -43,10 +43,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for resultitem in result %}
+                    {% for resultitem in results %}
                     <tr>
-                        <td><a href="/profile/{{resultitem[1]}}" title="View user info" target="_blank">{{ resultitem[1] }}</a></td>
                         <td>{{ resultitem[2] }}</td>
+                        <td>{{ resultitem[4] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -54,16 +54,16 @@
                 <br>
             </div>
             <div class="newthreadandrequest">
-                <form method="POST" action="/donewthreadreply">
+                <form method="POST" action="/dochatreply">
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
-                        <input type="hidden" id="threadID" name="threadID" value="{{threadID}}">
+                        <input type="hidden" id="chatID" name="chatID" value="{{chatID}}">
                         <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
                     </div>
                     <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
                   </form>
                   <br>
-                  <p><a href="/community" title="Back">Back to community</a></p>
+                  <p><a href="/chat" title="Back">Back to chatroom</a></p>
             </div>
       </div>
 </body>

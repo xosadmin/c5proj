@@ -3,6 +3,7 @@ import sqlite3
 import datetime as dt
 from sqlmodels import *
 import randomprofile as rp
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -91,6 +92,25 @@ def getUserInfo(userID, action):
         else:
             print("[ERROR] getUserInfo: Invalid action or Null Value!")
             return None
+        
+def getChatInfo(chatID, action):
+        print("[Info] getChatInfo: executing action " + action)
+        getdb = get_db()  # Create an object to connect to the database
+        cursor = getdb.cursor()  # Create a cursor to interact with the DB
+        if action == "srcuser":
+            cursor.execute("SELECT srcUserID FROM chats WHERE chatID=?", (chatID,))
+        elif action == "dstuser":
+            cursor.execute("SELECT dstUserID FROM chats WHERE chatID=?", (chatID,))
+        elif action == "time":
+            cursor.execute("SELECT time FROM chats WHERE chatID=?", (chatID,))
+        else:
+            return None
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            print("[ERROR] getChatInfo: Invalid action or Null Value!")
+            return None
 
 def verifyPinCode(id,pincode):
     print("[Info] verifyPinCode: receive user " + id + " with pin code " + pincode)
@@ -144,3 +164,9 @@ def getItemInfo(itemID, action):
         else:
             print("[ERROR] getItemInfo: Invalid action or Null Value!")
             return None
+
+def getTime():
+    currentTime = datetime.now()
+    composeTime = str(currentTime.year) + "-" + str(currentTime.month) + "-" + str(currentTime.day) + " on " + \
+                  str(currentTime.hour) + ":" + str(currentTime.minute) + ":" + str(currentTime.second)
+    return composeTime
