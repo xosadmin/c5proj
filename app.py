@@ -287,6 +287,34 @@ try:
         except Exception as e:
             print(f"An error occurred: " + str(e))
             return render_template('profile.html', errmsg="An internal error occurred")
+        
+    @app.route('/profile/<userid>')
+    @login_required
+    def profilePageOthersView(userid):
+        try:
+            infomsg = request.args.get('infomsg', '')
+            userID = userid
+            getdb = get_db()
+            cursor = getdb.cursor()
+            rcountry = rp.randomCountry()
+            rnickname = rp.randomNickname()
+            cursor.execute("SELECT * FROM users WHERE userID=?", (userID,)) # User Info
+            user_details = cursor.fetchall()
+            if user_details is None:
+                return "<script>alert('Cannot find this user');history.back();</script>"
+            avatar_id = str(getUserInfo(userID,"avatar"))
+            getdb.close()
+            return render_template('profile_other_user_view.html',
+                                userID = userID,
+                                user_details = user_details,
+                                rcountry = rcountry,
+                                rnickname = rnickname,
+                                nftid = avatar_id,
+                                infomsg = infomsg
+                                )
+        except Exception as e:
+            print(f"An error occurred: " + str(e))
+            return "<script>alert('Internal Error!');history.back();</script>"
 
     @app.route('/answerrequest/<requestid>')
     @login_required
