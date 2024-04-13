@@ -41,10 +41,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
             function validatePassword() {
                 const password = document.getElementById('password');
-                if (!password || password.value.trim().length === 0) {
+                if (password.value.trim().length === 0) {
                     alert('Password cannot be empty.');
                     isValid = false;
                 }
+            }
+            function validateNewPassword(){
+                const password = document.getElementById('newpassword');
+                if (newpassword.value.trim().length === 0) {
+                    alert('Password cannot be empty.');
+                    isValid = false;
+                }
+
             }
 
             validateEmail();
@@ -60,6 +68,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         isValid = false;
                     }
                 }
+            
+            
 
                 function validatePin() {
                     const pin = document.getElementById('pincode');
@@ -73,12 +83,36 @@ document.addEventListener("DOMContentLoaded", function() {
                 validatePin();
             }
 
+            if (form.action.includes('/domodifypassword')) {
+                function validateNewPasswordMatch() {
+                    const newpassword = document.getElementById('newpassword');
+                    const repeatnewpassword = document.getElementById('repeatnewpassword');
+                    if (newpassword.value !== repeatnewpassword.value) {
+                        alert('Passwords do not match.');
+                        isValid = false;
+                    }
+                }
+            
+            
+
+                function validateNewPin() {
+                    const newpin = document.getElementById('newpin');
+                    if (!newpin || newpin.value.trim().length === 0) {
+                        alert('PIN cannot be empty.');
+                        isValid = false;
+                    }
+                }
+
+                validateNewPasswordMatch();
+                validateNewPin();}
+
             if (!isValid) {
                 event.preventDefault();
             }
         });
     });
 });
+
 
 
 function confirmAcceptRequest(id) {
