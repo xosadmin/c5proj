@@ -277,6 +277,7 @@ try:
             avatar_id = str(getUserInfo(userID,"avatar"))
             getdb.close()
             return render_template('profile.html',
+                                userID = userID,
                                 user_details = user_details,
                                 nft_details = nft_details,
                                 rcountry = rcountry,
