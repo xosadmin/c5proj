@@ -16,64 +16,73 @@ function loadLLM(flag) {
     xhttp.open("GET", postfix);
     xhttp.send();
 } 
-    
+
 document.addEventListener("DOMContentLoaded", function() {
-    const form = document.querySelector('form');
-    form.addEventListener('doSubmit', function(event) {
-        let isValid = true;
-        function checkNotEmpty(inputId, message) {
-            const input = document.getElementById(inputId);
-            if (!input || input.value.trim().length === 0) {
-                alert(message);
-                isValid = false;
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+
+            function checkNotEmpty(inputId, message) {
+                const input = document.getElementById(inputId);
+                if (!input || input.value.trim().length === 0) {
+                    alert(message);
+                    isValid = false;
+                }
             }
-        }
-        
-        function validateEmail() {
-            const email = document.getElementById('email');
-            if (email && (email.value.length === 0 || !email.value.includes('@'))) {
-                alert('Please enter a valid email address.');
-                isValid = false;
+            
+            function validateEmail() {
+                const email = document.getElementById('email');
+                if (!email || email.value.length === 0 || !email.value.includes('@')) {
+                    alert('Please enter a valid email address.');
+                    isValid = false;
+                }
             }
-        }
 
-        function validatePasswordLength() {
-            const password = document.getElementById('password');
-            if (password && password.value.length < 8) {
-                alert('Password must be at least 8 characters long.');
-                isValid = false;
+            function validatePassword() {
+                const password = document.getElementById('password');
+                if (!password || password.value.trim().length === 0) {
+                    alert('Password cannot be empty.');
+                    isValid = false;
+                }
             }
-        }
 
-        function validatePasswordMatch() {
-            const password = document.getElementById('password');
-            const repeatPassword = document.getElementById('repeat-password');
-            if (password && repeatPassword && password.value !== repeatPassword.value) {
-                alert('Passwords do not match.');
-                isValid = false;
+            validateEmail();
+            validatePassword();
+
+            // Check if the form is the registration form
+            if (form.action.includes('/doregister')) {
+                function validatePasswordMatch() {
+                    const password = document.getElementById('password');
+                    const repeatPassword = document.getElementById('repeat-password');
+                    if (!password || !repeatPassword || password.value !== repeatPassword.value) {
+                        alert('Passwords do not match.');
+                        isValid = false;
+                    }
+                }
+
+                function validatePin() {
+                    const pin = document.getElementById('pincode');
+                    if (!pin || pin.value.trim().length === 0) {
+                        alert('PIN cannot be empty.');
+                        isValid = false;
+                    }
+                }
+
+                validatePasswordMatch();
+                validatePin();
             }
-        }
-       
-        validateEmail();
-        validatePasswordLength();
 
-        if (document.getElementById('repeat-password') !== null) {
-            validatePasswordMatch();
-        }
-
-        checkNotEmpty('content', 'Content cannot be empty.');
-        checkNotEmpty('title', 'Title cannot be empty.');
-        checkNotEmpty('rewards', 'Rewards cannot be empty.');
-        checkNotEmpty('timelimit', 'Time Limit cannot be empty.');
-
-        if (!isValid) {
-            event.preventDefault();
-        }
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
     });
 });
 
+
 function confirmAcceptRequest(id) {
-    var acceptUrl = "/doacceptrequest/" + id ;
+    var acceptUrl = "/doacceptrequest/" + id;
     window.location.href = acceptUrl;
 }
 
@@ -82,7 +91,7 @@ function denyAcceptRequest() {
 }
 
 function confirmPayment(id) {
-    var acceptUrl = "/dopayment/" + id ;
+    var acceptUrl = "/dopayment/" + id;
     window.location.href = acceptUrl;
 }
 
