@@ -32,6 +32,18 @@ try:
             return render_template('register.html', errormsg=errormsg)
         else:
             return render_template('register.html')
+        
+    @app.route("/forgetpassword")
+    def forgetPassword():
+        return render_template('forget_password.html')
+    
+    @app.route("/modifypassword")
+    @login_required
+    def modifyPassword():
+        userID = getSession("userid")
+        return render_template('modify_password.html',userID=userID)
+    
+    
 
     @app.route("/community", methods=["GET"])
     @login_required
@@ -175,12 +187,13 @@ try:
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
+            pincode = request.form['pincode']
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
                     getdb = get_db()  # Create an object to connect to the database
                     cursor = getdb.cursor()  # Create a cursor to interact with the DB
-                    cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email,password))
+                    cursor.execute("INSERT INTO users (email, password, pincode) VALUES (?, ?, ?)", (email,password,pincode))
                     getdb.commit()
                     getdb.close()
                     return render_template("register_complete.html")

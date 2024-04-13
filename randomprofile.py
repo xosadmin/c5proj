@@ -32,3 +32,6 @@ def generatePassword(length):
 
 def randomSessionKey(length):
     return secrets.token_hex(length)
+
+def randomPinCode(length):
+    return generatePassword(4)
