@@ -92,6 +92,22 @@ def getUserInfo(userID, action):
             print("[ERROR] getUserInfo: Invalid action or Null Value!")
             return None
 
+def verifyPinCode(id,pincode):
+    print("[Info] verifyPinCode: receive user " + id + " with pin code " + pincode)
+    getdb = get_db()  # Create an object to connect to the database
+    cursor = getdb.cursor()  # Create a cursor to interact with the DB
+    cursor.execute("SELECT pincode FROM users WHERE userID=?", (id,))
+    result = cursor.fetchone()
+    if result:
+        fetchedPinCode = result[0]
+        if str(pincode) == str(fetchedPinCode):
+            return 0
+        else:
+            return -1 # If pincode is incorrect
+    else:
+        print("[ERROR] verifyPinCode: bad userID or pin code")
+        return -1
+
 def setPassword(id,password):
         try:
             getdb = get_db()  # Create an object to connect to the database
