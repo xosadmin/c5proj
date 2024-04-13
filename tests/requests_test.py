@@ -10,13 +10,15 @@ class TestRequests(unittest.TestCase):
 
     def test_donewthreads_post_success(self):
        with self.app as client:
-            response = client.post('/donewthread', data={
-                'title': 'New Thread Title',
-                'content': 'This is the content of the new thread.'
+            response = client.post('/donewrequest', data={
+                'title': 'New request Title',
+                'content': 'Unit test for requests.',
+                'rewards': "1",
+                'timelimit': "1"
             })
            
             self.assertEqual(response.status_code, 302)  
-            self.assertTrue('communityPage' in response.location)  
+            self.assertTrue('donewrequest' in response.location)  
     
     def test_donewthreads_get_invalid(self):
         with self.app as client:

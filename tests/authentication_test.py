@@ -20,25 +20,27 @@ class TestAuth(unittest.TestCase):
         with self.app.test_request_context():
             email = "test@test.com"
             getReturn = self.gs.checkEmail(email)
-            self.assertEqual(getReturn, 0)
+            self.assertEqual(getReturn, -1)
 
     def test_register_post(self):
         response = self.client.post('/doregister', data={
-            'email': self.generatedEmail, 'password': self.generatedPassword
+            'email': self.generatedEmail, 
+            'password': self.generatedPassword,
+            'pincode': "1234"
         })
         self.assertEqual(response.status_code, 200)
 
     def test_dologin_success(self):
         response = self.client.post('/dologin', data={
-            'username': self.generatedEmail,
-            'password': self.generatedPassword
+            'email': "test@test.com",
+            'password': "123"
         })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/requests', response.headers['Location'])
+        self.assertIn('/profile', response.headers['Location'])
 
     def test_dologin_failure(self):
         response = self.client.post('/dologin', data={
-            'username': 'invalidUser@test.com',
+            'email': 'invalidUser@test.com',
             'password': 'wrongPassword'
         })
         self.assertEqual(response.status_code, 302)
