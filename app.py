@@ -42,6 +42,103 @@ try:
     def modifyPassword():
         userID = getSession("userid")
         return render_template('modify_password.html',userID=userID)
+
+    @app.route("/domodifypassword", methods=['GET','POST'])
+    def domodifypassword():
+        if request.method == "POST":
+            userID = getSession("userid")
+            new_password = request.form['newpassword']
+            repeat_new_password = request.form['repeatnewpassword']
+            pincode = request.form['pincode']
+
+            # Check if the new passwords match
+            if new_password != repeat_new_password:
+                return redirect(url_for('modifyPassword', errormsg="New passwords do not match."))
+
+            # Verify the pincode
+            if verifyPinCode(userID, pincode) != 0:
+                return redirect(url_for('modifyPassword', errormsg="Invalid PIN code."))
+
+            # Update the password in the database
+            try:
+                setPassword(userID, new_password)
+                return redirect(url_for('profile', infomsg="Password successfully updated."))
+            except Exception as e:
+                return redirect(url_for('modifyPassword', errormsg="Failed to update password. Please try again."))
+
+        
+    @app.route("/domodifypin", methods=['POST'])
+    def domodifypin():
+        if request.method == "POST":
+            userID = getSession("userid")
+            old_pin = request.form['oldpin']
+            new_pin = request.form['newpin']
+            repeat_new_pin = request.form['repeatnewpin']
+
+            # Verify the old PIN
+            if verifyPinCode(userID, old_pin) != 0:
+                return redirect(url_for('modifyPin', errormsg="Incorrect old PIN."))
+
+            # Check if the new PINs match
+            if new_pin != repeat_new_pin:
+                return redirect(url_for('modifyPin', errormsg="New PINs do not match."))
+            
+            try:
+                setPinCode(userID, new_pin)
+                return redirect(url_for('profile', errormsg="pin set successfully."))
+                
+            except Exception as e:
+        
+                return redirect(url_for('profile', errormsg=str(e)))
+
+        
+
+
+            
+        
+    @app.route("/doresetpassword", methods=['GET','POST'])
+    
+    def doresetpassword():
+        if request.method == "POST":
+            email = request.form['email']
+            pincode = request.form['pincode']
+            defaultPassword = "123"  
+            user_id = checkEmail(email)
+            if user_id == -1:  
+                getdb = get_db()
+                cursor = getdb.cursor()
+                cursor.execute("SELECT userID FROM users WHERE email=?", (email,))
+                user_id = cursor.fetchone()[0]
+                pin_verify_result = verifyPinCode(str(user_id), pincode)
+                if pin_verify_result == 0:
+                    try:
+                    
+                        setPassword(user_id, defaultPassword)
+                        getdb.commit()
+                        getdb.close()
+                        return "<script>alert('Your password has been reset to default: 123.');window.location.href='/login';</script>"
+                    except Exception as e:
+                        getdb.rollback()
+                        getdb.close()
+                        print(f"Error resetting password to default '123': {str(e)}")
+                        return redirect(url_for('forgetPassword', errormsg="Failed to reset password. Please contact support."))
+                else:
+                    getdb.close()
+                    return redirect(url_for('forgetPassword', errormsg="Incorrect PIN."))
+            else:
+                return redirect(url_for('forgetPassword', errormsg="Email not found."))
+
+   
+            
+        
+
+        
+
+        
+
+
+
+
     
     
 

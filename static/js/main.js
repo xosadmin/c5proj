@@ -30,10 +30,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     isValid = false;
                 }
             }
-            
+    
             function validateEmail() {
                 const email = document.getElementById('email');
-                if (!email || email.value.length === 0 || !email.value.includes('@')) {
+                if (email.value.length === 0 || !email.value.includes('@')) {
                     alert('Please enter a valid email address.');
                     isValid = false;
                 }
@@ -41,10 +41,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
             function validatePassword() {
                 const password = document.getElementById('password');
-                if (!password || password.value.trim().length === 0) {
+                if (password.value.trim().length === 0) {
                     alert('Password cannot be empty.');
                     isValid = false;
                 }
+            }
+            function validateNewPassword(){
+                const password = document.getElementById('newpassword');
+                if (newpassword.value.trim().length === 0) {
+                    alert('Password cannot be empty.');
+                    isValid = false;
+                }
+
             }
 
             validateEmail();
@@ -55,11 +63,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 function validatePasswordMatch() {
                     const password = document.getElementById('password');
                     const repeatPassword = document.getElementById('repeat-password');
-                    if (!password || !repeatPassword || password.value !== repeatPassword.value) {
+                    if (password.value !== repeatPassword.value) {
                         alert('Passwords do not match.');
                         isValid = false;
                     }
                 }
+            
+            
 
                 function validatePin() {
                     const pin = document.getElementById('pincode');
@@ -72,6 +82,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 validatePasswordMatch();
                 validatePin();
             }
+
+            if (form.action.includes('/domodifypassword')) {
+                function validateNewPasswordMatch() {
+                    const newpassword = document.getElementById('newpassword');
+                    const repeatnewpassword = document.getElementById('repeatnewpassword');
+                    if (newpassword.value !== repeatnewpassword.value) {
+                        alert('Passwords do not match.');
+                        isValid = false;
+                    }
+                }
+            
+            
+
+                function validateNewPin() {
+                    const newpin = document.getElementById('newpin');
+                    if (!newpin || newpin.value.trim().length === 0) {
+                        alert('PIN cannot be empty.');
+                        isValid = false;
+                    }
+                }
+
+                validateNewPasswordMatch();
+                validateNewPin();}
 
             if (!isValid) {
                 event.preventDefault();
