@@ -3,20 +3,30 @@ document.addEventListener("DOMContentLoaded", function() {
     forms.forEach(form => {
         form.addEventListener('submit', function(event) {
             console.log("Received form.");
-            newpassword = document.getElementById("newpassword").value;
-            repeatnewpassword = document.getElementById("repeatnewpassword").value;
-            if (newpassword === "" && repeatnewpassword === "") {
-                newpassword = document.getElementById("newpin").value;
+            let newpassword,repeatnewpassword,pincode;
+
+            const newPasswordElem = document.getElementById("newpassword");
+            if (newPasswordElem){ //Modify password page
+                newpassword = newPasswordElem.value;
+                repeatnewpassword = document.getElementById("repeatnewpassword").value;
+                pincode = "0"; // Disable pincode check by Javascript
+            }
+
+            const newPinElem = document.getElementById("newpin")
+            if (newPinElem) { //Modify pin page
+                newpassword = newPinElem.value;
                 repeatnewpassword = document.getElementById("repeatnewpin").value;
                 pincode = document.getElementById("pincode").value;
                 if (pincode.length < 4) {
-                    console.error("PIN code cannot less than 4 letters");
-                    alert("PIN code cannot less than 4 letters");
+                    console.error("PIN code cannot be less than 4 letters");
+                    alert("PIN code cannot be less than 4 letters");
                     event.preventDefault();
+                    return;
                 }
             }
-            if (password !== repeatpassword) {
+            if (newpassword !== repeatnewpassword) {
                 console.error("Password mismatch!");
+                alert("PIN/Password Mismatch!");
                 event.preventDefault();
             }
         });

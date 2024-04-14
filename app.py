@@ -79,13 +79,13 @@ try:
             new_pin = request.form['newpin']
             # Verify the old PIN
             if verifyPinCode(userID, old_pin) != 0:
-                return "<script>alert('Your old pin code is incorrect!');history.back();</script>"
+                return redirect(url_for('modifyPin', infomsg="Your old pin is incorrect!"))
             try:
                 setPinCode(userID, new_pin)
-                return "<script>alert('Your new pin code has been set.');window.location.href='/profile';</script>"
+                return redirect(url_for('modifyPin', infomsg="PIN code successfully updated."))
             except Exception as e:
                 print(str(e))
-                return redirect(url_for('profilePage'), errormsg="Internal Error!")
+                return redirect(url_for('modifyPin', infomsg="Failed to update PIN Code. Please try again."))
         
     @app.route("/doresetpassword", methods=['GET','POST'])
     def doresetpassword():
