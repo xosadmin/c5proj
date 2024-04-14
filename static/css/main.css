@@ -92,6 +92,10 @@ a {
     font-size: 25pt;
 }
 
+#pswd, #pincode {
+    display: none;
+}
+
 #searchBar {
     margin-left: auto;
     margin-right: auto;

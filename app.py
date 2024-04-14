@@ -438,6 +438,7 @@ try:
             cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
+            pincode = getUserInfo(userID,"pincode")
             cursor.execute("SELECT * FROM users WHERE userID=?", (userID,)) # User Info
             user_details = cursor.fetchall()
             if user_details is None:
@@ -453,6 +454,7 @@ try:
                                 rcountry = rcountry,
                                 rnickname = rnickname,
                                 nftid = avatar_id,
+                                pincode = pincode,
                                 infomsg = infomsg
                                 )
         except Exception as e:

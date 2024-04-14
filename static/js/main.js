@@ -17,6 +17,20 @@ function loadLLM(flag) {
     xhttp.send();
 }
 
+$(document).ready(function(){
+    var showpinExpand = false;
+    $('#showpin').click(function(){
+        if (showpinExpand === false){
+            $('#pincode').show();
+            showpinExpand = true;
+        }
+        else {
+            $('#pincode').hide();
+            showpinExpand = false;
+        }
+    });
+});
+
 function confirmAcceptRequest(id) {
     var acceptUrl = "/doacceptrequest/" + id;
     window.location.href = acceptUrl;

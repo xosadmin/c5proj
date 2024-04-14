@@ -82,6 +82,8 @@ def getUserInfo(userID, action):
              cursor.execute("SELECT userID FROM users WHERE email=?", (userID,)) # Pass email to here
         elif action == "email":
             cursor.execute("SELECT email FROM users WHERE userID=?", (userID,))
+        elif action == "pincode":
+            cursor.execute("SELECT pincode FROM users WHERE userID=?", (userID,))
         elif action == "coins":
             cursor.execute("SELECT coins FROM users WHERE userID=?", (userID,))
         elif action == "avatar":

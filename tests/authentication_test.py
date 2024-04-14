@@ -15,7 +15,7 @@ class TestAuth(unittest.TestCase):
         self.client = self.app.test_client()
         self.generatedEmail = str(rp.randomEmail())
         self.generatedPassword = str(rp.generatePassword(10))
-        self.generatedPincode = "1234"
+        self.generatedPincode = str(rp.randomPinCode())
 
     def test_email_exists(self):
         with self.app.test_request_context():
