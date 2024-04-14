@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <script src="{{url_for('static',filename='js/resetstuff.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
@@ -34,10 +35,10 @@
             {% if infomsg %}
               <div class="alert alert-danger">{{ infomsg }}</div>
             {% endif %}
-            <h1 id="homepageBanner">Modify Password</h1>
+            <h1 id="homepageBanner">Modify PIN</h1>
             <div class="loginandsignup">
-                <p>Input your details to modify your password.</p>
-                <form method="POST" action="/domodifypin">
+                <p>Input your details to modify your PIN.</p>
+                <form method="POST" action="/domodifypin" id="modifyPin">
                     <div class="form-group fillForms">
                       <label for="oldpin">Old Pin Code</label>
                       <input type="password" class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" required>
@@ -45,6 +46,7 @@
                     <div class="form-group fillForms">
                       <label for="newpin">New Pin Code</label>
                       <input type="password" class="form-control" id="newpin" name="newpin" placeholder="New Pin" required>
+                      <p>Please note that pin code cannot less than <b>4 letters</b></p>
                     </div>
                     <div class="form-group fillForms">
                         <input type="hidden" id="userID" name="userID" value="{{userID}}">

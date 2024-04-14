@@ -2,10 +2,6 @@ a {
     text-decoration: none;
 }
 
-body {
-    background-image: url({{url_for('static', filename='img/background.jpg')}});
-}
-
 /* Global Settings end */
 
 .listcontents {

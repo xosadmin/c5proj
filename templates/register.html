@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <script src="{{url_for('static',filename='js/register.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
@@ -32,7 +33,7 @@
             {% endif %}
             <h1 id="homepageBanner">Become an user!</h1>
             <div class="loginandsignup">
-                <form method="POST" action="/doregister">
+                <form method="POST" action="/doregister" id="registerForm">
                     <div class="form-group fillForms">
                       <label for="email">Email address</label>
                       <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Email Address" required>
@@ -48,7 +49,8 @@
                     <div class="form-group fillForms">
                         <label for="pincode">PIN Code</label>
                         <input type="password" class="form-control" id="pincode" name="pincode" placeholder="PIN code" required>
-                        <p>The pin code is used for reset or modify your password. Please keep it safe.</p>
+                        <p>The pin code is used for reset or modify your password. Please <b>keep it safe.</b></p>
+                        <p>Note: The PIN code cannot less than <b>4 letters.</b></p>
                       </div>
                     <button type="submit" id="doSubmit" class="btn btn-primary actButtons">Register</button>
                   </form>
