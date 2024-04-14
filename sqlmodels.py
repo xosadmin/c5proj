@@ -1,55 +1,87 @@
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
-db = SQLAlchemy()
+Base = declarative_base()
 
-class User(db.Model):
+class User(Base):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    coins = db.Column(db.Integer, default=10)
+    id = Column(Integer, primary_key=True)
+    email = Column(String(120), nullable=False)
+    password = Column(String(120), nullable=False)
+    coins = Column(Integer, nullable=False, default=10)
+    avatar = Column(Text, nullable=False, default="default")
+    pincode = Column(Text, nullable=False, default="123")
 
     def __repr__(self):
         return '<User %r>' % self.email
 
-class Thread(db.Model):
+class Community(Base):
     __tablename__ = 'community'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    userid = db.Column(db.Integer, db.ForeignKey('users.userID'))
+    id = Column(Text, primary_key=True)
+    title = Column(String(120), nullable=False)
+    userID = Column(Integer, ForeignKey('users.id'))
 
     def __repr__(self):
-        return '<Thread %r>' % self.title
+        return '<Community %r>' % self.title
 
-class Request(db.Model):
+class Thread(Base):
+    __tablename__ = 'threads'
+    id = Column(Text, primary_key=True)
+    userID = Column(Integer, ForeignKey('users.id'))
+    contents = Column(Text, nullable=False, default="No Content")
+
+    def __repr__(self):
+        return '<Thread %r>' % self.id
+
+class Request(Base):
     __tablename__ = 'requests'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    rewards = db.Column(db.String(120))
-    timelimit = db.Column(db.String(120))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(120), nullable=False)
+    content = Column(Text, nullable=False)
+    rewards = Column(String(120))
+    timelimit = Column(String(120))
+    userID = Column(Integer, ForeignKey('users.id'))
+    status = Column(Text, nullable=False, default="Available")
+    answer = Column(Text)
 
     def __repr__(self):
         return '<Request %r>' % self.title
 
-class Shop(db.Model):
+class Shop(Base):
     __tablename__ = 'shop'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    detail = db.Column(db.Text, nullable=False)
-    price = db.Column(db.Integer, default=0)
+    id = Column(Integer, primary_key=True)
+    detail = Column(Text, nullable=False)
+    price = Column(Integer, default=0)
 
     def __repr__(self):
-        return '<Shop %r>' % self.name
+        return '<Shop %r>' % self.id
 
-class Todo(db.Model):
+class Transaction(Base):
+    __tablename__ = 'transactions'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    userID = Column(Integer, ForeignKey('users.id'))
+    itemID = Column(Integer, ForeignKey('shop.id'))
+
+    def __repr__(self):
+        return '<Transaction %r>' % self.id
+
+class Todo(Base):
     __tablename__ = 'todo'
-    id = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('users.userID'))
-    requireID = db.Column(db.Integer, db.ForeignKey('requests.requestID'))
-    Status = db.Column(db.Text, default="Undo")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    userID = Column(Integer, ForeignKey('users.id'))
+    requireID = Column(Integer, ForeignKey('requests.id'))
+    status = Column(Text, default="Undo")
 
     def __repr__(self):
-        return '<Todo %r>' % self.requireID
+        return '<Todo %r>' % self.id
+    
+class Chats(Base):
+    __tablename__ = 'chats'
+    chatID = Column(Text, primary_key=True)
+    srcUserID = Column(Integer, ForeignKey('users.id'))
+    dstUserID = Column(Integer, ForeignKey('users.id'))
+    content = Column(Text, nullable=False, default="No Content")
+
+    def __repr__(self):
+        return '<Chats %r>' % self.chatID
