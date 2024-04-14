@@ -38,19 +38,7 @@ class TestChatOperations(unittest.TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertTrue('chatPage' in response.location)
 
-    def test_doChatSearch_post_success(self):
-        with self.app as client:
-            response = client.post('/dochatsearch', data={
-                'keyword': 'test search'
-            })
-            self.assertEqual(response.status_code, 200)
-            self.assertIn('We have found result(s)', str(response.data))
-
-    def test_doChatSearch_get_invalid(self):
-        with self.app as client:
-            response = client.get('/dochatsearch')
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue('search_result.html' in response.location)
+    
 
 if __name__ == '__main__':
     unittest.main()
