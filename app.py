@@ -33,113 +33,79 @@ try:
         else:
             return render_template('register.html')
         
-    @app.route("/forgetpassword")
+    @app.route("/forgetpassword", methods=["GET"])
     def forgetPassword():
-        return render_template('forget_password.html')
+        errormsg = request.args.get("infomsg")
+        return render_template('forget_password.html',errormsg=errormsg)
     
     @app.route("/modifypassword")
     @login_required
     def modifyPassword():
+        infomsg = request.args.get("infomsg","")
         userID = getSession("userid")
-        return render_template('modify_password.html',userID=userID)
+        return render_template('modify_password.html',userID=userID,infomsg=infomsg)
+    
+    @app.route("/modifypin")
+    @login_required
+    def modifyPin():
+        infomsg = request.args.get("infomsg","")
+        userID = getSession("userid")
+        return render_template('modify_pin.html',userID=userID,infomsg=infomsg)
     
     @app.route("/domodifypassword", methods=['GET','POST'])
+    @login_required
     def domodifypassword():
         if request.method == "POST":
             userID = getSession("userid")
             new_password = request.form['newpassword']
-            repeat_new_password = request.form['repeatnewpassword']
             pincode = request.form['pincode']
-
-            # Check if the new passwords match
-            if new_password != repeat_new_password:
-                return redirect(url_for('modifyPassword', errormsg="New passwords do not match."))
-
             # Verify the pincode
             if verifyPinCode(userID, pincode) != 0:
-                return redirect(url_for('modifyPassword', errormsg="Invalid PIN code."))
-
+                return redirect(url_for('modifyPassword', infomsg="Invalid PIN Code."))
             # Update the password in the database
             try:
                 setPassword(userID, new_password)
-                return redirect(url_for('profile', infomsg="Password successfully updated."))
+                return redirect(url_for('profilePage', infomsg="Password successfully updated."))
             except Exception as e:
-                return redirect(url_for('modifyPassword', errormsg="Failed to update password. Please try again."))
+                print("Details:" + str(e))
+                return redirect(url_for('modifyPassword', infomsg="Failed to update password. Please try again."))
 
-        
     @app.route("/domodifypin", methods=['POST'])
+    @login_required
     def domodifypin():
         if request.method == "POST":
             userID = getSession("userid")
             old_pin = request.form['oldpin']
             new_pin = request.form['newpin']
-            repeat_new_pin = request.form['repeatnewpin']
-
             # Verify the old PIN
             if verifyPinCode(userID, old_pin) != 0:
-                return redirect(url_for('modifyPin', errormsg="Incorrect old PIN."))
-
-            # Check if the new PINs match
-            if new_pin != repeat_new_pin:
-                return redirect(url_for('modifyPin', errormsg="New PINs do not match."))
-            
+                return "<script>alert('Your old pin code is incorrect!');history.back();</script>"
             try:
                 setPinCode(userID, new_pin)
-                return redirect(url_for('profile', errormsg="pin set successfully."))
-                
+                return "<script>alert('Your new pin code has been set.');window.location.href='/profile';</script>"
             except Exception as e:
-        
-                return redirect(url_for('profile', errormsg=str(e)))
-
-        
-
-
-            
+                print(str(e))
+                return redirect(url_for('profilePage'), errormsg="Internal Error!")
         
     @app.route("/doresetpassword", methods=['GET','POST'])
-    
     def doresetpassword():
         if request.method == "POST":
             email = request.form['email']
             pincode = request.form['pincode']
-            defaultPassword = "123"  
-            user_id = checkEmail(email)
-            if user_id == -1:  
-                getdb = get_db()
-                cursor = getdb.cursor()
-                cursor.execute("SELECT userID FROM users WHERE email=?", (email,))
-                user_id = cursor.fetchone()[0]
-                pin_verify_result = verifyPinCode(str(user_id), pincode)
+            user_id = getUserInfo(email,"userID")
+            if user_id is not None:
+                pin_verify_result = verifyPinCode(user_id, pincode)
                 if pin_verify_result == 0:
                     try:
-                    
-                        setPassword(user_id, defaultPassword)
-                        getdb.commit()
-                        getdb.close()
-                        return "<script>alert('Your password has been reset to default: 123.');window.location.href='/login';</script>"
+                        setPassword(user_id, "123")
+                        return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                     except Exception as e:
-                        getdb.rollback()
-                        getdb.close()
-                        print(f"Error resetting password to default '123': {str(e)}")
-                        return redirect(url_for('forgetPassword', errormsg="Failed to reset password. Please contact support."))
+                        print(f"Error resetting password: {str(e)}")
+                        return redirect(url_for('forgetPassword', infomsg="Failed to reset password. Please contact support."))
                 else:
-                    getdb.close()
-                    return redirect(url_for('forgetPassword', errormsg="Incorrect PIN."))
+                    return redirect(url_for('forgetPassword', infomsg="Incorrect PIN."))
             else:
-                return redirect(url_for('forgetPassword', errormsg="Email not found."))
-
-   
-            
-        
-
-        
-
-        
-
-
-
-
-    
+                return redirect(url_for('forgetPassword', infomsg="User not found."))
 
     @app.route("/community", methods=["GET"])
     @login_required
@@ -704,6 +670,10 @@ try:
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
     
+    @app.route("/robots.txt")
+    def robots():
+        return render_template("robots.txt")
+
     @app.route("/api/llmrequest")
     def llmreq():
         return llm.llmRequests()

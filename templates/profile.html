@@ -64,10 +64,18 @@
             <div>
                 <h3>Account Actions</h3>
                 <div>
-                    <ul class="list-group list-group-horizontal">
-                        <li class="list-group-item"><a href="/modifypassword" title="Modify password">Modify Password</a></li>
-                        <li class="list-group-item"><a href="/modifypin" title="Modify PIN number">Modify Pin Number</a></li>
-                    </ul>
+                    <table class="table table-striped listcontents">
+                        <tbody>
+                            <tr>
+                                <th scope="col">Password</th>
+                                <th scope="col">Pin code</th>
+                            </tr>
+                            <tr>
+                                <td><button type="button" id="showpswd" class="btn btn-success">Show Password</button><div id="pswd"></div><a href="/modifypassword" title="Modify Password">Modify Password</a></td>
+                                <td><button type="button" id="showpin" class="btn btn-success">Show Pin Code</button><div id="pincode"></div><a href="/modifypin" title="Modify Password">Modify Pin Code</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <h3>My NFT Items</h3>

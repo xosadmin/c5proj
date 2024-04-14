@@ -78,7 +78,9 @@ def getUserInfo(userID, action):
         print("[Info] getUserInfo: executing action " + action)
         getdb = get_db()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        if action == "email":
+        if action == "userid":
+             cursor.execute("SELECT userID FROM users WHERE email=?", (userID,)) # Pass email to here
+        elif action == "email":
             cursor.execute("SELECT email FROM users WHERE userID=?", (userID,))
         elif action == "coins":
             cursor.execute("SELECT coins FROM users WHERE userID=?", (userID,))

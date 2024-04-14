@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify Password - Adventurer Guild</title>
+    <title>Modify PIN Code - Adventurer Guild</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -37,21 +37,21 @@
             <h1 id="homepageBanner">Modify Password</h1>
             <div class="loginandsignup">
                 <p>Input your details to modify your password.</p>
-                <form method="POST" action="/domodifypassword">
+                <form method="POST" action="/domodifypin">
                     <div class="form-group fillForms">
-                      <label for="newpassword">New Password</label>
-                      <input type="password" class="form-control" id="newpassword" name="newpassword" placeholder="New Password" required>
+                      <label for="oldpin">Old Pin Code</label>
+                      <input type="password" class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" required>
                     </div>
                     <div class="form-group fillForms">
-                      <label for="repeatnewpassword">Repeat New Password</label>
-                      <input type="password" class="form-control" id="repeatnewpassword" name="repeatnewpassword" placeholder="Repeat New Password" required>
+                      <label for="newpin">New Pin Code</label>
+                      <input type="password" class="form-control" id="newpin" name="newpin" placeholder="New Pin" required>
                     </div>
                     <div class="form-group fillForms">
                         <input type="hidden" id="userID" name="userID" value="{{userID}}">
-                        <label for="pincode">PIN Code</label>
-                        <input type="password" class="form-control" id="pincode" name="pincode" placeholder="Pin Code" required>
+                        <label for="repeatnewpin">Repeat New Pin Code</label>
+                        <input type="password" class="form-control" id="repeatnewpin" name="repeatnewpin" placeholder="Repeat Pin Code" required>
                     </div>
-                    <button type="submit" id="doSubmit" class="btn btn-primary actButtons">Change Password</button>
+                    <button type="submit" id="doSubmit" class="btn btn-primary actButtons">Change Pin Code</button>
                   </form>
                   <br>
                   <p><a href="/profile" title="Cancel request">Cancel Modify Request</a></p>
