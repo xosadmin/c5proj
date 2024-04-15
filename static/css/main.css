@@ -63,6 +63,11 @@ a {
     margin-right: auto;
 }
 
+#footnote {
+    text-align: center;
+    font-size: 14pt;
+}
+
 #mainContent {
     margin-left: auto;
     margin-right: auto;
@@ -92,11 +97,12 @@ a {
     font-size: 25pt;
 }
 
-#pswd, #pincode {
+#pincode {
     display: none;
 }
 
 #searchBar {
+    font-weight: bold;
     margin-left: auto;
     margin-right: auto;
     width: 50%;

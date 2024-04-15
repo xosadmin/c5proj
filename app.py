@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
 app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
 app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
-db.init_app(app)
+#db.init_app(app)
 
 try:
     @app.route("/")
