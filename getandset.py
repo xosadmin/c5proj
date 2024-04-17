@@ -1,173 +1,130 @@
 from flask import *
-import sqlite3
-import datetime as dt
+from sqlalchemy import *
 from sqlmodels import *
 import randomprofile as rp
 from datetime import datetime
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
-DATABASE = 'database/main.db'
-
-def get_db():
-    dbconnect = getattr(g, '_database', None)
-    if dbconnect is None:
-        dbconnect = g._database = sqlite3.connect(DATABASE)
-    return dbconnect
+def getdb():
+    with engine.begin() as conn:
+        with SQLSession(conn) as session:
+            yield session
 
 def checkEmail(email):
-    getdb = get_db()
-    cursor = getdb.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=?",(email,))
-    result = cursor.fetchone()
-    if result is not None: # If email is exists in the system
-        return -1
-    else:
-        return 0
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.email == email)).first()
+        if user:
+            return -1  # If email exists in the system
+        else:
+            return 0
 
 def getThreadTitle(id):
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT title FROM community WHERE threadID=?",(id,))
-        result = cursor.fetchone()
-        return result[0] # Remove ('')
+    with getdb() as db:
+        community = db.exec(select(Community).filter(Community.id == id)).first()
+        if community:
+            return community.title
+        else:
+            return None
 
 def getCoins(id):
-        try:
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT coins FROM users WHERE userID=?",(id,))
-            result = cursor.fetchone()
-            return result[0] # Remove ('')
-        except Exception as e:
-            print("[ERROR] getCoins: " + str(e))
-            return -1
-    
-def setCoins(id,amount,act):
-        try:
-            currentCoins = getCoins(id)
-            if act == "plus":
-                newCoinAmount = int(currentCoins) + int(amount)
-            elif act == "minus":
-                newCoinAmount = int(currentCoins) - int(amount)
-            else:
-                newCoinAmount = int(currentCoins) # Unknown action
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("UPDATE users SET coins=? WHERE userID=?",(newCoinAmount,id))
-            getdb.commit()
-        except Exception as e:
-            print("[ERROR] setCoins: " + str(e))
-        
-def getRequestInfo(requestID,action):
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        if action == "userID":
-            cursor.execute("SELECT userID FROM requests WHERE requestID=?",(requestID,))
-        elif action == "state":
-            cursor.execute("SELECT status FROM requests WHERE requestID=?",(requestID,))
-        elif action == "rewards":
-            cursor.execute("SELECT rewards FROM requests WHERE requestID=?",(requestID,))
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == id)).first()
+        if user:
+            return user.coins
         else:
-            print("[ERROR] getRequestInfo: Invalid action!")
             return -1
-        result = cursor.fetchone()
-        return result[0]
+
+def setCoins(id, amount, act):
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == id)).first()
+        if user:
+            if act == "plus":
+                user.coins += amount
+            elif act == "minus":
+                user.coins -= amount
+            db.add(user)
+            db.commit()
+
+def getRequestInfo(requestID, action):
+    with getdb() as db:
+        request_ = db.exec(select(Request).filter(Request.id == requestID)).first()
+        if request_:
+            if action == "userID":
+                return str(request_.userID)
+            elif action == "state":
+                return request_.status
+            elif action == "rewards":
+                return request_.rewards
+        return None
 
 def getUserInfo(userID, action):
-        print("[Info] getUserInfo: executing action " + action)
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        if action == "userid":
-             cursor.execute("SELECT userID FROM users WHERE email=?", (userID,)) # Pass email to here
-        elif action == "email":
-            cursor.execute("SELECT email FROM users WHERE userID=?", (userID,))
-        elif action == "pincode":
-            cursor.execute("SELECT pincode FROM users WHERE userID=?", (userID,))
-        elif action == "coins":
-            cursor.execute("SELECT coins FROM users WHERE userID=?", (userID,))
-        elif action == "avatar":
-            cursor.execute("SELECT avatar FROM users WHERE userID=?", (userID,))
-        else:
-            return None
-        result = cursor.fetchone()
-        if result:
-            return result[0]
-        else:
-            print("[ERROR] getUserInfo: Invalid action or Null Value!")
-            return None
-        
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == userID)).first()
+        if user:
+            if action == "userid":
+                return str(user.id)
+            elif action == "email":
+                return user.email
+            elif action == "pincode":
+                return user.pincode
+            elif action == "coins":
+                return str(user.coins)
+            elif action == "avatar":
+                return user.avatar
+        return None
+
 def getChatInfo(chatID, action):
-        print("[Info] getChatInfo: executing action " + action)
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        if action == "srcuser":
-            cursor.execute("SELECT srcUserID FROM chats WHERE chatID=?", (chatID,))
-        elif action == "dstuser":
-            cursor.execute("SELECT dstUserID FROM chats WHERE chatID=?", (chatID,))
-        elif action == "time":
-            cursor.execute("SELECT time FROM chats WHERE chatID=?", (chatID,))
-        else:
-            return None
-        result = cursor.fetchone()
-        if result:
-            return result[0]
-        else:
-            print("[ERROR] getChatInfo: Invalid action or Null Value!")
-            return None
+    with getdb() as db:
+        chat = db.exec(select(Chats).filter(Chats.chatID == chatID)).first()
+        if chat:
+            if action == "srcuser":
+                return str(chat.srcUserID)
+            elif action == "dstuser":
+                return str(chat.dstUserID)
+            elif action == "time":
+                return str(chat.time)
+        return None
 
-def verifyPinCode(id,pincode):
-    print("[Info] verifyPinCode: receive user " + id + " with pin code " + pincode)
-    getdb = get_db()  # Create an object to connect to the database
-    cursor = getdb.cursor()  # Create a cursor to interact with the DB
-    cursor.execute("SELECT pincode FROM users WHERE userID=?", (id,))
-    result = cursor.fetchone()
-    if result:
-        fetchedPinCode = result[0]
-        if str(pincode) == str(fetchedPinCode):
-            return 0
-        else:
-            return -1 # If pincode is incorrect
-    else:
-        print("[ERROR] verifyPinCode: bad userID or pin code")
-        return -1
+def verifyPinCode(id, pincode):
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == id)).first()
+        if user:
+            if user.pincode == pincode:
+                return 0
+            else:
+                return -1
+    return -1
 
-def setPassword(id,password):
-        try:
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("UPDATE users SET password=? WHERE userID=?",(password,id))
-            getdb.commit()
-        except Exception as e:
-            print("[ERROR] setPassword: " + str(e))
+def setPassword(id, password):
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == id)).first()
+        if user:
+            user.password = password
+            db.add(user)
+            db.commit()
 
-def setPinCode(id,pincode):
-        try:
-            getdb = get_db()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("UPDATE users SET pincode=? WHERE userID=?",(pincode,id))
-            getdb.commit()
-        except Exception as e:
-            print("[ERROR] setPinCode: " + str(e))
+def setPinCode(id, pincode):
+    with getdb() as db:
+        user = db.exec(select(User).filter(User.id == id)).first()
+        if user:
+            user.pincode = pincode
+            db.add(user)
+            db.commit()
 
 def getItemInfo(itemID, action):
-        print("[Info] getItemInfo: executing action " + action)
-        getdb = get_db()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        if action == "name":
-            cursor.execute("SELECT itemName FROM shop WHERE itemID=?", (itemID,))
-        elif action == "detail":
-            cursor.execute("SELECT itemDetail FROM shop WHERE itemID=?", (itemID,))
-        elif action == "price":
-            cursor.execute("SELECT price FROM shop WHERE itemID=?", (itemID,))
-        else:
-            return None
-        result = cursor.fetchone()
-        if result:
-            return result[0]
-        else:
-            print("[ERROR] getItemInfo: Invalid action or Null Value!")
-            return None
+    with getdb() as db:
+        shop = db.exec(select(Shop).filter(Shop.id == itemID)).first()
+        if shop:
+            if action == "name":
+                return shop.itemName
+            elif action == "detail":
+                return shop.itemDetail
+            elif action == "price":
+                return str(shop.price)
+        return None
 
 def getTime():
     currentTime = datetime.now()

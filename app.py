@@ -1,5 +1,7 @@
 from flask import *
 import llm
+from sqlalchemy import *
+from sqlalchemy.orm import sessionmaker
 from sqlmodels import *
 from getandset import *
 from login_process import *
@@ -11,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
 app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
 app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#db.init_app(app)
+db.init_app(app)
 
 try:
     @app.route("/")
@@ -112,7 +114,7 @@ try:
     @login_required
     def communityPage():
         try:
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM community")
             result = cursor.fetchall()
@@ -128,7 +130,7 @@ try:
         lastid = -1
         userID = getSession("userid")
         infomsg = request.args.get("infomsg","")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT DISTINCT * FROM chats WHERE dstUserID=? OR srcUserID=?",(userID,userID)) # Avoid from repeat result
         result = cursor.fetchall()
@@ -142,7 +144,7 @@ try:
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM chats WHERE chatID=?",(chatid,))
         result = cursor.fetchall()
@@ -162,7 +164,7 @@ try:
             dstuser = getChatInfo(chatID,"srcuser")
             time = str(getTime())
             try:
-                getdb = get_db() # Create an object to connect to the database
+                getdb = getdb() # Create an object to connect to the database
                 cursor = getdb.cursor() # Create a cursor to interact with the DB
                 cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatID,userID,dstuser,time,content))
                 # When send reply, source user will become destination user
@@ -182,7 +184,7 @@ try:
         dstuser = getChatInfo(chatid,"dstuser")
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("DELETE FROM chats WHERE chatID=?", (chatid,))
             getdb.commit()
@@ -201,7 +203,7 @@ try:
             content = request.form['content']
             time = str(getTime())
             try:
-                getdb = get_db() # Create an object to connect to the database
+                getdb = getdb() # Create an object to connect to the database
                 cursor = getdb.cursor() # Create a cursor to interact with the DB
                 cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatUUID,userID,dstuser,time,content))
                 getdb.commit()
@@ -218,7 +220,7 @@ try:
     def doChatSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
@@ -236,7 +238,7 @@ try:
         try:
             currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM requests")
             result = cursor.fetchall()
@@ -252,7 +254,7 @@ try:
         userID = getSession("userid")
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM shop")
         result = cursor.fetchall()
@@ -292,7 +294,7 @@ try:
             content = request.form['content']
             try:
                 threadUUID = str(uuid.uuid4())
-                getdb = get_db() # Create an object to connect to the database
+                getdb = getdb() # Create an object to connect to the database
                 cursor = getdb.cursor() # Create a cursor to interact with the DB
                 cursor.execute("INSERT INTO community (threadID,title,userID) VALUES (?,?,?)",(threadUUID,title,userID))
                 cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",(threadUUID,userID,content))
@@ -313,7 +315,7 @@ try:
             content = request.form['content']
             threadUUID = request.form['threadID']
             try:
-                getdb = get_db()  # Create an object to connect to the database
+                getdb = getdb()  # Create an object to connect to the database
                 cursor = getdb.cursor()  # Create a cursor to interact with the DB
                 cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",
                                (threadUUID, userID, content))
@@ -338,7 +340,7 @@ try:
             timelimit = request.form['timelimit']
             if int(rewards) <= int(currentCoins):
                 try:
-                    getdb = get_db() # Create an object to connect to the database
+                    getdb = getdb() # Create an object to connect to the database
                     cursor = getdb.cursor() # Create a cursor to interact with the DB
                     cursor.execute("INSERT INTO requests (title,content,rewards,timelimit,userID) VALUES (?,?,?,?,?)",(title,content,rewards,timelimit,userID))
                     getdb.commit()
@@ -362,7 +364,7 @@ try:
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    getdb = get_db()  # Create an object to connect to the database
+                    getdb = getdb()  # Create an object to connect to the database
                     cursor = getdb.cursor()  # Create a cursor to interact with the DB
                     cursor.execute("INSERT INTO users (email, password, pincode) VALUES (?, ?, ?)", (email,password,pincode))
                     getdb.commit()
@@ -381,7 +383,7 @@ try:
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            getdb = get_db() # Create an object to connect to the database
+            getdb = getdb() # Create an object to connect to the database
             cursor = getdb.cursor() # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM users WHERE email=? AND password=?",(email,password))
             result = cursor.fetchone()
@@ -400,7 +402,7 @@ try:
     def doCommSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM community WHERE threadID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
@@ -417,7 +419,7 @@ try:
     def doReqSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM requests WHERE requestID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE ", ('%' + keyword + '%', '%' + keyword + '%'))
             result = cursor.fetchall()
@@ -435,7 +437,7 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = getSession("userid")
-            getdb = get_db()
+            getdb = getdb()
             cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
@@ -468,7 +470,7 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
-            getdb = get_db()
+            getdb = getdb()
             cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
@@ -494,7 +496,7 @@ try:
     @login_required
     def answerRequest(requestid):
         userID = getSession("userid")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE requestID=?", (requestid,))
         result = cursor.fetchone()
@@ -511,7 +513,7 @@ try:
         rewards = request.form["rewards"]
         requestID = request.form['requestID']
         content = request.form['content']
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE requests SET status='Completed', answer=? WHERE requestID=?", (content,requestID))
         cursor.execute("UPDATE todo SET Status='Completed' WHERE requireID=?", (requestID,))
@@ -524,7 +526,7 @@ try:
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM threads WHERE threadID=?", (id,))
         result = cursor.fetchall()
@@ -537,7 +539,7 @@ try:
     @app.route("/acceptrequest/<id>", methods=['GET'])
     @login_required
     def acceptRequest(id):
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE requestID=?", (id,))
         result = cursor.fetchone()
@@ -550,7 +552,7 @@ try:
     @app.route("/confirmpayment/<id>", methods=['GET'])
     @login_required
     def confirmPayment(id):
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM shop WHERE itemID=?", (id,))
         result = cursor.fetchone()
@@ -567,7 +569,7 @@ try:
         state = getRequestInfo(requestid,"state")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("DELETE FROM requests WHERE requestID=?", (requestid,))
             getdb.commit()
@@ -581,7 +583,7 @@ try:
     @login_required
     def myRequest():
         userID = getSession("userid")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE userID=?",(userID))
         result = cursor.fetchall()
@@ -594,7 +596,7 @@ try:
     @app.route("/requestdetails/<id>", methods=['GET'])
     @login_required
     def requestDetails(id):
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM requests WHERE requestID=?", (id,))
         result = cursor.fetchone()
@@ -608,7 +610,7 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = getSession("userid")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE requests SET status='accepted' WHERE requestID=?", (id,))
         cursor.execute("INSERT INTO todo (userID,requireID,Status) VALUES (?,?,?)", (userID,id,"Accepted"))
@@ -620,7 +622,7 @@ try:
     @login_required
     def doSetAvatar(id):
         userID = getSession("userid")
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("UPDATE users SET avatar=? WHERE userID=?", (id,userID))
         getdb.commit()
@@ -634,7 +636,7 @@ try:
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
         if userCoins >= itemPrice:
-            getdb = get_db()  # Create an object to connect to the database
+            getdb = getdb()  # Create an object to connect to the database
             cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("INSERT INTO transactions (userID,itemID) VALUES (?,?)", (userID,id))
             getdb.commit()
@@ -650,7 +652,7 @@ try:
         currentUserID = getSession("userid")
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM todo WHERE userID=?", (currentUserID,))
         result = cursor.fetchall()
@@ -663,7 +665,7 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        getdb = get_db()  # Create an object to connect to the database
+        getdb = getdb()  # Create an object to connect to the database
         cursor = getdb.cursor()  # Create a cursor to interact with the DB
         cursor.execute("SELECT * FROM users ORDER BY coins DESC")
         result = cursor.fetchall()
