@@ -14,7 +14,6 @@ def login_required(func):
         if ifLogin() == -1 and encryptedSession is None:
             return redirect(url_for('loginPage', errormsg="Please login before accessing function."))
         return func(*args, **kwargs)
-
     return logreq
 
 
@@ -27,8 +26,8 @@ def ifLogin():
 
 
 def setSession(userid, username):
-    session["userid"] = userid
-    session["username"] = username
+    session["userid"] = str(userid)
+    session["username"] = str(username)
 
 
 def getSession(action):

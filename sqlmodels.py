@@ -17,21 +17,22 @@ class User(db.Model):
     pincode = Column(Text, nullable=False, default="123")
 
     def __repr__(self):
-        return '[ID:{},email:{},coins:{},avatar:{},pincode:{}]'.format(self.id,self.email,self.coins,self.avatar,self.pincode)
+        return '[ID:{}, email:{}, coins:{}, avatar:{}, pincode:{}]'.format(self.userID, self.email, self.coins, self.avatar, self.pincode)
+
 
 class Community(db.Model):
     __tablename__ = 'community'
-    id = Column(Text, primary_key=True)
+    threadID = Column(Text, primary_key=True)
     title = Column(String(120), nullable=False)
-    userID = Column(Integer, ForeignKey('User.id'))
+    userID = Column(Integer, ForeignKey('User.userID'))
 
     def __repr__(self):
         return '[ID:{},title:{},userID:{}]'.format(self.id,self.title,self.userID)
 
 class Thread(db.Model):
     __tablename__ = 'threads'
-    id = Column(Text, primary_key=True)
-    userID = Column(Integer, ForeignKey('User.id'))
+    threadID = Column(Text, primary_key=True)
+    userID = Column(Integer, ForeignKey('User.userID'))
     contents = Column(Text, nullable=False, default="No Content")
 
     def __repr__(self):
@@ -39,12 +40,12 @@ class Thread(db.Model):
 
 class Request(db.Model):
     __tablename__ = 'requests'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    requestID = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(120), nullable=False)
     content = Column(Text, nullable=False)
     rewards = Column(String(120))
     timelimit = Column(String(120))
-    userID = Column(Integer, ForeignKey('User.id'))
+    userID = Column(Integer, ForeignKey('User.userID'))
     status = Column(Text, nullable=False, default="Available")
     answer = Column(Text)
 
@@ -54,7 +55,7 @@ class Request(db.Model):
 
 class Shop(db.Model):
     __tablename__ = 'shop'
-    id = Column(Integer, primary_key=True)
+    itemID = Column(Integer, primary_key=True)
     detail = Column(Text, nullable=False)
     price = Column(Integer, default=0)
 
@@ -63,18 +64,18 @@ class Shop(db.Model):
 
 class Transaction(db.Model):
     __tablename__ = 'transactions'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    userID = Column(Integer, ForeignKey('User.id'))
-    itemID = Column(Integer, ForeignKey('Shop.id'))
+    transactionID = Column(Integer, primary_key=True, autoincrement=True)
+    userID = Column(Integer, ForeignKey('User.userID'))
+    itemID = Column(Integer, ForeignKey('Shop.itemID'))
 
     def __repr__(self):
         return '[ID:{},userID:{},itemID:{}]'.format(self.id,self.userID,self.itemID)
 
 class Todo(db.Model):
     __tablename__ = 'todo'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    userID = Column(Integer, ForeignKey('User.id'))
-    requireID = Column(Integer, ForeignKey('Request.id'))
+    todoID = Column(Integer, primary_key=True, autoincrement=True)
+    userID = Column(Integer, ForeignKey('User.userID'))
+    requireID = Column(Integer, ForeignKey('Request.requestID'))
     status = Column(Text, default="Undo")
 
     def __repr__(self):
@@ -83,8 +84,8 @@ class Todo(db.Model):
 class Chats(db.Model):
     __tablename__ = 'chats'
     chatID = Column(Text, primary_key=True)
-    srcUserID = Column(Integer, ForeignKey('User.id'))
-    dstUserID = Column(Integer, ForeignKey('User.id'))
+    srcUserID = Column(Integer, ForeignKey('User.userID'))
+    dstUserID = Column(Integer, ForeignKey('User.userID'))
     content = Column(Text, nullable=False, default="No Content")
 
     def __repr__(self):

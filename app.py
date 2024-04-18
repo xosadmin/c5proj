@@ -2,6 +2,7 @@ import os
 from flask import *
 import llm
 from flask_sqlalchemy import SQLAlchemy
+from login_process import login_required
 from sqlmodels import *
 from getandset import *
 from login_process import *
@@ -115,7 +116,7 @@ try:
     @login_required
     def communityPage():
         try:
-            result = connect.executeute(Community.query)
+            result = connect.execute(Community.query)
             return render_template('community.html', result=result)
         except Exception as e:
             print(e)
@@ -127,7 +128,7 @@ try:
         lastid = -1
         userID = getSession("userid")
         infomsg = request.args.get("infomsg","")
-        result = connect.executeute(Chats.query.filter_by(Chats.dstUserID == userID or Chats.srcUserID == userID))
+        result = connect.execute(Chats.query.filter_by(Chats.dstUserID == userID or Chats.srcUserID == userID))
         if result:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
@@ -137,7 +138,7 @@ try:
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        result = connect.executeute(Chats.query.filter_by(Chats.id == chatid))
+        result = connect.execute(Chats.query.filter_by(Chats.id == chatid))
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -155,7 +156,7 @@ try:
             try:
                 insert = Chats.insert().values(chatID=chatID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
                 # When send reply, source user will become destination user
-                connect.executeute(insert)
+                connect.execute(insert)
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
             except Exception as e:
                 print(e)
@@ -170,8 +171,7 @@ try:
         dstuser = getChatInfo(chatid,"dstuser")
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
-            getdb = getdb()  # Create an object to connect to the database
-            connect.executeute(Chats.delete().where(Chats.chatID == chatid))
+            connect.execute(Chats.delete().where(Chats.chatID == chatid))
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
@@ -188,29 +188,13 @@ try:
             try:
                 insert = Chats.insert().values(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
                 # When send reply, source user will become destination user
-                connect.executeute(insert)
+                connect.execute(insert)
                 return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('chatPage', errmsg="Internal Error"))
         else:
             return render_template("newchat.html")
-        
-    @app.route("/dochatsearch", methods=['GET', 'POST'])
-    @login_required
-    def doChatSearch():
-        if request.method == "POST":
-            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
-            result = cursor.fetchall()
-            getdb.close()
-            if result:
-                return render_template("search_result.html", act="chat", result=result, redosearch="dochatsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
-            else:
-                return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
-        else:
-            return render_template("search_result.html", errmsg="Invalid Request!")
 
     @app.route("/requests")
     @login_required
@@ -269,7 +253,7 @@ try:
                 inserts = [Community.insert().values(threadID=threadUUID,title=title,userID=userID),
                            Thread.insert().values(threadID=threadUUID,userID=userID,content=content)]
                 for item in inserts:
-                    connect.executeute(item)
+                    connect.execute(item)
                 return "<script>alert('New thread recorded.');window.location.href='/community';</script>"
             except Exception as e:
                 print(e)
@@ -362,7 +346,6 @@ try:
             getdb = getdb()  # Create an object to connect to the database
             cursor.execute("SELECT * FROM community WHERE threadID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
-            getdb.close()
             if result:
                 return render_template("search_result.html", act="thread", result=result, redosearch="docommsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -378,9 +361,23 @@ try:
             getdb = getdb()  # Create an object to connect to the database
             cursor.execute("SELECT * FROM requests WHERE requestID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE ", ('%' + keyword + '%', '%' + keyword + '%'))
             result = cursor.fetchall()
-            getdb.close()
             if result:
                 return render_template("search_result.html", act="answerrequest", result=result, redosearch="doreqsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
+            else:
+                return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
+        else:
+            return render_template("search_result.html", errmsg="Invalid Request!")
+        
+    @app.route("/dochatsearch", methods=['GET', 'POST'])
+    @login_required
+    def doChatSearch():
+        if request.method == "POST":
+            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
+            getdb = getdb()  # Create an object to connect to the database
+            cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
+            result = cursor.fetchall()
+            if result:
+                return render_template("search_result.html", act="chat", result=result, redosearch="dochatsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
                 return render_template("search_result.html", errmsg=f"We cannot find any content based on keyword '{keyword}'")
         else:
@@ -392,25 +389,23 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = getSession("userid")
-            getdb = getdb()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
-            pincode = getUserInfo(userID,"pincode")
-            user_details = getdb.query(User).filter_by(User.userID == userID).first() # User Info
+            pincode = getUserInfo(userID, "pincode")
+            user_details = User.query.filter(User.userID == userID).first()  # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            nft_details = getdb.query(Transaction).filter_by(Transaction.userID == userID).first()
-            avatar_id = str(getUserInfo(userID,"avatar"))
-            getdb.close()
+            nft_details = Transaction.query.filter(Transaction.userID==userID)
+            nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
             return render_template('profile.html',
-                                userID = userID,
-                                user_details = user_details,
-                                nft_details = nft_details,
-                                rcountry = rcountry,
-                                rnickname = rnickname,
-                                nftid = avatar_id,
-                                pincode = pincode,
-                                infomsg = infomsg
+                                userID=userID,
+                                user_details=user_details,
+                                nft_details=nft_details,
+                                rcountry=rcountry,
+                                rnickname=rnickname,
+                                nftid=nftid,
+                                pincode=pincode,
+                                infomsg=infomsg
                                 )
         except Exception as e:
             print(f"An error occurred: " + str(e))
@@ -422,14 +417,12 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
-            getdb = getdb()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
             user_details = connect.execute(User.query.filter_by(User.userID == userID)).first()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
             avatar_id = str(getUserInfo(userID,"avatar"))
-            getdb.close()
             return render_template('profile_other_user_view.html',
                                 userID = userID,
                                 user_details = user_details,
@@ -470,9 +463,7 @@ try:
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Thread).filter_by(Thread.id == id).all()
-        getdb.close()
+        result = connect.execute(Thread.query.filter_by(Thread.id == id)).all()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:
@@ -573,7 +564,6 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        getdb = getdb()  # Create an object to connect to the database
         result = connect.execute(User.query.order_by(User.coins.desc()))
         if result:
             return render_template("leaderboard.html", result=result)

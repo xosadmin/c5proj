@@ -36,8 +36,9 @@
                 <div class="alert alert-info">{{ infomsg }}</div>
             {% endif %}
             <h1 id="pageBanner">My Profile</h1>
+            {% for useritems in user_details %}
             <div class="profileimgdiv">
-                <img src="{{ url_for('static', filename='nft/' + nftid + '.png') }}" alt="Avatar" class="profileimages">
+                <img src="{{ url_for('static', filename='nft/' + useritems[4] + '.png') }}" alt="Avatar" class="profileimages">
                 <p>Avatar</p>
             </div>
             <br>
@@ -50,7 +51,6 @@
                     <th scope="col">Location</th>
                     <th scope="col">Coins</th>
                 </tr>
-                {% for useritems in user_details %}
                 <tr>
                     <td>{{useritems[0]}}</td>
                     <td>{{useritems[1]}}</td>
