@@ -15,7 +15,7 @@ def getdb():
 
 def checkEmail(email):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.email == email)).first()
+        user = db.query(User).filter(User.email == email).first()
         if user:
             return -1  # If email exists in the system
         else:
@@ -23,7 +23,7 @@ def checkEmail(email):
 
 def getThreadTitle(id):
     with getdb() as db:
-        community = db.exec(select(Community).filter(Community.id == id)).first()
+        community = db.query(Community).filter(Community.id == id).first()
         if community:
             return community.title
         else:
@@ -31,7 +31,7 @@ def getThreadTitle(id):
 
 def getCoins(id):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == id)).first()
+        user = db.query(User).filter(User.id == id).first()
         if user:
             return user.coins
         else:
@@ -39,7 +39,7 @@ def getCoins(id):
 
 def setCoins(id, amount, act):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == id)).first()
+        user = db.query(User).filter(User.id == id).first()
         if user:
             if act == "plus":
                 user.coins += amount
@@ -50,19 +50,19 @@ def setCoins(id, amount, act):
 
 def getRequestInfo(requestID, action):
     with getdb() as db:
-        request_ = db.exec(select(Request).filter(Request.id == requestID)).first()
+        requestInfo = db.query(Request).filter(Request.id == requestID).first()
         if request_:
             if action == "userID":
-                return str(request_.userID)
+                return str(requestInfo.userID)
             elif action == "state":
-                return request_.status
+                return requestInfo.status
             elif action == "rewards":
-                return request_.rewards
+                return requestInfo.rewards
         return None
 
 def getUserInfo(userID, action):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == userID)).first()
+        user = db.query(User).filter(User.id == userID).first()
         if user:
             if action == "userid":
                 return str(user.id)
@@ -78,7 +78,7 @@ def getUserInfo(userID, action):
 
 def getChatInfo(chatID, action):
     with getdb() as db:
-        chat = db.exec(select(Chats).filter(Chats.chatID == chatID)).first()
+        chat = db.query(Chats).filter(Chats.chatID == chatID).first()
         if chat:
             if action == "srcuser":
                 return str(chat.srcUserID)
@@ -90,7 +90,7 @@ def getChatInfo(chatID, action):
 
 def verifyPinCode(id, pincode):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == id)).first()
+        user = db.query(User).filter(User.id == id).first()
         if user:
             if user.pincode == pincode:
                 return 0
@@ -100,7 +100,7 @@ def verifyPinCode(id, pincode):
 
 def setPassword(id, password):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == id)).first()
+        user = db.query(User).filter(User.id == id).first()
         if user:
             user.password = password
             db.add(user)
@@ -108,7 +108,7 @@ def setPassword(id, password):
 
 def setPinCode(id, pincode):
     with getdb() as db:
-        user = db.exec(select(User).filter(User.id == id)).first()
+        user = db.query(User).filter(User.id == id).first()
         if user:
             user.pincode = pincode
             db.add(user)
@@ -116,7 +116,7 @@ def setPinCode(id, pincode):
 
 def getItemInfo(itemID, action):
     with getdb() as db:
-        shop = db.exec(select(Shop).filter(Shop.id == itemID)).first()
+        shop = db.query(Shop).filter(Shop.id == itemID).first()
         if shop:
             if action == "name":
                 return shop.itemName

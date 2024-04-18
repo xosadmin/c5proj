@@ -115,7 +115,7 @@ try:
     def communityPage():
         try:
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+
             cursor.execute("SELECT * FROM community")
             result = cursor.fetchall()
             getdb.close()
@@ -185,7 +185,7 @@ try:
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
+
             cursor.execute("DELETE FROM chats WHERE chatID=?", (chatid,))
             getdb.commit()
             getdb.close()
@@ -221,7 +221,6 @@ try:
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
             getdb.close()
@@ -239,9 +238,7 @@ try:
             currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
-            cursor.execute("SELECT * FROM requests")
-            result = cursor.fetchall()
+            result = getdb.query(Request).all()
             getdb.close()
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
@@ -255,9 +252,7 @@ try:
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM shop")
-        result = cursor.fetchall()
+        result = getdb.query(Shop).all()
         getdb.close()
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
@@ -316,7 +311,6 @@ try:
             threadUUID = request.form['threadID']
             try:
                 getdb = getdb()  # Create an object to connect to the database
-                cursor = getdb.cursor()  # Create a cursor to interact with the DB
                 cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",
                                (threadUUID, userID, content))
                 getdb.commit()
@@ -365,7 +359,6 @@ try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
                     getdb = getdb()  # Create an object to connect to the database
-                    cursor = getdb.cursor()  # Create a cursor to interact with the DB
                     cursor.execute("INSERT INTO users (email, password, pincode) VALUES (?, ?, ?)", (email,password,pincode))
                     getdb.commit()
                     getdb.close()
@@ -384,12 +377,10 @@ try:
             email = request.form['email']
             password = request.form['password']
             getdb = getdb() # Create an object to connect to the database
-            cursor = getdb.cursor() # Create a cursor to interact with the DB
-            cursor.execute("SELECT * FROM users WHERE email=? AND password=?",(email,password))
-            result = cursor.fetchone()
+            result = getdb.query(User),filter(User.email == email, User.password == password).first()
             getdb.close()
             if result:
-                userid = result[0] # The first column in the result
+                userid = str(result.id)
                 setSession(userid,email)
                 return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
             else:
@@ -403,7 +394,6 @@ try:
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM community WHERE threadID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%'))
             result = cursor.fetchall()
             getdb.close()
@@ -420,7 +410,6 @@ try:
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("SELECT * FROM requests WHERE requestID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE ", ('%' + keyword + '%', '%' + keyword + '%'))
             result = cursor.fetchall()
             getdb.close()
@@ -438,16 +427,13 @@ try:
             infomsg = request.args.get('infomsg', '')
             userID = getSession("userid")
             getdb = getdb()
-            cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
             pincode = getUserInfo(userID,"pincode")
-            cursor.execute("SELECT * FROM users WHERE userID=?", (userID,)) # User Info
-            user_details = cursor.fetchall()
+            user_details = getdb.query(User),filter(User.id == userID).first() # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            cursor.execute("SELECT *  FROM transactions WHERE userID=?", (userID,)) # NFT Images
-            nft_details = cursor.fetchall()
+            nft_details = getdb.query(Transaction),filter(Transaction.userID == userID).first()
             avatar_id = str(getUserInfo(userID,"avatar"))
             getdb.close()
             return render_template('profile.html',
@@ -471,11 +457,9 @@ try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
             getdb = getdb()
-            cursor = getdb.cursor()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
-            cursor.execute("SELECT * FROM users WHERE userID=?", (userID,)) # User Info
-            user_details = cursor.fetchall()
+            user_details = getdb.query(User),filter(User.id == userID).first()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
             avatar_id = str(getUserInfo(userID,"avatar"))
@@ -497,9 +481,7 @@ try:
     def answerRequest(requestid):
         userID = getSession("userid")
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM requests WHERE requestID=?", (requestid,))
-        result = cursor.fetchone()
+        result = getdb.query(Request),filter(Request.id == requestid).first()
         getdb.close()
         if result:
             return render_template("answerrequest.html", result=result, userID=userID)
@@ -527,9 +509,7 @@ try:
     def threadDetails(id):
         thread_title = getThreadTitle(id)
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM threads WHERE threadID=?", (id,))
-        result = cursor.fetchall()
+        result = getdb.query(Thread),filter(Thread.id == id).all()
         getdb.close()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
@@ -540,9 +520,7 @@ try:
     @login_required
     def acceptRequest(id):
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM requests WHERE requestID=?", (id,))
-        result = cursor.fetchone()
+        result = getdb.query(Request),filter(Request.id == requestid).first()
         getdb.close()
         if result:
             return render_template("accept_request.html", result=result)
@@ -553,9 +531,7 @@ try:
     @login_required
     def confirmPayment(id):
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM shop WHERE itemID=?", (id,))
-        result = cursor.fetchone()
+        result = getdb.query(Shop).filter(Shop.id == id).first()
         getdb.close()
         if result:
             return render_template("confirm_buy.html", result=result)
@@ -570,7 +546,6 @@ try:
         currentReqRewards = getRequestInfo(requestid,"rewards")
         if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("DELETE FROM requests WHERE requestID=?", (requestid,))
             getdb.commit()
             setCoins(currentuserID,int(currentReqRewards),"plus") # Refund reward if delete request
@@ -584,9 +559,7 @@ try:
     def myRequest():
         userID = getSession("userid")
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM requests WHERE userID=?",(userID))
-        result = cursor.fetchall()
+        result = getdb.query(Request),filter(Request.userID == userID).all()
         getdb.close()
         if result:
             return render_template("myrequest.html", result=result)
@@ -597,9 +570,7 @@ try:
     @login_required
     def requestDetails(id):
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM requests WHERE requestID=?", (id,))
-        result = cursor.fetchone()
+        result = getdb.query(Request),filter(Request.id == id).first()
         getdb.close()
         if result:
             return render_template("requestDetail.html", result=result)
@@ -637,7 +608,6 @@ try:
         userCoins = getUserInfo(userID,"coins")
         if userCoins >= itemPrice:
             getdb = getdb()  # Create an object to connect to the database
-            cursor = getdb.cursor()  # Create a cursor to interact with the DB
             cursor.execute("INSERT INTO transactions (userID,itemID) VALUES (?,?)", (userID,id))
             getdb.commit()
             setCoins(userID,itemPrice,"minus")
@@ -653,9 +623,7 @@ try:
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM todo WHERE userID=?", (currentUserID,))
-        result = cursor.fetchall()
+        result = getdb.query(Todo),filter(Todo.userID == currentUserID).all()
         getdb.close()
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
@@ -666,9 +634,7 @@ try:
     @login_required
     def leaderBoard():
         getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM users ORDER BY coins DESC")
-        result = cursor.fetchall()
+        result = getdb.query(User).order_by(User.coins.desc()).all()
         getdb.close()
         if result:
             return render_template("leaderboard.html", result=result)
