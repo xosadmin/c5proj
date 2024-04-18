@@ -6,6 +6,7 @@ import randomprofile as rp
 from functools import wraps
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
 
 def login_required(func):
         @wraps(func)
