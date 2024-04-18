@@ -1,7 +1,7 @@
+import os
 from flask import *
 import llm
-from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy
 from sqlmodels import *
 from getandset import *
 from login_process import *
@@ -9,11 +9,12 @@ import randomprofile as rp
 import uuid
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
 app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
-app.config['PERMANENT_SESSION_LIFETIME'] = dt.timedelta(days=1) # All sessions will be destroyed after 24 hrs
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+connect = engine.connect()
+
+db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
 
 try:
     @app.route("/")
@@ -114,11 +115,7 @@ try:
     @login_required
     def communityPage():
         try:
-            getdb = getdb()  # Create an object to connect to the database
-
-            cursor.execute("SELECT * FROM community")
-            result = cursor.fetchall()
-            getdb.close()
+            result = connect.executeute(Community.query)
             return render_template('community.html', result=result)
         except Exception as e:
             print(e)
@@ -130,11 +127,7 @@ try:
         lastid = -1
         userID = getSession("userid")
         infomsg = request.args.get("infomsg","")
-        getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT DISTINCT * FROM chats WHERE dstUserID=? OR srcUserID=?",(userID,userID)) # Avoid from repeat result
-        result = cursor.fetchall()
-        getdb.close()
+        result = connect.executeute(Chats.query.filter_by(Chats.dstUserID == userID or Chats.srcUserID == userID))
         if result:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
@@ -144,11 +137,7 @@ try:
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("SELECT * FROM chats WHERE chatID=?",(chatid,))
-        result = cursor.fetchall()
-        getdb.close()
+        result = connect.executeute(Chats.query.filter_by(Chats.id == chatid))
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -164,12 +153,9 @@ try:
             dstuser = getChatInfo(chatID,"srcuser")
             time = str(getTime())
             try:
-                getdb = getdb() # Create an object to connect to the database
-                cursor = getdb.cursor() # Create a cursor to interact with the DB
-                cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatID,userID,dstuser,time,content))
+                insert = Chats.insert().values(chatID=chatID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
                 # When send reply, source user will become destination user
-                getdb.commit()
-                getdb.close()
+                connect.executeute(insert)
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
             except Exception as e:
                 print(e)
@@ -185,10 +171,7 @@ try:
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
             getdb = getdb()  # Create an object to connect to the database
-
-            cursor.execute("DELETE FROM chats WHERE chatID=?", (chatid,))
-            getdb.commit()
-            getdb.close()
+            connect.executeute(Chats.delete().where(Chats.chatID == chatid))
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
@@ -203,11 +186,9 @@ try:
             content = request.form['content']
             time = str(getTime())
             try:
-                getdb = getdb() # Create an object to connect to the database
-                cursor = getdb.cursor() # Create a cursor to interact with the DB
-                cursor.execute("INSERT INTO chats (chatID,srcUserID,dstUserID,time,content) VALUES (?,?,?,?,?)",(chatUUID,userID,dstuser,time,content))
-                getdb.commit()
-                getdb.close()
+                insert = Chats.insert().values(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
+                # When send reply, source user will become destination user
+                connect.executeute(insert)
                 return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
             except Exception as e:
                 print(e)
@@ -237,9 +218,7 @@ try:
         try:
             currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
-            getdb = getdb()  # Create an object to connect to the database
-            result = getdb.query(Request).all()
-            getdb.close()
+            result = connect.execute(Request.query)
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
             print(e)
@@ -251,9 +230,7 @@ try:
         userID = getSession("userid")
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Shop).all()
-        getdb.close()
+        result = connect.execute(Shop.query)
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
         else:
@@ -289,12 +266,10 @@ try:
             content = request.form['content']
             try:
                 threadUUID = str(uuid.uuid4())
-                getdb = getdb() # Create an object to connect to the database
-                cursor = getdb.cursor() # Create a cursor to interact with the DB
-                cursor.execute("INSERT INTO community (threadID,title,userID) VALUES (?,?,?)",(threadUUID,title,userID))
-                cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",(threadUUID,userID,content))
-                getdb.commit()
-                getdb.close()
+                inserts = [Community.insert().values(threadID=threadUUID,title=title,userID=userID),
+                           Thread.insert().values(threadID=threadUUID,userID=userID,content=content)]
+                for item in inserts:
+                    connect.executeute(item)
                 return "<script>alert('New thread recorded.');window.location.href='/community';</script>"
             except Exception as e:
                 print(e)
@@ -310,11 +285,8 @@ try:
             content = request.form['content']
             threadUUID = request.form['threadID']
             try:
-                getdb = getdb()  # Create an object to connect to the database
-                cursor.execute("INSERT INTO threads (threadID,userID,contents) VALUES (?,?,?)",
-                               (threadUUID, userID, content))
-                getdb.commit()
-                getdb.close()
+                insert = Thread.insert().values(threadID=threadUUID,userID=userID,contents=content)
+                connect.execute(insert)
                 return "<script>alert('New reply recorded.');window.location.href='/thread/"+ threadUUID +"';</script>"
             except Exception as e:
                 print(e)
@@ -334,12 +306,9 @@ try:
             timelimit = request.form['timelimit']
             if int(rewards) <= int(currentCoins):
                 try:
-                    getdb = getdb() # Create an object to connect to the database
-                    cursor = getdb.cursor() # Create a cursor to interact with the DB
-                    cursor.execute("INSERT INTO requests (title,content,rewards,timelimit,userID) VALUES (?,?,?,?,?)",(title,content,rewards,timelimit,userID))
-                    getdb.commit()
+                    insert = Request.insert().values(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
+                    connect.execute(insert)
                     setCoins(userID,int(rewards),"minus")
-                    getdb.close()
                     return "<script>alert('New request posted.');window.location.href='/requests';</script>"
                 except Exception as e:
                     print("[ERROR] donewrequests: " + str(e))
@@ -358,10 +327,8 @@ try:
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    getdb = getdb()  # Create an object to connect to the database
-                    cursor.execute("INSERT INTO users (email, password, pincode) VALUES (?, ?, ?)", (email,password,pincode))
-                    getdb.commit()
-                    getdb.close()
+                    insert = User.insert().values(email=email,password=password,pincode=pincode)
+                    connect.execute(insert)
                     return render_template("register_complete.html")
                 else:
                     return redirect(url_for('registerPage', errormsg="Email already exists"))
@@ -376,11 +343,10 @@ try:
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            getdb = getdb() # Create an object to connect to the database
-            result = getdb.query(User),filter(User.email == email, User.password == password).first()
-            getdb.close()
+            result = User.query.filter(User.email == email, User.password == password).first()
             if result:
-                userid = str(result.id)
+                userid = str(result.userID)
+                print("[Info] User " + userid + " has login in.")
                 setSession(userid,email)
                 return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
             else:
@@ -430,10 +396,10 @@ try:
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
             pincode = getUserInfo(userID,"pincode")
-            user_details = getdb.query(User),filter(User.id == userID).first() # User Info
+            user_details = getdb.query(User).filter_by(User.userID == userID).first() # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            nft_details = getdb.query(Transaction),filter(Transaction.userID == userID).first()
+            nft_details = getdb.query(Transaction).filter_by(Transaction.userID == userID).first()
             avatar_id = str(getUserInfo(userID,"avatar"))
             getdb.close()
             return render_template('profile.html',
@@ -459,7 +425,7 @@ try:
             getdb = getdb()
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
-            user_details = getdb.query(User),filter(User.id == userID).first()
+            user_details = connect.execute(User.query.filter_by(User.userID == userID)).first()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
             avatar_id = str(getUserInfo(userID,"avatar"))
@@ -480,9 +446,7 @@ try:
     @login_required
     def answerRequest(requestid):
         userID = getSession("userid")
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Request),filter(Request.id == requestid).first()
-        getdb.close()
+        result = connect.execute(Request.query.filter_by(Request.id == requestid)).first()
         if result:
             return render_template("answerrequest.html", result=result, userID=userID)
         else:
@@ -495,13 +459,11 @@ try:
         rewards = request.form["rewards"]
         requestID = request.form['requestID']
         content = request.form['content']
-        getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("UPDATE requests SET status='Completed', answer=? WHERE requestID=?", (content,requestID))
-        cursor.execute("UPDATE todo SET Status='Completed' WHERE requireID=?", (requestID,))
+        updateReq = [Request.update().where(Request.id == requestID).values(status="Completed",answer=content),
+                     Todo.update().where(Request.id == requestID).values(status="Completed")]
+        for item in updateReq:
+            connect.execute(item)
         setCoins(userID,rewards,"plus") # Automatically add coins to adventurers
-        getdb.commit()
-        getdb.close()
         return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
     
     @app.route("/thread/<id>", methods=['GET'])
@@ -509,7 +471,7 @@ try:
     def threadDetails(id):
         thread_title = getThreadTitle(id)
         getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Thread),filter(Thread.id == id).all()
+        result = getdb.query(Thread).filter_by(Thread.id == id).all()
         getdb.close()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
@@ -519,9 +481,7 @@ try:
     @app.route("/acceptrequest/<id>", methods=['GET'])
     @login_required
     def acceptRequest(id):
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Request),filter(Request.id == requestid).first()
-        getdb.close()
+        result = connect.execute(Request.query.filter_by(Request.id == id)).first()
         if result:
             return render_template("accept_request.html", result=result)
         else:
@@ -530,9 +490,7 @@ try:
     @app.route("/confirmpayment/<id>", methods=['GET'])
     @login_required
     def confirmPayment(id):
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Shop).filter(Shop.id == id).first()
-        getdb.close()
+        result = connect.execute((Shop).filter_by(Shop.id == id)).first()
         if result:
             return render_template("confirm_buy.html", result=result)
         else:
@@ -545,11 +503,8 @@ try:
         state = getRequestInfo(requestid,"state")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("DELETE FROM requests WHERE requestID=?", (requestid,))
-            getdb.commit()
+            connect.execute(Request.delete().where(Request.id == requestid))
             setCoins(currentuserID,int(currentReqRewards),"plus") # Refund reward if delete request
-            getdb.close()
             return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
@@ -558,9 +513,7 @@ try:
     @login_required
     def myRequest():
         userID = getSession("userid")
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Request),filter(Request.userID == userID).all()
-        getdb.close()
+        result = connect.execute(Request.query.filter_by(Request.userID == userID)).all()
         if result:
             return render_template("myrequest.html", result=result)
         else:
@@ -569,9 +522,7 @@ try:
     @app.route("/requestdetails/<id>", methods=['GET'])
     @login_required
     def requestDetails(id):
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Request),filter(Request.id == id).first()
-        getdb.close()
+        result = connect.execute((Request).filter_by(Request.id == id)).first()
         if result:
             return render_template("requestDetail.html", result=result)
         else:
@@ -581,23 +532,17 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = getSession("userid")
-        getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("UPDATE requests SET status='accepted' WHERE requestID=?", (id,))
-        cursor.execute("INSERT INTO todo (userID,requireID,Status) VALUES (?,?,?)", (userID,id,"Accepted"))
-        getdb.commit()
-        getdb.close()
+        commits = [Request.update().where(Request.id == id).values(status="accepted"),
+                   Todo.insert().values(userID=userID,requireID=id,status="Accepted")]
+        for item in commits:
+            connect.execute(item)
         return redirect(url_for('todoList'))
 
     @app.route("/setavatar/<id>", methods=['GET'])
     @login_required
     def doSetAvatar(id):
         userID = getSession("userid")
-        getdb = getdb()  # Create an object to connect to the database
-        cursor = getdb.cursor()  # Create a cursor to interact with the DB
-        cursor.execute("UPDATE users SET avatar=? WHERE userID=?", (id,userID))
-        getdb.commit()
-        getdb.close()
+        connect.execute(User.update().where(User.userID == userID).values(avatar=id))
         return redirect(url_for('profilePage',infomsg="Avatar updated."))
     
     @app.route("/dopayment/<id>", methods=['GET'])
@@ -607,11 +552,8 @@ try:
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
         if userCoins >= itemPrice:
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("INSERT INTO transactions (userID,itemID) VALUES (?,?)", (userID,id))
-            getdb.commit()
+            connect.execute(Transaction.insert().values(userID=userID,itemID=id))
             setCoins(userID,itemPrice,"minus")
-            getdb.close()
             return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
         else:
             return redirect(url_for('shopPage', infomsg="Insufficient Balance!"))
@@ -622,9 +564,7 @@ try:
         currentUserID = getSession("userid")
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(Todo),filter(Todo.userID == currentUserID).all()
-        getdb.close()
+        result = connect.execute(Todo.query.filter_by(Todo.userID == currentUserID))
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
@@ -634,8 +574,7 @@ try:
     @login_required
     def leaderBoard():
         getdb = getdb()  # Create an object to connect to the database
-        result = getdb.query(User).order_by(User.coins.desc()).all()
-        getdb.close()
+        result = connect.execute(User.query.order_by(User.coins.desc()))
         if result:
             return render_template("leaderboard.html", result=result)
         else:

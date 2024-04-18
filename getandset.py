@@ -1,20 +1,17 @@
+import os
 from flask import *
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlmodels import *
 import randomprofile as rp
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-
-def getdb():
-    with engine.begin() as conn:
-        with SQLSession(conn) as session:
-            yield session
+connect = engine.connect()
 
 def checkEmail(email):
-    with getdb() as db:
         user = db.query(User).filter(User.email == email).first()
         if user:
             return -1  # If email exists in the system
@@ -22,7 +19,6 @@ def checkEmail(email):
             return 0
 
 def getThreadTitle(id):
-    with getdb() as db:
         community = db.query(Community).filter(Community.id == id).first()
         if community:
             return community.title
@@ -30,7 +26,6 @@ def getThreadTitle(id):
             return None
 
 def getCoins(id):
-    with getdb() as db:
         user = db.query(User).filter(User.id == id).first()
         if user:
             return user.coins
@@ -38,7 +33,6 @@ def getCoins(id):
             return -1
 
 def setCoins(id, amount, act):
-    with getdb() as db:
         user = db.query(User).filter(User.id == id).first()
         if user:
             if act == "plus":
@@ -49,9 +43,8 @@ def setCoins(id, amount, act):
             db.commit()
 
 def getRequestInfo(requestID, action):
-    with getdb() as db:
         requestInfo = db.query(Request).filter(Request.id == requestID).first()
-        if request_:
+        if requestInfo:
             if action == "userID":
                 return str(requestInfo.userID)
             elif action == "state":
@@ -61,7 +54,6 @@ def getRequestInfo(requestID, action):
         return None
 
 def getUserInfo(userID, action):
-    with getdb() as db:
         user = db.query(User).filter(User.id == userID).first()
         if user:
             if action == "userid":
@@ -77,7 +69,6 @@ def getUserInfo(userID, action):
         return None
 
 def getChatInfo(chatID, action):
-    with getdb() as db:
         chat = db.query(Chats).filter(Chats.chatID == chatID).first()
         if chat:
             if action == "srcuser":
@@ -89,17 +80,15 @@ def getChatInfo(chatID, action):
         return None
 
 def verifyPinCode(id, pincode):
-    with getdb() as db:
-        user = db.query(User).filter(User.id == id).first()
-        if user:
-            if user.pincode == pincode:
+    user = db.query(User).filter(User.id == id).first()
+    if user:
+        if user.pincode == pincode:
                 return 0
-            else:
+        else:
                 return -1
     return -1
 
 def setPassword(id, password):
-    with getdb() as db:
         user = db.query(User).filter(User.id == id).first()
         if user:
             user.password = password
@@ -107,7 +96,6 @@ def setPassword(id, password):
             db.commit()
 
 def setPinCode(id, pincode):
-    with getdb() as db:
         user = db.query(User).filter(User.id == id).first()
         if user:
             user.pincode = pincode
@@ -115,7 +103,6 @@ def setPinCode(id, pincode):
             db.commit()
 
 def getItemInfo(itemID, action):
-    with getdb() as db:
         shop = db.query(Shop).filter(Shop.id == itemID).first()
         if shop:
             if action == "name":

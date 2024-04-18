@@ -1,12 +1,15 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+import os
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import *
+from flask import Flask
 
-Base = declarative_base()
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
+db = SQLAlchemy()
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
+    userID = Column(Integer, primary_key=True, default=100)
     email = Column(String(120), nullable=False)
     password = Column(String(120), nullable=False)
     coins = Column(Integer, nullable=False, default=10)
@@ -16,7 +19,7 @@ class User(Base):
     def __repr__(self):
         return '[ID:{},email:{},coins:{},avatar:{},pincode:{}]'.format(self.id,self.email,self.coins,self.avatar,self.pincode)
 
-class Community(Base):
+class Community(db.Model):
     __tablename__ = 'community'
     id = Column(Text, primary_key=True)
     title = Column(String(120), nullable=False)
@@ -25,7 +28,7 @@ class Community(Base):
     def __repr__(self):
         return '[ID:{},title:{},userID:{}]'.format(self.id,self.title,self.userID)
 
-class Thread(Base):
+class Thread(db.Model):
     __tablename__ = 'threads'
     id = Column(Text, primary_key=True)
     userID = Column(Integer, ForeignKey('User.id'))
@@ -34,7 +37,7 @@ class Thread(Base):
     def __repr__(self):
         return '[ID:{},userID:{},contents:{}]'.format(self.id,self.userID,self.contents)
 
-class Request(Base):
+class Request(db.Model):
     __tablename__ = 'requests'
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(120), nullable=False)
@@ -49,7 +52,7 @@ class Request(Base):
         return '[ID:{},title:{},content:{},rewards:{},timelimit:{},userid:{},status:{},answer:{}]'.format(self.id,
         self.title,self.content,self.rewards,self.timelimit,self.userID,self.status,self.answer)
 
-class Shop(Base):
+class Shop(db.Model):
     __tablename__ = 'shop'
     id = Column(Integer, primary_key=True)
     detail = Column(Text, nullable=False)
@@ -58,7 +61,7 @@ class Shop(Base):
     def __repr__(self):
         return '[ID:{},detail:{},price:{}]'.format(self.id,self.detail,self.price)
 
-class Transaction(Base):
+class Transaction(db.Model):
     __tablename__ = 'transactions'
     id = Column(Integer, primary_key=True, autoincrement=True)
     userID = Column(Integer, ForeignKey('User.id'))
@@ -67,7 +70,7 @@ class Transaction(Base):
     def __repr__(self):
         return '[ID:{},userID:{},itemID:{}]'.format(self.id,self.userID,self.itemID)
 
-class Todo(Base):
+class Todo(db.Model):
     __tablename__ = 'todo'
     id = Column(Integer, primary_key=True, autoincrement=True)
     userID = Column(Integer, ForeignKey('User.id'))
@@ -77,7 +80,7 @@ class Todo(Base):
     def __repr__(self):
         return '[ID:{},userID:{},requireID:{},status:{}]'.format(self.id,self.userID,self.requireID,self.status)
     
-class Chats(Base):
+class Chats(db.Model):
     __tablename__ = 'chats'
     chatID = Column(Text, primary_key=True)
     srcUserID = Column(Integer, ForeignKey('User.id'))
