@@ -7,9 +7,12 @@ import randomprofile as rp
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.dbSession'
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
+alchemySession = sessionmaker(bind=engine)
+
+dbSession = alchemySession()
 
 def checkEmail(email):
         user = UserInfo.query.filter(UserInfo.email == email).first()
@@ -31,16 +34,6 @@ def getCoins(id):
             return user.coins
         else:
             return -1
-
-def setCoins(id, amount, act):
-        user = UserInfo.query.filter(UserInfo.userID == id).first()
-        if user:
-            if act == "plus":
-                user.coins += amount
-            elif act == "minus":
-                user.coins -= amount
-            db.add(user)
-            db.commit()
 
 def getRequestInfo(requestID, action):
         requestInfo = Requests.query.filter(Requests.requestID == requestID).first()
@@ -91,20 +84,6 @@ def verifyPinCode(id, pincode):
         else:
                 return -1
     return -1
-
-def setPassword(id, password):
-        user = UserInfo.query.filter(UserInfo.userID == id).first()
-        if user:
-            user.password = password
-            db.add(user)
-            db.commit()
-
-def setPinCode(id, pincode):
-        user = UserInfo.query.filter(UserInfo.userID == id).first()
-        if user:
-            user.pincode = pincode
-            db.add(user)
-            db.commit()
 
 def getItemInfo(itemID, action):
         shop = Shop.query.filter(Shop.itemID == itemID).first()

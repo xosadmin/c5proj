@@ -71,7 +71,7 @@
                             <td>{{ resultitem.rewards }}</td>
                             <td>{{ resultitem.timelimit }}</td>
                             {% if userid|int == resultitem.userID|int %}
-                                <td><a href="/deleterequest/{{resultitem.requestID}}/{{resultitem.requestID}}" title="Delete Request">Delete Request</a></td>
+                                <td><a href="/deleterequest/{{resultitem.userID}}/{{resultitem.requestID}}" title="Delete Request">Delete Request</a></td>
                             {% else %}
                                 <td>No permission</td>
                             {% endif %}

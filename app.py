@@ -71,7 +71,8 @@ try:
                 return redirect(url_for('modifyPassword', infomsg="Invalid PIN Code."))
             # Update the password in the database
             try:
-                setPassword(userID, new_password)
+                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(password=new_password))
+                dbSession.commit()
                 return redirect(url_for('profilePage', infomsg="Password successfully updated."))
             except Exception as e:
                 print("Details:" + str(e))
@@ -88,7 +89,8 @@ try:
             if verifyPinCode(userID, old_pin) != 0:
                 return redirect(url_for('modifyPin', infomsg="Your old pin is incorrect!"))
             try:
-                setPinCode(userID, new_pin)
+                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(pincode=new_pin))
+                dbSession.commit()
                 return redirect(url_for('modifyPin', infomsg="PIN code successfully updated."))
             except Exception as e:
                 print(str(e))
@@ -104,7 +106,8 @@ try:
                 pin_verify_result = verifyPinCode(user_id, pincode)
                 if pin_verify_result == 0:
                     try:
-                        setPassword(user_id, "123")
+                        dbSession.execute(update(UserInfo).filter(UserInfo.userID == user_id).values(password="123"))
+                        dbSession.commit()
                         return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                     except Exception as e:
                         print(f"Error resetting password: {str(e)}")
@@ -172,7 +175,8 @@ try:
         dstuser = getChatInfo(chatid,"dstuser")
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
-            connect.execute(Chats.delete().where(Chats.chatID == chatid))
+            dbSession.execute(delete(Chats).where(Chats.chatID == chatid))
+            dbSession.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
@@ -291,15 +295,13 @@ try:
             rewards = request.form['rewards']
             timelimit = request.form['timelimit']
             if int(rewards) <= int(currentCoins):
-                try:
-                    insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
-                    dbSession.add(insert)
-                    dbSession.commit()
-                    setCoins(userID,int(rewards),"minus")
-                    return "<script>alert('New request posted.');window.location.href='/requests';</script>"
-                except Exception as e:
-                    print("[ERROR] donewrequests: " + str(e))
-                    return redirect(url_for('newRequest', msg="Internal Error!"))
+                insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
+                remainCoins = int(currentCoins) - int(rewards)
+                coins = update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)
+                dbSession.add(insert)
+                dbSession.execute(coins)
+                dbSession.commit()
+                return "<script>alert('New request posted.');window.location.href='/requests';</script>"
             else:
                 return redirect(url_for('newRequest', msg="Insufficient Balance!"))
         else:
@@ -458,11 +460,14 @@ try:
         rewards = request.form["rewards"]
         requestID = request.form['requestID']
         content = request.form['content']
-        updateReq = [Requests.update().where(Requests.requestID == requestID).values(status="Completed",answer=content),
-                     Todo.update().where(Requests.requestID == requestID).values(status="Completed")]
-        for item in updateReq:
-            connect.execute(item)
-        setCoins(userID,rewards,"plus") # Automatically add coins to adventurers
+        currentCoins = getUserInfo(userID, "coins")
+        remainCoins = int(currentCoins) + int(rewards)
+        updates = [update(Requests).where(Requests.requestID == requestID).values(status="Completed",answer=content),
+                    update(Todo).where(Todo.requestID == requestID).values(status="Completed"),
+                    update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)]
+        for item in updates:
+            dbSession.execute(item)
+        dbSession.commit()
         return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
     
     @app.route("/thread/<id>", methods=['GET'])
@@ -498,10 +503,15 @@ try:
     def deleteRequest(userid,requestid):
         currentuserID = getSession("userid")
         state = getRequestInfo(requestid,"state")
+        currentCoins = getUserInfo(userid,"coins")
         currentReqRewards = getRequestInfo(requestid,"rewards")
+        remainCoins = int(currentCoins) + int(currentReqRewards) # Refund coins
         if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
-            connect.execute(Requests.delete().where(Requests.requestID == requestid))
-            setCoins(currentuserID,int(currentReqRewards),"plus") # Refund reward if delete request
+            commands = [delete(Requests).where(Requests.requestID == requestid),
+                        update(UserInfo).filter(UserInfo.userID == userid).values(coins=remainCoins)]
+            for item in commands:
+                dbSession.execute(item)
+            dbSession.commit()
             return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
@@ -529,17 +539,20 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = getSession("userid")
-        commits = [Requests.update().where(Requests.requestID == id).values(status="accepted"),
-                   Todo(userID=userID,requireID=id,status="Accepted")]
-        for item in commits:
-            connect.execute(item)
+        updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted")
+        insertTodo = Todo(userID=userID,requestID=id,status="Accepted")
+        dbSession.execute(updateReq)
+        dbSession.add(insertTodo)
+        dbSession.commit()
         return redirect(url_for('todoList'))
 
     @app.route("/setavatar/<id>", methods=['GET'])
     @login_required
     def doSetAvatar(id):
         userID = getSession("userid")
-        connect.execute(UserInfo.update().where(UserInfo.userID == userID).values(avatar=id))
+        updateusr = update(UserInfo).where(UserInfo.userID == userID).values(avatar=id)
+        dbSession.execute(updateusr)
+        dbSession.commit()
         return redirect(url_for('profilePage',infomsg="Avatar updated."))
     
     @app.route("/dopayment/<id>", methods=['GET'])
@@ -548,11 +561,12 @@ try:
         userID = getSession("userid")
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
+        remainCoins = int(userCoins) - int(itemPrice)
         if userCoins >= itemPrice:
             insert = Transaction(userID=userID,itemID=id)
             dbSession.add(insert)
+            dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins))
             dbSession.commit()
-            setCoins(userID,itemPrice,"minus")
             return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
         else:
             return redirect(url_for('shopPage', infomsg="Insufficient Balance!"))
