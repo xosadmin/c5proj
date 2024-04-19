@@ -37,15 +37,15 @@
                 <form method="POST" action="/doanswerrequest">
                     <div class="form-group fillForms">
                         <label for="title">Request Details</label>
-                        <p>Title: {{result[1]}}</p>
-                        <p>Contents: {{result[2]}}</p>
-                        <p>Coins for rewards: {{result[3]}}</p>
+                        <p>Title: {{result.title}}</p>
+                        <p>Contents: {{result.content}}</p>
+                        <p>Coins for rewards: {{result.rewards}}</p>
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
                         <input type="hidden" id="userID" name="userID" value="{{userID}}">
-                        <input type="hidden" id="rewards" name="rewards" value="{{result[3]}}">
-                        <input type="hidden" id="requestID" name="requestID" value="{{result[0]}}">
+                        <input type="hidden" id="rewards" name="rewards" value="{{result.rewards}}">
+                        <input type="hidden" id="requestID" name="requestID" value="{{result.requestID}}">
                         <textarea class="form-control" id="content" name="content" rows="4" cols="50"></textarea>
                         <small>Do you need LLM for compose contents? <a href="#newthreadandrequest" onclick="loadLLM(2)">Click here to ask LLM to generate content for you</a></small>
                     </div>

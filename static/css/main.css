@@ -65,7 +65,8 @@ a {
 
 #footnote {
     text-align: center;
-    font-size: 14pt;
+    font-size: 10pt;
+    color: darkgray;
 }
 
 #mainContent {

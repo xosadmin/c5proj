@@ -51,18 +51,18 @@
                     <th scope="col">Status</th>
                 </tr>
                 <tr>
-                    <td>{{ result[0] }}</td>
-                    <td>{{ result[1] }}</td>
-                    <td>{{ result[2] }}</td>
-                    <td>{{ result[3] }}</td>
-                    <td>{{ result[4] }}</td>
-                    <td><a href="/profile/{{result[5]}}" title="View NPC details" target="_blank">{{ result[5] }}</a></td>
-                    <td>{{ result[6] }}</td>
+                    <td>{{ result.requestID }}</td>
+                    <td>{{ result.title }}</td>
+                    <td>{{ result.content }}</td>
+                    <td>{{ result.rewards }}</td>
+                    <td>{{ result.timelimit }}</td>
+                    <td><a href="/profile/{{result.userID}}" title="View NPC details" target="_blank">{{ result.userID }}</a></td>
+                    <td>{{ result.status }}</td>
                 </tr>
                 </tbody>
             </table>
             <h3>Answer provided</h3>
-            <p>{{ result[7] }}</p>
+            <p>{{ result.answer }}</p>
       </div>
 </body>
 </html>

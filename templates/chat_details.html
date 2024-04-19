@@ -45,8 +45,8 @@
                     <tbody>
                     {% for resultitem in results %}
                     <tr>
-                        <td>{{ resultitem[2] }}</td>
-                        <td>{{ resultitem[4] }}</td>
+                        <td>{{ resultitem.srcUserID }}</td>
+                        <td>{{ resultitem.content }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

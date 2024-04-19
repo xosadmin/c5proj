@@ -46,16 +46,16 @@
                     <th scope="col">Price</th>
                 </tr>
                 <tr>
-                    <td>{{ result[0] }}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + result[0]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
-                    <td>{{ result[1] }}</td>
-                    <td>$$ {{ result[2] }}</td>
+                    <td>{{ result.itemID }}</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + result.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td>{{ result.itemDetail }}</td>
+                    <td>$$ {{ result.price }}</td>
                 </tr>
                 </tbody>
             </table>
             <div id="confirmAccept">
                 <p>Warning: you cannot ask for refund once you confirm payment.</p>
-                <button type="button" class="btn btn-success" onclick="confirmPayment({{ result[0] }})">Yes, I confirm</button>
+                <button type="button" class="btn btn-success" onclick="confirmPayment({{ result.itemID }})">Yes, I confirm</button>
                 <button type="button" class="btn btn-danger" id="denyAccept" onclick="denyPayment()">No, I need to do further consideration</button>
             </div>
       </div>

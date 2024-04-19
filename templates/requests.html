@@ -63,15 +63,15 @@
                     <th scope="col">Delete Request</th>
                 </tr>
                 {% for resultitem in result %}
-                    {% if resultitem[6] == 'Available' %}
+                    {% if resultitem.status == 'Available' %}
                         <tr>
-                            <td>{{ resultitem[0] }}</td>
-                            <td><a href="acceptrequest/{{resultitem[0]}}" title="View Details">{{ resultitem[1] }}</a></td>
-                            <td><a href="profile/{{resultitem[5]}}" title="View Details">{{ resultitem[5] }}</a></td>
-                            <td>{{ resultitem[3] }}</td>
-                            <td>{{ resultitem[4] }}</td>
-                            {% if userid|int == resultitem[5]|int %}
-                                <td><a href="/deleterequest/{{resultitem[5]}}/{{resultitem[0]}}" title="Delete Request">Delete Request</a></td>
+                            <td>{{ resultitem.requestID }}</td>
+                            <td><a href="acceptrequest/{{resultitem.requestID}}" title="View Details">{{ resultitem.title }}</a></td>
+                            <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
+                            <td>{{ resultitem.rewards }}</td>
+                            <td>{{ resultitem.timelimit }}</td>
+                            {% if userid|int == resultitem.userID|int %}
+                                <td><a href="/deleterequest/{{resultitem.userID}}/{{resultitem.requestID}}" title="Delete Request">Delete Request</a></td>
                             {% else %}
                                 <td>No permission</td>
                             {% endif %}

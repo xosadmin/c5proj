@@ -11,6 +11,17 @@ Password: 123
 #### Description
 The Assignment 2 is asked to build a request forum application, which allows users to create accounts, post their own requests and answer other people's requests.  
   
+#### Program Structure  
+![Program Structure](structure.png)  
+This program is based on the following structure:  
+- The `app.py` is main application and used for template rendering, content structuring and some data processing  
+- This program contains `getandset.py` and `login_process.py`. Some functions (e.g. Requrements, Shop, Community and shop) are rely on the functions in `getandset.py` to get or set the data from the database.  
+- The `login_process.py` is for user login/registration process. When user try to login/register, this file will used for read and verify user input data or save valid data to the database. Also, when user login successful, this file will help to set session. Besides, when user triggered `Logout`, this fill will help to destroy sessions.  
+- The `sqlmodel.py` is used for communication between program and SQLite database. It contains data models, and to help to get/set data from/to database  
+- This program uses SQLite database (`database/main.db`) to store data  
+  
+Note: the main database (`database/main.db`) contains some test data. You could use them for program testing.  
+  
 #### How to get started  
 - Clone this project  
 - Install dependencies by `pip install -r requirements.txt` (Use `pip install -r requirements.txt --break-system-packages` if you are working on Linux)  

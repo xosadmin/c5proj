@@ -51,18 +51,18 @@
                     <th scope="col">NPC User ID</th>
                 </tr>
                 <tr>
-                    <td>{{ result[0] }}</td>
-                    <td>{{ result[1] }}</td>
-                    <td>{{ result[2] }}</td>
-                    <td>{{ result[3] }}</td>
-                    <td>{{ result[4] }}</td>
-                    <td><a href="/profile/{{result[5]}}" title="View NPC details" target="_blank">{{ result[5] }}</a></td>
+                    <td>{{ result.requestID }}</td>
+                    <td>{{ result.title }}</td>
+                    <td>{{ result.content }}</td>
+                    <td>{{ result.rewards }}</td>
+                    <td>{{ result.timelimit }}</td>
+                    <td><a href="/profile/{{result.userID}}" title="View NPC details" target="_blank">{{ result.userID }}</a></td>
                 </tr>
                 </tbody>
             </table>
             <div id="confirmAccept">
                 <p>Warning: you cannot cancel the request once you accept it.</p>
-                <button type="button" class="btn btn-success" onclick="confirmAcceptRequest({{ result[0] }})">Yes, I accept it</button>
+                <button type="button" class="btn btn-success" onclick="confirmAcceptRequest({{ result.requestID }})">Yes, I accept it</button>
                 <button type="button" class="btn btn-danger" id="denyAccept" onclick="denyAcceptRequest()">No, I need to do further consideration</button>
             </div>
       </div>

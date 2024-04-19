@@ -43,8 +43,8 @@
                 {% for resultitem in result %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td><a href="profile/{{resultitem[0]}}" title="View Details">{{ resultitem[0] }}</a></td>
-                        <td>{{ resultitem[3] }}</td>
+                        <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
+                        <td>{{ resultitem.coins }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

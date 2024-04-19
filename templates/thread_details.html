@@ -45,8 +45,8 @@
                     <tbody>
                     {% for resultitem in result %}
                     <tr>
-                        <td><a href="/profile/{{resultitem[1]}}" title="View user info" target="_blank">{{ resultitem[1] }}</a></td>
-                        <td>{{ resultitem[2] }}</td>
+                        <td><a href="/profile/{{resultitem.userID}}" title="View user info" target="_blank">{{ resultitem.userID }}</a></td>
+                        <td>{{ resultitem.contents }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

@@ -53,11 +53,11 @@
                 </tr>
                 {% for resultitem in result %}
                 <tr>
-                    <td>{{ resultitem[0] }}</td>
-                    <td><a href="requestdetails/{{resultitem[2]}}" title="View Details" target="_blank">{{ resultitem[2] }}</a></td>
-                    <td>{{ resultitem[3] }}</td>
-                    {% if resultitem[3] == "Accepted" %}
-                        <td><a href="answerrequest/{{resultitem[2]}}" title="Answer Request">Answer</a></td>
+                    <td>{{ resultitem.todoID }}</td>
+                    <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details" target="_blank">{{ resultitem.requestID }}</a></td>
+                    <td>{{ resultitem.status }}</td>
+                    {% if resultitem.status == "Accepted" %}
+                        <td><a href="answerrequest/{{resultitem.requestID}}" title="Answer Request">Answer</a></td>
                     {% else %}
                         <td>Answer submitted</td>
                     {% endif %}
