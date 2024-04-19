@@ -2,19 +2,21 @@ import os
 from flask import *
 import llm
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import sessionmaker
 from login_process import login_required
 from sqlmodels import *
 from getandset import *
 from login_process import *
 import randomprofile as rp
-import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
 app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
+alchemySession = sessionmaker(bind=engine)
 
+dbSession = alchemySession()
 db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
 
 try:
@@ -63,7 +65,7 @@ try:
         if request.method == "POST":
             userID = getSession("userid")
             new_password = request.form['newpassword']
-            pincode = request.form['pincode']
+            pincode = request.form['pin-code']
             # Verify the pincode
             if verifyPinCode(userID, pincode) != 0:
                 return redirect(url_for('modifyPassword', infomsg="Invalid PIN Code."))
@@ -116,7 +118,7 @@ try:
     @login_required
     def communityPage():
         try:
-            result = connect.execute(Community.query)
+            result = Community.query.all()
             return render_template('community.html', result=result)
         except Exception as e:
             print(e)
@@ -125,10 +127,9 @@ try:
     @app.route("/chat")
     @login_required
     def chatPage():
-        lastid = -1
         userID = getSession("userid")
         infomsg = request.args.get("infomsg","")
-        result = connect.execute(Chats.query.filter_by(Chats.dstUserID == userID or Chats.srcUserID == userID))
+        result = Chats.query.filter(or_(Chats.dstUserID == userID, Chats.srcUserID == userID)).all()
         if result:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
@@ -138,7 +139,7 @@ try:
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        result = connect.execute(Chats.query.filter_by(Chats.id == chatid))
+        result = Chats.query.filter(Chats.chatID == chatid)
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -154,9 +155,9 @@ try:
             dstuser = getChatInfo(chatID,"srcuser")
             time = str(getTime())
             try:
-                insert = Chats.insert().values(chatID=chatID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
-                # When send reply, source user will become destination user
-                connect.execute(insert)
+                insert = Chats(chatID=chatID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
+                dbSession.add(insert)
+                dbSession.commit()
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
             except Exception as e:
                 print(e)
@@ -180,15 +181,14 @@ try:
     @login_required
     def donewchat():
         if request.method == "POST":
-            chatUUID = str(uuid.uuid4())
+            chatUUID = str(rp.uuidGen())
             userID = getSession("userid")
             dstuser = request.form['dstuser']
             content = request.form['content']
-            time = str(getTime())
             try:
-                insert = Chats.insert().values(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
-                # When send reply, source user will become destination user
-                connect.execute(insert)
+                insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
+                dbSession.add(insert)
+                dbSession.commit()
                 return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
             except Exception as e:
                 print(e)
@@ -202,7 +202,7 @@ try:
         try:
             currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
-            result = connect.execute(Request.query)
+            result = Requests.query
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
             print(e)
@@ -214,7 +214,7 @@ try:
         userID = getSession("userid")
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
-        result = connect.execute(Shop.query)
+        result = Shop.query
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
         else:
@@ -249,11 +249,12 @@ try:
             title = request.form['title']
             content = request.form['content']
             try:
-                threadUUID = str(uuid.uuid4())
-                inserts = [Community.insert().values(threadID=threadUUID,title=title,userID=userID),
-                           Thread.insert().values(threadID=threadUUID,userID=userID,content=content)]
+                threadUUID = str(rp.uuidGen())
+                inserts = [Community(threadID=threadUUID,title=title,userID=userID),
+                           Thread(threadID=threadUUID,userID=userID,content=content)]
                 for item in inserts:
-                    connect.execute(item)
+                    dbSession.add(item)
+                dbSession.commit()
                 return "<script>alert('New thread recorded.');window.location.href='/community';</script>"
             except Exception as e:
                 print(e)
@@ -269,8 +270,9 @@ try:
             content = request.form['content']
             threadUUID = request.form['threadID']
             try:
-                insert = Thread.insert().values(threadID=threadUUID,userID=userID,contents=content)
-                connect.execute(insert)
+                insert = Thread(threadID=threadUUID,userID=userID,contents=content)
+                dbSession.add(insert)
+                dbSession.commit()
                 return "<script>alert('New reply recorded.');window.location.href='/thread/"+ threadUUID +"';</script>"
             except Exception as e:
                 print(e)
@@ -290,8 +292,9 @@ try:
             timelimit = request.form['timelimit']
             if int(rewards) <= int(currentCoins):
                 try:
-                    insert = Request.insert().values(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
-                    connect.execute(insert)
+                    insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
+                    dbSession.add(insert)
+                    dbSession.commit()
                     setCoins(userID,int(rewards),"minus")
                     return "<script>alert('New request posted.');window.location.href='/requests';</script>"
                 except Exception as e:
@@ -305,14 +308,16 @@ try:
     @app.route("/doregister", methods=['GET', 'POST'])
     def doregister():
         if request.method == "POST":
+            userID = str(rp.uuidGen())
             email = request.form['email']
             password = request.form['password']
-            pincode = request.form['pincode']
+            pincode = request.form['pin-code']
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    insert = User.insert().values(email=email,password=password,pincode=pincode)
-                    connect.execute(insert)
+                    insert = UserInfo(userID=userID,email=email,password=password,pincode=pincode)
+                    dbSession.add(insert)
+                    dbSession.commit()
                     return render_template("register_complete.html")
                 else:
                     return redirect(url_for('registerPage', errormsg="Email already exists"))
@@ -327,7 +332,7 @@ try:
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            result = User.query.filter(User.email == email, User.password == password).first()
+            result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == password).first()
             if result:
                 userid = str(result.userID)
                 print("[Info] User " + userid + " has login in.")
@@ -392,10 +397,11 @@ try:
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
             pincode = getUserInfo(userID, "pincode")
-            user_details = User.query.filter(User.userID == userID).first()  # User Info
+            print(userID)
+            user_details = UserInfo.query.filter(UserInfo.userID == userID).all()  # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            nft_details = Transaction.query.filter(Transaction.userID==userID)
+            nft_details = Transaction.query.filter(Transaction.userID==userID).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
             return render_template('profile.html',
                                 userID=userID,
@@ -419,7 +425,7 @@ try:
             userID = userid
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
-            user_details = connect.execute(User.query.filter_by(User.userID == userID)).first()
+            user_details = UserInfo.query.filter(UserInfo.userID == userID).all()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
             avatar_id = str(getUserInfo(userID,"avatar"))
@@ -439,7 +445,7 @@ try:
     @login_required
     def answerRequest(requestid):
         userID = getSession("userid")
-        result = connect.execute(Request.query.filter_by(Request.id == requestid)).first()
+        result = Requests.query.filter(Requests.requestID == requestid).first()
         if result:
             return render_template("answerrequest.html", result=result, userID=userID)
         else:
@@ -452,8 +458,8 @@ try:
         rewards = request.form["rewards"]
         requestID = request.form['requestID']
         content = request.form['content']
-        updateReq = [Request.update().where(Request.id == requestID).values(status="Completed",answer=content),
-                     Todo.update().where(Request.id == requestID).values(status="Completed")]
+        updateReq = [Requests.update().where(Requests.requestID == requestID).values(status="Completed",answer=content),
+                     Todo.update().where(Requests.requestID == requestID).values(status="Completed")]
         for item in updateReq:
             connect.execute(item)
         setCoins(userID,rewards,"plus") # Automatically add coins to adventurers
@@ -463,7 +469,7 @@ try:
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        result = connect.execute(Thread.query.filter_by(Thread.id == id)).all()
+        result = Thread.query.filter(Thread.threadID == id)
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:
@@ -472,7 +478,7 @@ try:
     @app.route("/acceptrequest/<id>", methods=['GET'])
     @login_required
     def acceptRequest(id):
-        result = connect.execute(Request.query.filter_by(Request.id == id)).first()
+        result = Requests.query.filter(Requests.requestID == id).first()
         if result:
             return render_template("accept_request.html", result=result)
         else:
@@ -481,7 +487,7 @@ try:
     @app.route("/confirmpayment/<id>", methods=['GET'])
     @login_required
     def confirmPayment(id):
-        result = connect.execute((Shop).filter_by(Shop.id == id)).first()
+        result = Shop.query.filter(Shop.itemID == id).first()
         if result:
             return render_template("confirm_buy.html", result=result)
         else:
@@ -494,7 +500,7 @@ try:
         state = getRequestInfo(requestid,"state")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
-            connect.execute(Request.delete().where(Request.id == requestid))
+            connect.execute(Requests.delete().where(Requests.requestID == requestid))
             setCoins(currentuserID,int(currentReqRewards),"plus") # Refund reward if delete request
             return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
@@ -504,7 +510,7 @@ try:
     @login_required
     def myRequest():
         userID = getSession("userid")
-        result = connect.execute(Request.query.filter_by(Request.userID == userID)).all()
+        result = Requests.query.filter(Requests.userID == userID)
         if result:
             return render_template("myrequest.html", result=result)
         else:
@@ -513,7 +519,7 @@ try:
     @app.route("/requestdetails/<id>", methods=['GET'])
     @login_required
     def requestDetails(id):
-        result = connect.execute((Request).filter_by(Request.id == id)).first()
+        result = Requests.query.filter(Requests.requestID == id).first()
         if result:
             return render_template("requestDetail.html", result=result)
         else:
@@ -523,8 +529,8 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = getSession("userid")
-        commits = [Request.update().where(Request.id == id).values(status="accepted"),
-                   Todo.insert().values(userID=userID,requireID=id,status="Accepted")]
+        commits = [Requests.update().where(Requests.requestID == id).values(status="accepted"),
+                   Todo(userID=userID,requireID=id,status="Accepted")]
         for item in commits:
             connect.execute(item)
         return redirect(url_for('todoList'))
@@ -533,7 +539,7 @@ try:
     @login_required
     def doSetAvatar(id):
         userID = getSession("userid")
-        connect.execute(User.update().where(User.userID == userID).values(avatar=id))
+        connect.execute(UserInfo.update().where(UserInfo.userID == userID).values(avatar=id))
         return redirect(url_for('profilePage',infomsg="Avatar updated."))
     
     @app.route("/dopayment/<id>", methods=['GET'])
@@ -543,7 +549,9 @@ try:
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
         if userCoins >= itemPrice:
-            connect.execute(Transaction.insert().values(userID=userID,itemID=id))
+            insert = Transaction(userID=userID,itemID=id)
+            dbSession.add(insert)
+            dbSession.commit()
             setCoins(userID,itemPrice,"minus")
             return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
         else:
@@ -555,7 +563,7 @@ try:
         currentUserID = getSession("userid")
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        result = connect.execute(Todo.query.filter_by(Todo.userID == currentUserID))
+        result = Todo.query.filter(Todo.userID == currentUserID)
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
@@ -564,7 +572,7 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        result = connect.execute(User.query.order_by(User.coins.desc()))
+        result = UserInfo.query.order_by(UserInfo.coins.desc())
         if result:
             return render_template("leaderboard.html", result=result)
         else:

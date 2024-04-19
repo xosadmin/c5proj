@@ -12,28 +12,28 @@ engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
 
 def checkEmail(email):
-        user = connect.execute(User.query.filter(User.email == email)).first()
+        user = UserInfo.query.filter(UserInfo.email == email).first()
         if user:
             return -1  # If email exists in the system
         else:
             return 0
 
 def getThreadTitle(id):
-        community = connect.execute(Community.query.filter(Community.id == id)).first()
+        community = Community.query.filter(Community.threadID == id).first()
         if community:
             return community.title
         else:
             return None
 
 def getCoins(id):
-        user = connect.execute(User.query.filter(User.userID == id)).first()
+        user = UserInfo.query.filter(UserInfo.userID == id).first()
         if user:
             return user.coins
         else:
             return -1
 
 def setCoins(id, amount, act):
-        user = connect.execute(User.query.filter(User.userID == id)).first()
+        user = UserInfo.query.filter(UserInfo.userID == id).first()
         if user:
             if act == "plus":
                 user.coins += amount
@@ -43,7 +43,7 @@ def setCoins(id, amount, act):
             db.commit()
 
 def getRequestInfo(requestID, action):
-        requestInfo = connect.execute(Request.query.filter(Request.id == requestID)).first()
+        requestInfo = Requests.query.filter(Requests.requestID == requestID).first()
         if requestInfo:
             if action == "userID":
                 return str(requestInfo.userID)
@@ -54,7 +54,7 @@ def getRequestInfo(requestID, action):
         return None
 
 def getUserInfo(userID, action):
-    user = User.query.filter(User.userID == userID).first()
+    user = UserInfo.query.filter(UserInfo.userID == userID).first()
     if user:
         if action == "userid":
             return str(user.userID)
@@ -73,7 +73,7 @@ def getUserInfo(userID, action):
 
 
 def getChatInfo(chatID, action):
-        chat = connect.execute(Chats.query.filter(Chats.chatID == chatID)).first()
+        chat = Chats.query.filter(Chats.chatID == chatID).first()
         if chat:
             if action == "srcuser":
                 return str(chat.srcUserID)
@@ -84,7 +84,7 @@ def getChatInfo(chatID, action):
         return None
 
 def verifyPinCode(id, pincode):
-    user = connect.execute(User.query.filter(User.userID == id)).first()
+    user = UserInfo.query.filter(UserInfo.userID == id).first()
     if user:
         if user.pincode == pincode:
                 return 0
@@ -93,21 +93,21 @@ def verifyPinCode(id, pincode):
     return -1
 
 def setPassword(id, password):
-        user = connect.execute(User.query.filter(User.userID == id)).first()
+        user = UserInfo.query.filter(UserInfo.userID == id).first()
         if user:
             user.password = password
             db.add(user)
             db.commit()
 
 def setPinCode(id, pincode):
-        user = connect.execute(User.query.filter(User.userID == id)).first()
+        user = UserInfo.query.filter(UserInfo.userID == id).first()
         if user:
             user.pincode = pincode
             db.add(user)
             db.commit()
 
 def getItemInfo(itemID, action):
-        shop = connect.execute(Shop.query.filter(Shop.id == itemID)).first()
+        shop = Shop.query.filter(Shop.itemID == itemID).first()
         if shop:
             if action == "name":
                 return shop.itemName

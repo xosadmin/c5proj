@@ -1,5 +1,6 @@
 import pycountry,random
 import secrets
+import uuid
 
 countries = list(pycountry.countries)
 nouns = ['tiger', 'dragon', 'eagle', 'phoenix', 'wolf', 'lion', 'panther', 'hawk', 'bear', 'shark', 'snake', 'fox',
@@ -35,3 +36,7 @@ def randomSessionKey(length):
 
 def randomPinCode(length):
     return generatePassword(4)
+
+def uuidGen():
+    uuidGened = str(uuid.uuid4())
+    return uuidGened

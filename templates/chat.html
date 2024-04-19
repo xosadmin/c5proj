@@ -55,22 +55,20 @@
                     <th scope="col">#</th>
                     <th scope="col">Source User ID</th>
                     <th scope="col">Receiver User ID</th>
-                    <th scope="col">Time</th>
                     <th scope="col">Continue Chat</th>
                     <th scope="col">Delete Chat</th>
                 </tr>
                 {% set displayed_chatids = [] %}
                 {% for resultitem in results %}
-                    {% if resultitem[0] not in displayed_chatids %}
+                    {% if resultitem.chatID not in displayed_chatids %}
                         <tr>
-                            <td>{{ resultitem[0] }}</td>
-                            <td><a href="/profile/{{ resultitem[1] }}" title="View Details">{{ resultitem[1] }}</a></td>
-                            <td><a href="/profile/{{ resultitem[2] }}" title="View Details">{{ resultitem[2] }}</a></td>
-                            <td>{{ resultitem[3] }}</td>
-                            <td><a href="/chat/{{ resultitem[0] }}" title="Continue Chat">Continue Chat</a></td>
-                            <td><a href="/deletechat/{{ resultitem[0] }}" title="Delete Chat">Delete Chat</a></td>
+                            <td>{{ resultitem.chatID }}</td>
+                            <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details">{{ resultitem.srcUserID }}</a></td>
+                            <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details">{{ resultitem.dstUserID }}</a></td>
+                            <td><a href="/chat/{{ resultitem.chatID }}" title="Continue Chat">Continue Chat</a></td>
+                            <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat">Delete Chat</a></td>
                         </tr>
-                        {% set _ = displayed_chatids.append(resultitem[0]) %}
+                        {% set _ = displayed_chatids.append(resultitem.chatID) %}
                     {% endif %}
                 {% endfor %}
                 </tbody>

@@ -50,11 +50,11 @@
                 </tr>
                 {% for item in results %}
                 <tr>
-                    <td>{{item[0]}}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + item[0]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
-                    <td>{{item[1]}}</td>
-                    <td>$$ {{item[2]}}</td>
-                    <td><a href="/confirmpayment/{{item[0]}}" title="Buy">Buy</a></td>
+                    <td>{{ item.itemID }}</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + item.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td>{{ item.itemDetail }}</td>
+                    <td>$$ {{ item.price }}</td>
+                    <td><a href="/confirmpayment/{{ item.itemID }}" title="Buy">Buy</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

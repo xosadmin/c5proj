@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log("Received form.");
             password = document.getElementById("password").value;
             repeatpassword = document.getElementById("repeat-password").value;
-            pincode = document.getElementById("pincode").value;
+            pincode = document.getElementById("pin-code").value;
             if (password !== repeatpassword) {
                 console.error("Password mismatch!");
                 alert("Password mismatch!");

@@ -54,9 +54,9 @@
                 </tr>
                 {% for resultitem in result %}
                 <tr>
-                    <td>{{ resultitem[0] }}</td>
-                    <td><a href="{{act}}/{{resultitem[0]}}" title="Click for result">{{ resultitem[1] }}</a></td>
-                    <td>{{ resultitem[2] }}</td>
+                    <td>{{ resultitem.id }}</td>
+                    <td><a href="{{act}}/{{resultitem.id}}" title="Click for result">{{ resultitem.id }}</a></td>
+                    <td>{{ resultitem.content }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

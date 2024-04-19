@@ -25,9 +25,9 @@ def ifLogin():
         return 0
 
 
-def setSession(userid, username):
+def setSession(userid, email):
     session["userid"] = str(userid)
-    session["username"] = str(username)
+    session["email"] = str(email)
 
 
 def getSession(action):

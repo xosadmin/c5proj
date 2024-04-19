@@ -38,7 +38,7 @@
             <h1 id="pageBanner">My Profile</h1>
             {% for useritems in user_details %}
             <div class="profileimgdiv">
-                <img src="{{ url_for('static', filename='nft/' + useritems[4] + '.png') }}" alt="Avatar" class="profileimages">
+                <img src="{{ url_for('static', filename='nft/' + useritems.avatar|string + '.png') }}" alt="Avatar" class="profileimages">
                 <p>Avatar</p>
             </div>
             <br>
@@ -52,11 +52,11 @@
                     <th scope="col">Coins</th>
                 </tr>
                 <tr>
-                    <td>{{useritems[0]}}</td>
-                    <td>{{useritems[1]}}</td>
+                    <td>{{useritems.userID}}</td>
+                    <td>{{useritems.email}}</td>
                     <td>{{rnickname}}</td>
                     <td>{{rcountry}}</td>
-                    <td>{{useritems[3]}}</td>
+                    <td>{{useritems.coins}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -89,9 +89,9 @@
                 </tr>
                 {% for nftitem in nft_details %}
                 <tr>
-                    <td>{{nftitem[0]}}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + nftitem[2]|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
-                    <td><a href="/setavatar/{{nftitem[2]}}" title="Set as avatar">Set as avatar</a></td>
+                    <td>{{nftitem.transactionID}}</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

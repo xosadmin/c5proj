@@ -47,11 +47,11 @@
                 </tr>
                 {% for resultitem in result %}
                         <tr>
-                            <td>{{ resultitem[0] }}</td>
-                            <td><a href="requestdetails/{{resultitem[0]}}" title="View Details">{{ resultitem[1] }}</a></td>
-                            <td>{{ resultitem[3] }}</td>
-                            <td>{{ resultitem[4] }}</td>
-                            <td>{{ resultitem[6] }}</td>
+                            <td>{{ resultitem.requestID }}</td>
+                            <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details">{{ resultitem.title }}</a></td>
+                            <td>{{ resultitem.rewards }}</td>
+                            <td>{{ resultitem.time }}</td>
+                            <td>{{ resultitem.status }}</td>
                         </tr>
                 {% endfor %}
                 </tbody>
