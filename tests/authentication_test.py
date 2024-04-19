@@ -1,6 +1,6 @@
 import unittest
 import app
-import getandset as gs
+import get as gs
 import llm
 import login_process as lp
 import randomprofile as rp

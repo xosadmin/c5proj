@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
 from login_process import login_required
 from sqlmodels import *
-from getandset import *
+from get import *
 from login_process import *
 import randomprofile as rp
 
