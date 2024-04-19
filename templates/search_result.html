@@ -47,18 +47,40 @@
             <p>Based on given keyword(s), we have found results as below.</p>
             <table class="table table-striped listcontents">
                 <tbody>
+                {% if act == "thread" %}
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Title</th>
-                    <th scope="col">Author/Content</th>
                 </tr>
                 {% for resultitem in result %}
                 <tr>
-                    <td>{{ resultitem.id }}</td>
-                    <td><a href="{{act}}/{{resultitem.id}}" title="Click for result">{{ resultitem.id }}</a></td>
-                    <td>{{ resultitem.content }}</td>
+                    <td>{{ resultitem.threadID }}</td>
+                    <td><a href="{{act}}/{{resultitem.threadID}}" title="Click for result">{{ resultitem.title }}</a></td>
                 </tr>
                 {% endfor %}
+                {% elif act == "answerrequest" %}
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                </tr>
+                    {% for resultitem in result %}
+                <tr>
+                        <td>{{ resultitem.requestID }}</td>
+                        <td><a href="{{act}}/{{resultitem.requestID}}" title="Click for result">{{ resultitem.title }}</a></td>
+                    {% endfor %}
+                </tr>
+                {% elif act == "chat" %}
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                </tr>
+                    {% for resultitem in result %}
+                <tr>
+                        <td>{{ resultitem.chatID }}</td>
+                        <td><a href="{{act}}/{{resultitem.threadID}}" title="Click for result">{{ resultitem.content }}</a></td>
+                    {% endfor %}
+                </tr>
+                {% endif %}
                 </tbody>
             </table>
       </div>

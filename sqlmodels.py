@@ -30,7 +30,8 @@ class Community(db.Model):
 
 class Thread(db.Model):
     __tablename__ = 'threads'
-    threadID = Column(Text, primary_key=True)
+    replyID = Column(Integer, primary_key=True, autoincrement=True)
+    threadID = Column(Text, nullable=False)
     userID = Column(Integer, ForeignKey('users.userID'))
     contents = Column(Text, nullable=False, default="No Content")
 
@@ -82,7 +83,8 @@ class Todo(db.Model):
     
 class Chats(db.Model):
     __tablename__ = 'chats'
-    chatID = Column(Text, primary_key=True)
+    replyID = Column(Integer, primary_key=True, autoincrement=True)
+    chatID = Column(Text, nullable=False)
     srcUserID = Column(Integer, ForeignKey('users.userID'))
     dstUserID = Column(Integer, ForeignKey('users.userID'))
     content = Column(Text, nullable=False, default="No Content")

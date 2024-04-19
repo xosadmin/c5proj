@@ -142,7 +142,7 @@ try:
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        result = Chats.query.filter(Chats.chatID == chatid)
+        result = Chats.query.filter(Chats.chatID == chatid).all()
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -155,10 +155,9 @@ try:
             userID = getSession("userid")
             chatID = request.form['chatID']
             content = request.form['content']
-            dstuser = getChatInfo(chatID,"srcuser")
-            time = str(getTime())
+            dstuser = request.form['dstUser']
             try:
-                insert = Chats(chatID=chatID,srcUserID=userID,dstUserID=dstuser,time=time,content=content)
+                insert = Chats(chatID=chatID,srcUserID=userID,dstUserID=dstuser,content=content)
                 dbSession.add(insert)
                 dbSession.commit()
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
@@ -350,9 +349,8 @@ try:
     def doCommSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("SELECT * FROM community WHERE threadID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%'))
-            result = cursor.fetchall()
+            result = Community.query.filter(or_(Community.threadID.ilike('%' + keyword + '%'), 
+                        Community.title.ilike('%' + keyword + '%')))
             if result:
                 return render_template("search_result.html", act="thread", result=result, redosearch="docommsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -365,9 +363,8 @@ try:
     def doReqSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("SELECT * FROM requests WHERE requestID LIKE ? COLLATE NOCASE OR title LIKE ? COLLATE NOCASE ", ('%' + keyword + '%', '%' + keyword + '%'))
-            result = cursor.fetchall()
+            result = Requests.query.filter(or_(Requests.requestID.ilike('%' + keyword + '%'), 
+                        Requests.title.ilike('%' + keyword + '%')))
             if result:
                 return render_template("search_result.html", act="answerrequest", result=result, redosearch="doreqsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -380,9 +377,8 @@ try:
     def doChatSearch():
         if request.method == "POST":
             keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
-            getdb = getdb()  # Create an object to connect to the database
-            cursor.execute("SELECT DISTINCT * FROM chats WHERE srcUserID LIKE ? COLLATE NOCASE OR dstUserID LIKE ? COLLATE NOCASE OR content LIKE ? COLLATE NOCASE", ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
-            result = cursor.fetchall()
+            result = Chats.query.filter(or_(Chats.srcUserID.ilike('%' + keyword + '%'), 
+                        Chats.dstUserID.ilike('%' + keyword + '%')))
             if result:
                 return render_template("search_result.html", act="chat", result=result, redosearch="dochatsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -399,7 +395,6 @@ try:
             rcountry = rp.randomCountry()
             rnickname = rp.randomNickname()
             pincode = getUserInfo(userID, "pincode")
-            print(userID)
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()  # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
@@ -474,7 +469,7 @@ try:
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        result = Thread.query.filter(Thread.threadID == id)
+        result = Thread.query.filter(Thread.threadID == id).all()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:

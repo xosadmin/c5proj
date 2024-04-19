@@ -69,16 +69,18 @@
                             <tr>
                                 <th scope="col">Password</th>
                                 <th scope="col">Pin code</th>
+                                <th scope="col">3rd Profile View</th>
                             </tr>
                             <tr>
                                 <td><a href="/modifypassword" title="Modify Password">Modify Password</a></td>
-                                <td><button type="button" id="showpin" class="btn btn-success">Show Pin Code</button><div id="pincode">{{pincode}}</div><a href="/modifypin" title="Modify Password">Modify Pin Code</a></td>
+                                <td><button type="button" id="showpin" class="btn btn-success">Show Pin Code</button><div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifypin" title="Modify Password">Modify Pin Code</a></td>
+                                <td><a href="/profile/{{userID}}" title="View my profile in 3rd views">View my profile as 3rd person view</a></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <h3>My NFT Items</h3>
+            <h3>My Items</h3>
             <p><a href="/setavatar/default" title="Restore Default Avatar">Restore Default Avatar</a></p>
             <table class="table table-striped listcontents">
                 <tbody>
