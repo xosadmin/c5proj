@@ -246,7 +246,7 @@ try:
                     dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
                     dbSession.commit()
                     return redirect(url_for('profilePage',infomsg="Signed successfully! Welcome back and you have get " 
-                                            + str(rewardCoins) + " coins for reward!"))
+                                            + str(randomRewards) + " coins for reward!"))
                 except Exception as e:
                     print("[ERROR] SignPage: " + str(e))
                     return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>")
