@@ -13,8 +13,10 @@ Text goes here...
 #### Group members  
 | Name  | Student ID | Github ID |
 | ------------- | ------------- | ------------- |
-| Content Cell  | Content Cell  | Content Cell |
-| Content Cell  | Content Cell  | Content Cell |
+| Hanxun Xu  | 23885505  | [https://github.com/xosadmin](xosadmin) |
+| Jikang Song  | 23877962  | [https://github.com/jikang1116](jikang1116) |
+| Phyo Phyo Wut Yee Khine | 23650578 | [https://github.com/Phyo09](Phyo09) |
+| Name... | SID... | GithubID... |
 ------  
 For full assignment description, see [https://github.com/xosadmin/cits5505Proj/description.md](description.md)  
   
