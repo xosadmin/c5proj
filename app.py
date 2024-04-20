@@ -239,8 +239,9 @@ try:
             comments = request.form["content"]
             if not ifSigned:
                 try:
-                    rewardCoins = int(rp.randomCoinRewards()) + int(currentCoin)
-                    insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=rewardCoins)
+                    randomRewards = int(rp.randomCoinRewards())
+                    rewardCoins = randomRewards + int(currentCoin)
+                    insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
                     dbSession.add(insert)
                     dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
                     dbSession.commit()
@@ -593,12 +594,16 @@ try:
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
         remainCoins = int(userCoins) - int(itemPrice)
+        checkWarehouse = ifUserPurchased(userID,id) # Check if user already purchased this item
         if userCoins >= itemPrice:
-            insert = Transaction(userID=userID,itemID=id)
-            dbSession.add(insert)
-            dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins))
-            dbSession.commit()
-            return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
+            if not checkWarehouse:
+                insert = Transaction(userID=userID,itemID=id)
+                dbSession.add(insert)
+                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins))
+                dbSession.commit()
+                return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
+            else:
+                return redirect(url_for('shopPage', infomsg="You already purchased this item. You cannot purchase it once again."))
         else:
             return redirect(url_for('shopPage', infomsg="Insufficient Balance!"))
 

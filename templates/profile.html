@@ -80,24 +80,6 @@
                     </table>
                 </div>
             </div>
-            <h3>My Items</h3>
-            <p><a href="/setavatar/default" title="Restore Default Avatar">Restore Default Avatar</a></p>
-            <table class="table table-striped listcontents">
-                <tbody>
-                <tr>
-                    <th scope="col">Transaction ID</th>
-                    <th scope="col">Item Preview</th>
-                    <th scope="col">Set as avatar</th>
-                </tr>
-                {% for nftitem in nft_details %}
-                <tr>
-                    <td>{{nftitem.transactionID}}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
-                    <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
             <h3>My Signs History</h3>
             <table class="table table-striped listcontents">
                 <tbody>
@@ -113,6 +95,24 @@
                     <td>{{item.emotion}}</td>
                     <td>{{item.comments}}</td>
                     <td>+ $${{item.rewards}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <h3>My Items</h3>
+            <p><a href="/setavatar/default" title="Restore Default Avatar">Restore Default Avatar</a></p>
+            <table class="table table-striped listcontents">
+                <tbody>
+                <tr>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Item Preview</th>
+                    <th scope="col">Set as avatar</th>
+                </tr>
+                {% for nftitem in nft_details %}
+                <tr>
+                    <td>{{nftitem.transactionID}}</td>
+                    <td><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
