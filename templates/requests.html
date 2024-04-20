@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests - Adventurer Guild</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+<body>
+  <nav class="navbar navbar-default navigationBar rounded-pill">
+    <div class="container-fluid">
+        <div class="navbar-header">
+        <a class="navbar-brand" href="#">Adventurer Guild</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/profile">Home</a></li>
+                <li class="active"><a href="/requests">Request List</a></li>
+                <li><a href="/todo">To-do List</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/community">Community</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/chat">Chatroom</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+  </nav>
+      <div id="mainContent">
+            <h1 id="pageBanner">Requests</h1>
+            {% if errmsg %}
+                <div class="alert alert-danger">{{ errormsg }}</div>
+            {% elif infomsg%}
+                <div class="alert alert-info">{{ infomsg }}</div>
+            {% endif %}
+            <div id="showcoins">
+                <p>Your coins: {{coins}}</p>
+            </div>
+            <div id="searchBar">
+                <form method="POST" action="/doreqsearch">
+                    <p>Search: </p>
+                    <p><input type="text" class="form-control" id="keyword" name="keyword" placeholder="Insert Keywords to search. Support fuzzy search." required></p>
+                    <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
+                </form>
+            </div>
+            <div id="new">
+                <p><a href="/myrequest" title="My requests">My Requests</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                    <a href="/newrequest" title="New Requests">New Requests</a></p>
+            </div>
+            <table class="table table-striped listcontents">
+                <tbody>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">NPC</th>
+                    <th scope="col">Rewards</th>
+                    <th scope="col">Time Limit</th>
+                    <th scope="col">Delete Request</th>
+                </tr>
+                {% for resultitem in result %}
+                    {% if resultitem.status == 'Available' %}
+                        <tr>
+                            <td>{{ resultitem.requestID }}</td>
+                            <td><a href="acceptrequest/{{resultitem.requestID}}" title="View Details">{{ resultitem.title }}</a></td>
+                            <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
+                            <td>{{ resultitem.rewards }}</td>
+                            <td>{{ resultitem.timelimit }}</td>
+                            {% if userid|int == resultitem.userID|int %}
+                                <td><a href="/deleterequest/{{resultitem.userID}}/{{resultitem.requestID}}" title="Delete Request">Delete Request</a></td>
+                            {% else %}
+                                <td>No permission</td>
+                            {% endif %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <div id="footnote">
+                <p>Hint: Click on the request title to view details and accept the request.</p>
+            </div>
+      </div>
+</body>
+</html>

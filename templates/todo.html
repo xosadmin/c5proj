@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do List - Adventurer Guild</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+<body>
+  <nav class="navbar navbar-default navigationBar rounded-pill">
+    <div class="container-fluid">
+        <div class="navbar-header">
+        <a class="navbar-brand" href="#">Adventurer Guild</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/profile">Home</a></li>
+                <li><a href="/requests">Request List</a></li>
+                <li class="active"><a href="/todo">To-do List</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/community">Community</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/chat">Chatroom</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+  </nav>
+      <div id="mainContent">
+            <h1 id="pageBanner">To-do List</h1>
+            {% if errmsg %}
+                <div class="alert alert-danger">{{ errmsg }}</div>
+            {% elif infomsg%}
+                <div class="alert alert-info">{{ infomsg }}</div>
+            {% endif %}
+            <div id="showcoins">
+                <p>Your coins: {{coins}}</p>
+            </div>
+            <br>
+            <p>Note: Click on Request ID to see request details.</p>
+            <table class="table table-striped listcontents">
+                <tbody>
+                <tr>
+                    <th scope="col">To-Do Quest ID</th>
+                    <th scope="col">Request ID</th>
+                    <th scope="col">Request Status</th>
+                    <th scope="col">Answer</th>
+                </tr>
+                {% for resultitem in result %}
+                <tr>
+                    <td>{{ resultitem.todoID }}</td>
+                    <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details" target="_blank">{{ resultitem.requestID }}</a></td>
+                    <td>{{ resultitem.status }}</td>
+                    {% if resultitem.status == "Accepted" %}
+                        <td><a href="answerrequest/{{resultitem.requestID}}" title="Answer Request">Answer</a></td>
+                    {% else %}
+                        <td>Answer submitted</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+      </div>
+</body>
+</html>

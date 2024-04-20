@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Chat - Adventurer Guild</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+<body>
+  <nav class="navbar navbar-default navigationBar rounded-pill">
+    <div class="container-fluid">
+        <div class="navbar-header">
+        <a class="navbar-brand" href="#">Adventurer Guild</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/profile">Home</a></li>
+                <li><a href="/requests">Request List</a></li>
+                <li><a href="/todo">To-do List</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/community">Community</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li class="active"><a href="/chat">Chatroom</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+  </nav>
+      <div id="mainContent">
+            {% if infomsg %}
+                <div class="alert alert-info">{{ infomsg }}</div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p>Note: All forms are compulsory.</p>
+                </div>
+            {% endif %}
+            <h1 id="pageBanner">New Request</h1>
+            <div class="newthreadandrequest">
+                <form method="POST" action="/newchat">
+                    <div class="form-group fillForms">
+                        <label for="dstuser">Destination User ID</label>
+                        <input type="number" class="form-control" id="dstuser" name="dstuser" placeholder="Destination User" required>
+                    </div>
+                    <div class="form-group fillForms">
+                        <label for="content">Contents</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
+                    </div>
+                    <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
+                  </form>
+                  <br>
+                  <p><a href="/chat" title="Back">Back to chatroom</a></p>
+            </div>
+      </div>
+</body>
+</html>

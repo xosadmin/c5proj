@@ -1,0 +1,124 @@
+a {
+    text-decoration: none;
+}
+
+/* Global Settings end */
+
+.listcontents {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.listcontents tr:hover{
+    background-color: rgb(168,168,168);
+}
+
+.navigationBar {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+.itempreview {
+    width: 20%;
+    height: 20%;
+}
+
+.loginandsignup {
+    text-align: center;
+}
+
+.loginandsignup .actButtons {
+    display: block;
+    margin: 0 auto;
+}
+
+.loginandsignup .fillForms {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.newthreadandrequest {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.profileimgdiv {
+    display: inline-block;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profileimages {
+    width: 15%;
+    height: 15%;
+}
+
+#confirmAccept {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#footnote {
+    text-align: center;
+    font-size: 10pt;
+    color: darkgray;
+}
+
+#mainContent {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+#homepageBannerImg {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    height: 20%;
+}
+
+#mainContent #homepageBanner {
+    text-align: center;
+}
+
+#mainContent #new {
+    text-align: right;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 16pt;
+}
+
+#pageBanner {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 25pt;
+}
+
+#pincode {
+    display: none;
+}
+
+#searchBar {
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+#showcoins {
+    text-align: right;
+    font-size: 13pt;
+}
+
+#threadContents {
+    border: solid 1px black;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12pt;
+    width: 80%;
+}
