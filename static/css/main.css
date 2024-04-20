@@ -95,6 +95,12 @@ a {
     text-align: center;
 }
 
+#subPageTitle p {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #mainContent #new {
     text-align: right;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
