@@ -88,6 +88,13 @@ def verifyPinCode(id, pincode):
                 return -1
     return -1
 
+def ifUserPurchased(userid,itemid): # Check if user already buy the specified item
+     result = Transaction.query.filter(and_(Transaction.userID == userid, Transaction.itemID == itemid)).first()
+     if result:
+          return True # If user already purchased this item
+     else:
+          return False # If user didn't purchase this item before
+
 def getItemInfo(itemID, action):
         shop = Shop.query.filter(Shop.itemID == itemID).first()
         if shop:
