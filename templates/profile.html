@@ -36,6 +36,7 @@
                 <div class="alert alert-info">{{ infomsg }}</div>
             {% endif %}
             <h1 id="pageBanner">My Profile</h1>
+            <p>Here's your home!</p>
             {% for useritems in user_details %}
             <div class="profileimgdiv">
                 <img src="{{ url_for('static', filename='nft/' + useritems.avatar|string + '.png') }}" alt="Avatar" class="profileimages">

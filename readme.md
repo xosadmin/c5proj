@@ -5,8 +5,9 @@
 ### Due date: 5 PM on Sunday, May 19th, 2024 (GMT+8)  
 
 #### Live Test user  
-User Name: test@test.com  
-Password: 123  
+- URL: http://cits5505.xa.wiki:8080 (Hosted by X-osadmin)  
+- User Name: test@test.com  
+- Password: 123  
   
 #### Description
 The Assignment 2 is asked to build a request forum application, which allows users to create accounts, post their own requests and answer other people's requests.  
