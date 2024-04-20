@@ -6,14 +6,17 @@ function loadLLM(flag) {
     else if (flag === 2) {
         postfix = "/api/llmanswer";
     }
+    else if (flag === 3) {
+        postfix = "/api/feelingsllm";
+    }
     else {
         console.error("Invalid input!");
     }
     const xhttp = new XMLHttpRequest();
+    xhttp.open("GET", postfix);
     xhttp.onload = function() {
         document.getElementById("content").innerHTML = this.responseText;
     }
-    xhttp.open("GET", postfix);
     xhttp.send();
 }
 

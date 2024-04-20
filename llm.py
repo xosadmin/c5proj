@@ -21,8 +21,22 @@ answers = [
     "Distance traveled = Speed * Time. Given a speed of 60 miles per hour and a time of 3 hours, the distance traveled would be 60 * 3 = 180 miles."
 ]
 
+feelingSentences = [
+    "Sometimes, I feel like a ship lost in a vast ocean, unsure of which direction to sail.",
+    "When I'm with loved ones, I'm filled with a warmth that spreads through me like sunlight breaking through clouds.",
+    "There are moments when I feel a sense of overwhelming gratitude for the simple pleasures life offers.",
+    "At times, I wrestle with a deep sense of loneliness, like an echo reverberating in an empty room.",
+    "Joy washes over me when I accomplish something I've worked hard for, like reaching the summit of a challenging mountain.",
+    "In moments of uncertainty, fear grips my heart like a vice, making it hard to breathe.",
+    "The weight of sadness settles on my shoulders like a heavy cloak, enveloping me in its somber embrace.",
+    "When I'm in nature, I feel a profound sense of peace and connection, as if I'm a part of something much greater.",
+    "Anger bubbles up within me like a simmering pot, fueled by injustice and frustration.",
+    "Love fills me with a sense of purpose and belonging, like finding the missing piece of a puzzle that completes me."
+]
+
 requestLens = len(requests)
 answerLens = len(answers)
+feelingLens = len(feelingSentences)
 
 def llmRequests():
     questionNum = random.randint(0,requestLens-1)
@@ -31,3 +45,7 @@ def llmRequests():
 def llmAnswers():
     answerNum = random.randint(0,answerLens-1)
     return requests[answerNum]
+
+def llmFeelings():
+    feelNum = random.randint(0,feelingLens-1)
+    return feelingSentences[feelNum]

@@ -74,7 +74,7 @@
                             <tr>
                                 <td><a href="/modifypassword" title="Modify Password">Modify Password</a></td>
                                 <td><button type="button" id="showpin" class="btn btn-success">Show Pin Code</button><div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifypin" title="Modify Password">Modify Pin Code</a></td>
-                                <td><a href="/profile/{{userID}}" title="View my profile in 3rd views">View my profile as 3rd person view</a></td>
+                                <td><a href="/profile/{{userID}}" title="View my profile in 3rd views" target="_blank">View my profile as 3rd person view</a></td>
                             </tr>
                         </tbody>
                     </table>
@@ -94,6 +94,25 @@
                     <td>{{nftitem.transactionID}}</td>
                     <td><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
                     <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <h3>My Signs History</h3>
+            <table class="table table-striped listcontents">
+                <tbody>
+                <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Emotional Feelings</th>
+                    <th scope="col">Comments</th>
+                    <th scope="col">Rewards</th>
+                </tr>
+                {% for item in signHistory %}
+                <tr>
+                    <td>{{item.time}}</td>
+                    <td>{{item.emotion}}</td>
+                    <td>{{item.comments}}</td>
+                    <td>+ $${{item.rewards}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

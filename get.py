@@ -77,7 +77,10 @@ def getChatInfo(chatID, action):
         return None
 
 def verifyPinCode(id, pincode):
-    user = UserInfo.query.filter(UserInfo.userID == id).first()
+    if "@" in id:
+        user = UserInfo.query.filter(UserInfo.email == id).first()
+    else:
+        user = UserInfo.query.filter(UserInfo.userID == id).first()
     if user:
         if user.pincode == pincode:
                 return 0
@@ -95,6 +98,15 @@ def getItemInfo(itemID, action):
             elif action == "price":
                 return str(shop.price)
         return None
+
+def ifSign(userID):
+     timeObject = datetime.now()
+     currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day)
+     result = Signs.query.filter(and_(Signs.userID == userID, Signs.time == currentDay)).first()
+     if result:
+          return True # If the user signed today
+     else:
+          return False # If the user did not sign today
 
 def getTime():
     currentTime = datetime.now()

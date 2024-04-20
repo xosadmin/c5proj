@@ -91,3 +91,17 @@ class Chats(db.Model):
 
     def __repr__(self):
         return '[ID:{},srcUserID:{},dstUserID:{},content:{}]'.format(self.chatID,self.srcUserID,self.dstUserID,self.content)
+
+class Signs(db.Model):
+    __tablename__ = 'signs'
+    signID = Column(Text, primary_key=True)
+    userID = Column(Text, nullable=False)
+    time = Column(Text, nullable=False)
+    emotion = Column(Text, nullable=False, default="Happy")
+    comments = Column(Text, nullable=False, default="No Comment")
+    rewards = Column(Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return '[signID:{},userID:{},time:{},emotion:{},comments:{},rewards:{}]'.format(self.signID,self.userID,
+                                                                                        self.time,self.emotion,self.comments,self.rewards)
+    

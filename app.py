@@ -8,6 +8,7 @@ from sqlmodels import *
 from get import *
 from login_process import *
 import randomprofile as rp
+import datetime as dt
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
@@ -100,13 +101,13 @@ try:
     def doresetpassword():
         if request.method == "POST":
             email = request.form['email']
-            pincode = request.form['pincode']
-            user_id = getUserInfo(email,"userID")
-            if user_id is not None:
-                pin_verify_result = verifyPinCode(user_id, pincode)
+            pincode = request.form['pin-code']
+            fetchEmail = checkEmail(email)
+            if fetchEmail == -1:
+                pin_verify_result = verifyPinCode(email, pincode)
                 if pin_verify_result == 0:
                     try:
-                        dbSession.execute(update(UserInfo).filter(UserInfo.userID == user_id).values(password="123"))
+                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password="123"))
                         dbSession.commit()
                         return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                     except Exception as e:
@@ -223,6 +224,36 @@ try:
         else:
             return render_template('shop.html', coins=currentCoin, infomsg="Unexpected error")
     
+    @app.route("/signs",methods=["POST","GET"])
+    @login_required
+    def signPage():
+        signSessionID = rp.uuidGen()
+        userID = getSession("userid")
+        timeObject = datetime.now()
+        currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day)
+        currentCoin = getCoins(userID)
+        infomsg = request.args.get("infomsg","")
+        ifSigned = ifSign(userID)
+        if request.method == "POST":
+            feelings = request.form["feelings"]
+            comments = request.form["content"]
+            if not ifSigned:
+                try:
+                    rewardCoins = int(rp.randomCoinRewards()) + int(currentCoin)
+                    insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=rewardCoins)
+                    dbSession.add(insert)
+                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
+                    dbSession.commit()
+                    return redirect(url_for('profilePage',infomsg="Signed successfully! Welcome back and you have get " 
+                                            + str(rewardCoins) + " coins for reward!"))
+                except Exception as e:
+                    print("[ERROR] SignPage: " + str(e))
+                    return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>")
+            else:
+                return render_template('signs.html',infomsg="You have signed today! <a href='/profile' title='Profile'>Click here for your profile</a>")
+        else:
+            return render_template('signs.html',infomsg=infomsg)
+
     @app.route("/newthread")
     @login_required
     def newThread():
@@ -338,7 +369,10 @@ try:
                 userid = str(result.userID)
                 print("[Info] User " + userid + " has login in.")
                 setSession(userid,email)
-                return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
+                if ifSign(userid): # If the user signed today
+                    return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
+                else:
+                    return redirect(url_for('signPage'))
             else:
                 return redirect(url_for('loginPage', errormsg="Wrong username/password input!"))
         else:
@@ -399,6 +433,7 @@ try:
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
             nft_details = Transaction.query.filter(Transaction.userID==userID).all()
+            signHistory = Signs.query.filter(Signs.userID == userID).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
             return render_template('profile.html',
                                 userID=userID,
@@ -408,6 +443,7 @@ try:
                                 rnickname=rnickname,
                                 nftid=nftid,
                                 pincode=pincode,
+                                signHistory=signHistory,
                                 infomsg=infomsg
                                 )
         except Exception as e:
@@ -598,6 +634,10 @@ try:
     @app.route("/api/llmanswer")
     def llmans():
         return llm.llmAnswers()
+    
+    @app.route("/api/feelingsllm")
+    def llmfeel():
+        return llm.llmFeelings()
 
 except Exception as e:
     print("Error occured. Cannot proceed. Exiting system...")

@@ -37,6 +37,10 @@ def randomSessionKey(length):
 def randomPinCode(length):
     return generatePassword(4)
 
+def randomCoinRewards():
+    number = int(random.randint(0,10))
+    return number
+
 def uuidGen():
     uuidGened = str(uuid.uuid4())
     return uuidGened
