@@ -170,7 +170,7 @@ try:
                 insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
                 dbSession.add(insert)
                 dbSession.commit()
-                return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
+                return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('chatPage', errmsg="Internal Error"))
