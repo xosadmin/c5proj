@@ -99,12 +99,12 @@ def ifUserPurchased(userid,itemid): # Check if user already buy the specified it
 def getItemInfo(itemID, action):
         shop = Shop.query.filter(Shop.itemID == itemID).first()
         if shop:
-            if action == "name":
-                return shop.itemName
-            elif action == "detail":
+            if action == "detail":
                 return shop.itemDetail
             elif action == "price":
                 return str(shop.price)
+            else:
+                 return None
         return None
 
 def ifSign(userID):

@@ -54,8 +54,8 @@ class TestGETPY(unittest.TestCase):
     
     def test_getItemInfo(self):
         input1 = "1"
-        testCases = ["name","detail","price"]
-        expectAnswers = ["The Man with Prime","The Man with Prime","100"]
+        testCases = ["detail","price"]
+        expectAnswers = ["The Man with Prime","100"]
         for i in range(0,testCases):
             if getItemInfo(input1,testCases[i]) != expectAnswers[i]:
                 self.assertFalse()
