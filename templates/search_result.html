@@ -77,7 +77,7 @@
                     {% for resultitem in result %}
                 <tr>
                         <td>{{ resultitem.chatID }}</td>
-                        <td><a href="{{act}}/{{resultitem.threadID}}" title="Click for result">{{ resultitem.content }}</a></td>
+                        <td><a href="{{act}}/{{resultitem.chatID}}" title="Click for result">{{ resultitem.content }}</a></td>
                     {% endfor %}
                 </tr>
                 {% endif %}
