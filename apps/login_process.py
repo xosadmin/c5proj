@@ -1,6 +1,6 @@
 from flask import Flask, session, request, redirect, url_for
 import datetime as dt
-import randomprofile as rp
+import apps.randomprofile as rp
 from functools import wraps
 
 app = Flask(__name__)

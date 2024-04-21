@@ -2,8 +2,8 @@ import os
 from flask import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlmodels import *
-import randomprofile as rp
+from models.sqlmodels import *
+import apps.randomprofile as rp
 from datetime import datetime
 
 app = Flask(__name__)

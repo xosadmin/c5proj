@@ -16,10 +16,6 @@ def randomCountry():
     for country in tempcountry:
         return country.name
 
-def randomNickname():
-    composeName = nouns[random.randint(0,len(nouns)-1)] + "_" + adjectives[random.randint(0,len(adjectives)-1)]
-    return composeName
-
 def randomEmail():
     composeEmailAddr = nouns[random.randint(0,len(nouns)-1)] + str(random.randint(0,1000)) + "@test.com"
     return composeEmailAddr

@@ -14,6 +14,7 @@ class UserInfo(db.Model):
     password = Column(String(120), nullable=False)
     coins = Column(Integer, nullable=False, default=10)
     avatar = Column(Text, nullable=False, default="default")
+    country = Column(Text, nullable=False)
     pincode = Column(Text, nullable=False, default="123")
 
     def __repr__(self):

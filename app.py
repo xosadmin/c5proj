@@ -1,18 +1,19 @@
 import os
 from flask import *
-import llm
+import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
-from login_process import login_required
-from sqlmodels import *
-from get import *
-from login_process import *
-import randomprofile as rp
+from apps.login_process import login_required
+from models.sqlmodels import *
+from models.formModels import *
+from apps.get import *
+from apps.login_process import *
+from apps.randomprofile import *
 import datetime as dt
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
-app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
+app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
 alchemySession = sessionmaker(bind=engine)
@@ -46,56 +47,30 @@ try:
         errormsg = request.args.get("infomsg")
         return render_template('forget_password.html',errormsg=errormsg)
     
-    @app.route("/modifypassword")
+    @app.route("/modifycenter",methods=["GET","POST"])
     @login_required
-    def modifyPassword():
-        infomsg = request.args.get("infomsg","")
-        userID = getSession("userid")
-        return render_template('modify_password.html',userID=userID,infomsg=infomsg)
-    
-    @app.route("/modifypin")
-    @login_required
-    def modifyPin():
-        infomsg = request.args.get("infomsg","")
-        userID = getSession("userid")
-        return render_template('modify_pin.html',userID=userID,infomsg=infomsg)
-    
-    @app.route("/domodifypassword", methods=['GET','POST'])
-    @login_required
-    def domodifypassword():
+    def modifyCentre():
         if request.method == "POST":
             userID = getSession("userid")
-            new_password = request.form['newpassword']
-            pincode = request.form['pin-code']
-            # Verify the pincode
-            if verifyPinCode(userID, pincode) != 0:
-                return redirect(url_for('modifyPassword', infomsg="Invalid PIN Code."))
-            # Update the password in the database
-            try:
-                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(password=new_password))
-                dbSession.commit()
-                return redirect(url_for('profilePage', infomsg="Password successfully updated."))
-            except Exception as e:
-                print("Details:" + str(e))
-                return redirect(url_for('modifyPassword', infomsg="Failed to update password. Please try again."))
-
-    @app.route("/domodifypin", methods=['POST'])
-    @login_required
-    def domodifypin():
-        if request.method == "POST":
-            userID = getSession("userid")
-            old_pin = request.form['oldpin']
-            new_pin = request.form['newpin']
-            # Verify the old PIN
-            if verifyPinCode(userID, old_pin) != 0:
-                return redirect(url_for('modifyPin', infomsg="Your old pin is incorrect!"))
-            try:
-                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(pincode=new_pin))
-                dbSession.commit()
-                return redirect(url_for('modifyPin', infomsg="PIN code successfully updated."))
-            except Exception as e:
-                print(str(e))
-                return redirect(url_for('modifyPin', infomsg="Failed to update PIN Code. Please try again."))
+            changeType = request.form["type"]
+            if changeType == "email":
+                newemail = request.form["newEmail"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+            elif changeType == "country":
+                country = request.form["country"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
+            elif changeType == "pin":
+                newpin = request.form["newpin"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+            elif changeType == "password":
+                newpassword = request.form["newpassword"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=newpassword))
+            else:
+                return render_template("change_profile.html",infomsg="Invalid Change!")
+            dbSession.commit()
+            return redirect(url_for("profilePage",infomsg="Information " + changeType + " has been updated."))
+        else:
+            return render_template("change_profile.html")
         
     @app.route("/doresetpassword", methods=['GET','POST'])
     def doresetpassword():
@@ -185,7 +160,7 @@ try:
     @login_required
     def donewchat():
         if request.method == "POST":
-            chatUUID = str(rp.uuidGen())
+            chatUUID = str(uuidGen())
             userID = getSession("userid")
             dstuser = request.form['dstuser']
             content = request.form['content']
@@ -227,7 +202,7 @@ try:
     @app.route("/signs",methods=["POST","GET"])
     @login_required
     def signPage():
-        signSessionID = rp.uuidGen()
+        signSessionID = uuidGen()
         userID = getSession("userid")
         timeObject = datetime.now()
         currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day)
@@ -239,7 +214,7 @@ try:
             comments = request.form["content"]
             if not ifSigned:
                 try:
-                    randomRewards = int(rp.randomCoinRewards())
+                    randomRewards = int(randomCoinRewards())
                     rewardCoins = randomRewards + int(currentCoin)
                     insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
                     dbSession.add(insert)
@@ -284,7 +259,7 @@ try:
             title = request.form['title']
             content = request.form['content']
             try:
-                threadUUID = str(rp.uuidGen())
+                threadUUID = str(uuidGen())
                 inserts = [Community(threadID=threadUUID,title=title,userID=userID),
                            Thread(threadID=threadUUID,userID=userID,content=content)]
                 for item in inserts:
@@ -341,14 +316,15 @@ try:
     @app.route("/doregister", methods=['GET', 'POST'])
     def doregister():
         if request.method == "POST":
-            userID = str(rp.uuidGen())
+            userID = str(uuidGen())
             email = request.form['email']
             password = request.form['password']
+            country = str(rp.randomCountry())
             pincode = request.form['pin-code']
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    insert = UserInfo(userID=userID,email=email,password=password,pincode=pincode)
+                    insert = UserInfo(userID=userID,email=email,password=password,country=country,pincode=pincode)
                     dbSession.add(insert)
                     dbSession.commit()
                     return render_template("register_complete.html")
@@ -427,8 +403,6 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = getSession("userid")
-            rcountry = rp.randomCountry()
-            rnickname = rp.randomNickname()
             pincode = getUserInfo(userID, "pincode")
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()  # User Info
             if user_details is None:
@@ -440,8 +414,6 @@ try:
                                 userID=userID,
                                 user_details=user_details,
                                 nft_details=nft_details,
-                                rcountry=rcountry,
-                                rnickname=rnickname,
                                 nftid=nftid,
                                 pincode=pincode,
                                 signHistory=signHistory,
@@ -457,8 +429,6 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
-            rcountry = rp.randomCountry()
-            rnickname = rp.randomNickname()
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
@@ -466,8 +436,6 @@ try:
             return render_template('profile_other_user_view.html',
                                 userID = userID,
                                 user_details = user_details,
-                                rcountry = rcountry,
-                                rnickname = rnickname,
                                 nftid = avatar_id,
                                 infomsg = infomsg
                                 )

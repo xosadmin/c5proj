@@ -48,15 +48,13 @@
                 <tr>
                     <th scope="col">User ID</th>
                     <th scope="col">Email Address</th>
-                    <th scope="col">Nickname</th>
                     <th scope="col">Location</th>
                     <th scope="col">Coins</th>
                 </tr>
                 <tr>
                     <td>{{useritems.userID}}</td>
-                    <td>{{useritems.email}}</td>
-                    <td>{{rnickname}}</td>
-                    <td>{{rcountry}}</td>
+                    <td>{{useritems.email}}&nbsp;<a href="/modifycenter" title="Change Email">Change</a></td>
+                    <td>{{useritems.country}}&nbsp;<a href="/modifycenter" title="Change country/region">Change</a></td>
                     <td>{{useritems.coins}}</td>
                 </tr>
                 {% endfor %}
@@ -73,8 +71,9 @@
                                 <th scope="col">3rd Profile View</th>
                             </tr>
                             <tr>
-                                <td><a href="/modifypassword" title="Modify Password">Modify Password</a></td>
-                                <td><button type="button" id="showpin" class="btn btn-success">Show Pin Code</button><div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifypin" title="Modify Password">Modify Pin Code</a></td>
+                                <td><a href="/modifycenter" title="Change Password">Change Password</a></td>
+                                <td><button type="button" id="showpin" class="btn btn-success">Show/Hide Pin Code</button>
+                                    <div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifycenter" title="Modify PIN">Modify Pin Code</a></td>
                                 <td><a href="/profile/{{userID}}" title="View my profile in 3rd views" target="_blank">View my profile as 3rd person view</a></td>
                             </tr>
                         </tbody>
