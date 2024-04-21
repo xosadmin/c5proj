@@ -6,7 +6,6 @@ from models.sqlmodels import *
 import apps.randomprofile as rp
 from datetime import datetime
 import hashlib
-import base64
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.dbSession'
