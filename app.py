@@ -567,7 +567,7 @@ try:
         userCoins = getUserInfo(userID,"coins")
         remainCoins = int(userCoins) - int(itemPrice)
         checkWarehouse = ifUserPurchased(userID,id) # Check if user already purchased this item
-        if userCoins >= itemPrice:
+        if remainCoins >= 0:
             if not checkWarehouse:
                 insert = Transaction(userID=userID,itemID=id)
                 dbSession.add(insert)
