@@ -9,6 +9,7 @@ from models.formModels import *
 from apps.get import *
 from apps.login_process import *
 from apps.randomprofile import *
+import hashlib
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
@@ -63,7 +64,8 @@ try:
                 dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
             elif changeType == "password":
                 newpassword = request.form["newpassword"]
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=newpassword))
+                encNewPassword = encryptPassword(newpassword)
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
             else:
                 return render_template("change_profile.html",infomsg="Invalid Change!")
             dbSession.commit()
@@ -81,7 +83,8 @@ try:
                 pin_verify_result = verifyPinCode(email, pincode)
                 if pin_verify_result == 0:
                     try:
-                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password="123"))
+                        encryptedPassword = encryptPassword("123")
+                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
                         dbSession.commit()
                         return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                     except Exception as e:
@@ -323,7 +326,8 @@ try:
             try:
                 checkEmailExist = checkEmail(email)
                 if checkEmailExist == 0:
-                    insert = UserInfo(userID=userID,email=email,password=password,country=country,pincode=pincode)
+                    encryptedPassword = encryptPassword(password)
+                    insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
                     dbSession.add(insert)
                     dbSession.commit()
                     return render_template("register_complete.html")
@@ -340,7 +344,8 @@ try:
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == password).first()
+            encryptedPassword = encryptPassword(password)
+            result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == encryptedPassword).first()
             if result:
                 userid = str(result.userID)
                 print("[Info] User " + userid + " has login in.")

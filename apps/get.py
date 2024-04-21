@@ -5,6 +5,8 @@ from sqlalchemy.orm import *
 from models.sqlmodels import *
 import apps.randomprofile as rp
 from datetime import datetime
+import hashlib
+import base64
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.dbSession'
@@ -120,3 +122,9 @@ def getTime():
     composeTime = str(currentTime.year) + "-" + str(currentTime.month) + "-" + str(currentTime.day) + " on " + \
                   str(currentTime.hour) + ":" + str(currentTime.minute) + ":" + str(currentTime.second)
     return composeTime
+
+def encryptPassword(text):
+     md5 = hashlib.md5()
+     md5.update(text.encode(encoding='utf-8')) # Encode text as UTF-8
+     return str(md5.hexdigest())
+
