@@ -9,7 +9,6 @@ from models.formModels import *
 from apps.get import *
 from apps.login_process import *
 from apps.randomprofile import *
-import datetime as dt
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
