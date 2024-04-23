@@ -17,6 +17,12 @@ class TestGETPY(unittest.TestCase):
             Input = "test@test.com" # Email address that existed in the system
             result = checkEmail(Input)
             self.assertEqual(result,-1)
+
+    def test_checkEmailNotExist(self):
+        with self.app.app_context():
+            Input = "notexist@notexist.com" # Email address that is not existed in the system
+            result = checkEmail(Input)
+            self.assertEqual(result,0)
     
     def test_getThreadTitle(self):
         with self.app.app_context():
