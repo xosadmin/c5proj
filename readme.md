@@ -1,11 +1,10 @@
-# CITS5505 Assignment 2 Group Project  
+# Assignment 2 Group Project  
   
 ## Note: This is a private repository. Do not share it with others.  
   
 ### Due date: 5 PM on Sunday, May 19th, 2024 (GMT+8)  
 
 #### Live Test user  
-- URL: http://cits5505.x-osadmin.com:8080 (Hosted by X-osadmin)  
 - User Name: test@test.com  
 - Password: 123  
   
@@ -27,6 +26,11 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 - Clone this project  
 - Install dependencies by `pip install -r requirements.txt` (Use `pip install -r requirements.txt --break-system-packages` if you are working on Linux)  
 - Use the command `flask run`(Use `flask run --host=0.0.0.0` if debug on productive server) to start the web server  
+
+#### How to do unit test
+- Clone this project
+- Navigate to the root of the program
+- Use command `python -m unittest tests/<filename>.py`
   
 #### Group members  
 | Name  | Student ID | Github ID |
@@ -36,5 +40,5 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 | Phyo Phyo Wut Yee Khine | 23650578 | [https://github.com/Phyo09](Phyo09) |
 | Chunhui Chu | 24074951 | [https://github.com/TonyChyu](TonyChyu) |
 ------  
-For full assignment description, see [https://github.com/xosadmin/cits5505Proj/description.md](description.md)  
+For full assignment description, see [https://github.com/xosadmin/c5Proj/description.md](description.md)  
 
