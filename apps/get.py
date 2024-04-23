@@ -9,7 +9,6 @@ from app import *
 import hashlib
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
 
 def checkEmail(email):
         user = UserInfo.query.filter(UserInfo.email == email).first()
@@ -112,11 +111,11 @@ def ifSign(userID):
      else:
           return False # If the user did not sign today
 
-def getTime():
-    currentTime = datetime.now()
-    composeTime = str(currentTime.year) + "-" + str(currentTime.month) + "-" + str(currentTime.day) + " on " + \
-                  str(currentTime.hour) + ":" + str(currentTime.minute) + ":" + str(currentTime.second)
-    return composeTime
+# def getTime():
+#     currentTime = datetime.now()
+#     composeTime = str(currentTime.year) + "-" + str(currentTime.month) + "-" + str(currentTime.day) + " on " + \
+#                   str(currentTime.hour) + ":" + str(currentTime.minute) + ":" + str(currentTime.second)
+#     return composeTime
 
 def encryptPassword(text):
      md5 = hashlib.md5()
