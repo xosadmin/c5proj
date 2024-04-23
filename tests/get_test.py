@@ -1,9 +1,11 @@
+import os,sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
-from get import *
+from apps.get import *
 
 class TestGETPY(unittest.TestCase):
     def test_checkEmail(self):
-        Input = "test@test.com"
+        Input = "test@test.com" # Email address that existed in the system
         result = checkEmail(Input)
         self.assertEqual(result,"-1")
     

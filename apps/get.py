@@ -8,7 +8,7 @@ from datetime import datetime
 import hashlib
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.dbSession'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
 alchemySession = sessionmaker(bind=engine)
