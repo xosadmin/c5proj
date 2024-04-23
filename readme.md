@@ -30,7 +30,7 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 #### How to do unit test
 - Clone this project
 - Navigate to the root of the program
-- Use command `python -m unittest tests/<filename>.py`
+- Use command `python -m unittest tests/Unittest.py -v`
   
 #### Group members  
 | Name  | Student ID | Github ID |
