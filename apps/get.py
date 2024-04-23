@@ -1,19 +1,15 @@
 import os
 from flask import *
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from models.sqlmodels import *
-import apps.randomprofile as rp
 from datetime import datetime
+from app import *
 import hashlib
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
-engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-connect = engine.connect()
-alchemySession = sessionmaker(bind=engine)
-
-dbSession = alchemySession()
 
 def checkEmail(email):
         user = UserInfo.query.filter(UserInfo.email == email).first()

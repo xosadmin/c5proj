@@ -11,7 +11,7 @@ from apps.login_process import *
 from apps.randomprofile import *
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
 app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()

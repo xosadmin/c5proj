@@ -7,4 +7,7 @@ Test Cases for the system
 - newthread_test.py = Testing community functions  
 - request_test.py = Testing Request function  
   
+#### To run unittest, please use command `python -m unittest tests/<filename> -v`.  
+Note: Please run the unittest on the root of the program.  
+  
 Should you have any question, please raise issue.  
