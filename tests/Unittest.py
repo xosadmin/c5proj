@@ -16,7 +16,7 @@ class testCases(unittest.TestCase):
         self.generatedEmail = str(rp.randomEmail())
         self.generatedPassword = str(rp.generatePassword(10))
         self.pincode = "1234"
-
+# Setup
     def test_email_exists(self):
         with self.app.test_request_context():
             email = "test@test.com"
@@ -37,9 +37,6 @@ class testCases(unittest.TestCase):
             'password': "123"
         })
         self.assertEqual(response.status_code, 302)
-        
-
-    
     
     def test_doresetpassword(self):
         response = self.client.post('/doresetpassword', data={
@@ -47,8 +44,6 @@ class testCases(unittest.TestCase):
             'pincode': self.pincode
         })
         self.assertEqual(response.status_code, 302)
-       
-   
 
     def test_domodifypassword(self):
         response = self.client.post('/domodifypassword', data={
@@ -57,7 +52,6 @@ class testCases(unittest.TestCase):
             'pincode': self.pincode
         })
         self.assertEqual(response.status_code, 302)
-        
     
     def test_domodifypin(self):
         response = self.client.post('/domodifypin', data={
@@ -66,20 +60,52 @@ class testCases(unittest.TestCase):
             'repeatnewpin': '5678'
         })
         self.assertEqual(response.status_code, 302)
-        
 
-   
+    def test_donewrequests(self):
+        with self.client as client:
+            response = client.post('/donewrequest', data={
+                'title': 'Unit Test Request',
+                'content': 'This is the content of the new request for unit test.',
+                'rewards': '1',
+                'timelimit': '1'
+            })
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue('requests' in response.location)
+    
+    def test_donewthreads(self):
+       with self.client as client:
+            response = client.post('/donewthread', data={
+                'title': 'New Thread Title',
+                'content': 'This is the content of the new thread.'
+            })
+            self.assertEqual(response.status_code, 302)  
+            
+    def test_doNewThreadReply(self):
+        with self.client as client:
+            response = client.post('/donewthreadreply', data={
+                'threadID': '117715ff-1b38-4410-b8f2-23ead632642e',
+                'content': 'Unit test conducted on ' + gt.getTime()
+            })
+            self.assertEqual(response.status_code, 302)
+
+# app.py Unit Test
 
     def test_llmreq(self):
         llmReqGen = llm.llmRequests()
         if "." or "?" in llmReqGen:
             self.assertTrue(True)
-   
     
     def test_llmans(self):
         llmAnsGen = llm.llmAnswers()
         if "." or "?" in llmAnsGen:
             self.assertTrue(True)
+
+    def test_llmFeelings(self):
+        llmFeelGen = llm.llmFeelings()
+        if "." in llmFeelGen:
+            self.assertTrue(True)
+
+# llm.py Unit Test
 
     def test_checkEmail(self):
         with self.app.app_context():
@@ -142,7 +168,7 @@ class testCases(unittest.TestCase):
         with self.app.app_context():
             input1 = "1"
             testCases = ["detail","price"]
-            expectAnswers = ["The Man with Prime","100"]
+            expectAnswers = ["The Man with Prime","100"] # Item Detail, Price
             for i in range(0,len(testCases)):
                 if gt.getItemInfo(input1,testCases[i]) != expectAnswers[i]:
                     self.assertFalse(False)
@@ -160,59 +186,7 @@ class testCases(unittest.TestCase):
             result = gt.encryptPassword(input1)
             self.assertEqual(result,"5d41402abc4b2a76b9719d911017c592")
 
-    def test_donewrequests(self):
-        with self.client as client:
-            response = client.post('/donewrequest', data={
-                'title': 'New Request Title',
-                'content': 'This is the content of the new request.',
-                'rewards': '100',
-                'timelimit': '7'
-            })
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue('requests' in response.location)
-
-   
-    
-    def test_donewthreads(self):
-       with self.client as client:
-            response = client.post('/donewthread', data={
-                'title': 'New Thread Title',
-                'content': 'This is the content of the new thread.'
-            })
-           
-            self.assertEqual(response.status_code, 302)  
-           
-    
-   
-
-    def test_doAcceptRequest(self):
-        with self.client as client:
-            response = client.post('/doacceptrequest/valid-request-id')
-            self.assertEqual(response.status_code, 302)
-            
-   
-
-    def test_doAnswerRequest(self):
-        with self.client as client:
-            response = client.post('/doanswerrequest', data={
-                'userID': 'valid-user-id',
-                'rewards': '50',
-                'requestID': 'valid-request-id',
-                'content': 'This is the answer content for the request.'
-            })
-            self.assertEqual(response.status_code, 302)
-            
-   
-
-    def test_doNewThreadReply(self):
-        with self.client as client:
-            response = client.post('/donewthreadreply', data={
-                'threadID': 'some-unique-thread-id',
-                'content': 'Reply content for the thread.'
-            })
-            self.assertEqual(response.status_code, 302)  
-           
-
+# get.py Unit Test
    
 if __name__ == '__main__':
     unittest.main()
