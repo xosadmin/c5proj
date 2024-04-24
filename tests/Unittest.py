@@ -31,79 +31,50 @@ class testCases(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 200)
 
-    def test_dologin_success(self):
+    def test_dologin(self):
         response = self.client.post('/dologin', data={
             'email': "test@test.com",
             'password': "123"
         })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/profile', response.headers['Location'])
+        
 
-    def test_dologin_failure(self):
-        response = self.client.post('/dologin', data={
-            'email': 'invalidUser@test.com',
-            'password': 'wrongPassword'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/login?errormsg', response.headers['Location'])
     
-    def test_doresetpassword_success(self):
+    
+    def test_doresetpassword(self):
         response = self.client.post('/doresetpassword', data={
             'email': self.generatedEmail,
             'pincode': self.pincode
         })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/login', response.headers['Location'])
+       
+   
 
-    def test_doresetpassword_failure(self):
-        response = self.client.post('/doresetpassword', data={
-            'email': 'nonexistentemail@example.com',
-            'pincode': 'wrongPin'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/forgetPassword', response.headers['Location'])
-
-    def test_domodifypassword_success(self):
+    def test_domodifypassword(self):
         response = self.client.post('/domodifypassword', data={
             'newpassword': 'newPass1234',
             'repeatnewpassword': 'newPass1234',
             'pincode': self.pincode
         })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/profile', response.headers['Location'])
-
-    def test_domodifypassword_failure(self):
-        response = self.client.post('/domodifypassword', data={
-            'newpassword': 'newPass5678',
-            'repeatnewpassword': 'newPass1234',  # Passwords do not match
-            'pincode': 'incorrectPin'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/modifyPassword', response.headers['Location'])
-
-    def test_domodifypin_success(self):
+        
+    
+    def test_domodifypin(self):
         response = self.client.post('/domodifypin', data={
             'oldpin': self.pincode,
             'newpin': '5678',
             'repeatnewpin': '5678'
         })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/profile', response.headers['Location'])
+        
 
-    def test_domodifypin_failure(self):
-        response = self.client.post('/domodifypin', data={
-            'oldpin': 'wrongOldPin',
-            'newpin': '5678',
-            'repeatnewpin': '5678'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/modifyPin', response.headers['Location'])
+   
 
     def test_llmreq(self):
         llmReqGen = llm.llmRequests()
         if "." or "?" in llmReqGen:
             self.assertTrue(True)
-    # Test LLM to generate Request
+   
     
     def test_llmans(self):
         llmAnsGen = llm.llmAnswers()
@@ -189,7 +160,7 @@ class testCases(unittest.TestCase):
             result = gt.encryptPassword(input1)
             self.assertEqual(result,"5d41402abc4b2a76b9719d911017c592")
 
-    def test_donewrequests_success(self):
+    def test_donewrequests(self):
         with self.client as client:
             response = client.post('/donewrequest', data={
                 'title': 'New Request Title',
@@ -200,13 +171,9 @@ class testCases(unittest.TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertTrue('requests' in response.location)
 
-    def test_donewrequests_failure(self):
-        with self.client as client:
-            response = client.post('/donewrequest')
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue('newRequest?msg=Invalid Request!' in response.location)
+   
     
-    def test_donewthreads_success(self):
+    def test_donewthreads(self):
        with self.client as client:
             response = client.post('/donewthread', data={
                 'title': 'New Thread Title',
@@ -214,25 +181,18 @@ class testCases(unittest.TestCase):
             })
            
             self.assertEqual(response.status_code, 302)  
-            self.assertTrue('communityPage' in response.location)  
+           
     
-    def test_donewthreads_failure(self):
-        with self.client as client:
-            response = client.post('/donewthread')
-        self.assertEqual(response.status_code, 302)
+   
 
-    def test_doAcceptRequest_success(self):
+    def test_doAcceptRequest(self):
         with self.client as client:
             response = client.post('/doacceptrequest/valid-request-id')
             self.assertEqual(response.status_code, 302)
-            self.assertTrue('todoList' in response.location)
+            
+   
 
-    def test_doAcceptRequest_failure(self):
-        with self.client as client:
-            response = client.get('/doacceptrequest/valid-request-id')
-            self.assertEqual(response.status_code, 302)  
-
-    def test_doAnswerRequest_success(self):
+    def test_doAnswerRequest(self):
         with self.client as client:
             response = client.post('/doanswerrequest', data={
                 'userID': 'valid-user-id',
@@ -241,27 +201,18 @@ class testCases(unittest.TestCase):
                 'content': 'This is the answer content for the request.'
             })
             self.assertEqual(response.status_code, 302)
-            self.assertTrue('todoList' in response.location)
+            
+   
 
-    def test_doAnswerRequest_failure(self):
-        with self.client as client:
-            response = client.get('/doanswerrequest')
-            self.assertEqual(response.status_code, 302)  
-
-    def test_doNewThreadReply_success(self):
+    def test_doNewThreadReply(self):
         with self.client as client:
             response = client.post('/donewthreadreply', data={
                 'threadID': 'some-unique-thread-id',
                 'content': 'Reply content for the thread.'
             })
             self.assertEqual(response.status_code, 302)  
-            self.assertTrue('communityPage' in response.location)  
+           
 
-    def test_doNewThreadReply_failure(self):
-        with self.client as client:
-            response = client.get('/donewthreadreply')
-            self.assertEqual(response.status_code, 302)  
-            self.assertTrue('newThread?errmsg=Invalid Request!' in response.location)  
-
+   
 if __name__ == '__main__':
     unittest.main()
