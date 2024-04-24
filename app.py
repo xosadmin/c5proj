@@ -176,6 +176,11 @@ try:
         else:
             return render_template("newchat.html")
 
+    @app.route("/newchat/<dstuserid>", methods=['GET'])
+    @login_required
+    def donewchatwithID(dstuserid):
+        return render_template("newchat.html", dstuserid=dstuserid)
+
     @app.route("/requests")
     @login_required
     def requestPage():
@@ -598,6 +603,22 @@ try:
             return render_template("leaderboard.html", result=result)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
+        
+    @app.route("/api/searchuser/<type>/<value>",methods=["GET"])
+    @login_required
+    def searchFriend(type,value):
+        if type == "country":
+            result = UserInfo.query.filter(UserInfo.country == value).all()
+        elif type == "email":
+            result = UserInfo.query.filter(UserInfo.email == value).all()
+        else:
+            return jsonify([])
+        if result:
+            user_data = [{'id': user.userID, 'email': user.email, 'country': user.country} for user in
+                         result]
+        else:
+            user_data = []
+        return jsonify(user_data)
     
     @app.route("/robots.txt")
     def robots():

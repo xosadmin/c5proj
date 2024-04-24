@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <script src="{{url_for('static',filename='js/searchuser.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
@@ -40,11 +41,47 @@
                 </div>
             {% endif %}
             <h1 id="pageBanner">New Ticket</h1>
+            <div id="searchColumn">
+                <h3>Search User ID</h3>
+                <form action="#">
+                    <p>Search criteria: <input type="radio" id="country" name="searchType" checked>
+                        <label for="country">Country/Region</label>&nbsp;
+                        <input type="radio" id="email" name="searchType">
+                        <label for="email">Email Address</label><br>
+                        <br></p>
+                    <p>Value: <input type="text" id="value" name="value"></p>
+                    <button type="button" id="search" name="search" onclick="searchResult()">Search</button>
+                    <button type="button" id="collapse" name="collapse">Collapse/Show Result</button>
+                </form>
+                <br>
+                <div id="searchResult">
+                    <p>Based on your criteria, the system found following users.</p>
+                    <p>Click on userID or email to see user profile.</p>
+                    <table class="table table-striped listcontents">
+                        <thead>
+                            <tr>
+                                <th scope="col">UserID</th>
+                                <th scope="col">User Email</th>
+                                <th scope="col">Set this user as destination user</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
             <div class="newthreadandrequest">
                 <form method="POST" action="/newchat">
                     <div class="form-group fillForms">
                         <label for="dstuser">Destination User ID</label>
+                        {% if dstuserid %}
+                        <input type="number" class="form-control" id="dstuser" name="dstuser" placeholder="Destination User" 
+                            value="{{dstuserid}}" required>
+                        {% else %}
                         <input type="number" class="form-control" id="dstuser" name="dstuser" placeholder="Destination User" required>
+                        {% endif %}
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
