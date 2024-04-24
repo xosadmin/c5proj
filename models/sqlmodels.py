@@ -4,7 +4,7 @@ from sqlalchemy import *
 from flask import Flask
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
 db = SQLAlchemy()
 
 class UserInfo(db.Model):
@@ -24,7 +24,7 @@ class Community(db.Model):
     __tablename__ = 'community'
     threadID = Column(Text, primary_key=True)
     title = Column(String(120), nullable=False)
-    userID = Column(Integer, ForeignKey('users.userID'))
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_community_userID'))
 
     def __repr__(self):
         return '[ID:{},title:{},userID:{}]'.format(self.threadID,self.title,self.userID)
@@ -32,8 +32,8 @@ class Community(db.Model):
 class Thread(db.Model):
     __tablename__ = 'threads'
     replyID = Column(Integer, primary_key=True, autoincrement=True)
-    threadID = Column(Text, nullable=False)
-    userID = Column(Integer, ForeignKey('users.userID'))
+    threadID = Column(Text, ForeignKey('community.threadID', name='fk_thread_threadID'))
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_thread_userID'))
     contents = Column(Text, nullable=False, default="No Content")
 
     def __repr__(self):
@@ -46,7 +46,7 @@ class Requests(db.Model):
     content = Column(Text, nullable=False)
     rewards = Column(String(120))
     timelimit = Column(String(120))
-    userID = Column(Integer, ForeignKey('users.userID'))
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_requests_userID'))
     status = Column(Text, nullable=False, default="Available")
     answer = Column(Text)
 
@@ -66,7 +66,7 @@ class Shop(db.Model):
 class Transaction(db.Model):
     __tablename__ = 'transactions'
     transactionID = Column(Integer, primary_key=True, autoincrement=True)
-    userID = Column(Integer, ForeignKey('users.userID'))
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_transaction_userID'))
     itemID = Column(Integer, ForeignKey('shop.itemID'))
 
     def __repr__(self):
@@ -75,8 +75,8 @@ class Transaction(db.Model):
 class Todo(db.Model):
     __tablename__ = 'todo'
     todoID = Column(Integer, primary_key=True, autoincrement=True)
-    userID = Column(Integer, ForeignKey('users.userID'))
-    requestID = Column(Integer, ForeignKey('requests.requestID'))
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_todo_userID'))
+    requestID = Column(Integer, ForeignKey('requests.requestID', name='fk_todo_reqID'))
     status = Column(Text, default="Undo")
 
     def __repr__(self):
@@ -86,8 +86,8 @@ class Chats(db.Model):
     __tablename__ = 'chats'
     replyID = Column(Integer, primary_key=True, autoincrement=True)
     chatID = Column(Text, nullable=False)
-    srcUserID = Column(Integer, ForeignKey('users.userID'))
-    dstUserID = Column(Integer, ForeignKey('users.userID'))
+    srcUserID = Column(String(120), ForeignKey('users.userID', name='fk_chat_userID1'))
+    dstUserID = Column(String(120), ForeignKey('users.userID', name='fk_chat_userID2'))
     content = Column(Text, nullable=False, default="No Content")
 
     def __repr__(self):
@@ -96,7 +96,7 @@ class Chats(db.Model):
 class Signs(db.Model):
     __tablename__ = 'signs'
     signID = Column(Text, primary_key=True)
-    userID = Column(Text, nullable=False)
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_signs_userID'))
     time = Column(Text, nullable=False)
     emotion = Column(Text, nullable=False, default="Happy")
     comments = Column(Text, nullable=False, default="No Comment")

@@ -2,6 +2,7 @@ import os
 from flask import *
 import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy.orm import sessionmaker
 from apps.login_process import login_required
 from models.sqlmodels import *
@@ -19,6 +20,7 @@ alchemySession = sessionmaker(bind=engine)
 
 dbSession = alchemySession()
 db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
+migrate = Migrate(app, db) # Create a flask db migration
 
 try:
     @app.route("/")
@@ -267,7 +269,7 @@ try:
             try:
                 threadUUID = str(uuidGen())
                 inserts = [Community(threadID=threadUUID,title=title,userID=userID),
-                           Thread(threadID=threadUUID,userID=userID,content=content)]
+                           Thread(threadID=threadUUID,userID=userID,contents=content)]
                 for item in inserts:
                     dbSession.add(item)
                 dbSession.commit()
