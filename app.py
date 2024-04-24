@@ -608,9 +608,9 @@ try:
     @login_required
     def searchFriend(type,value):
         if type == "country":
-            result = UserInfo.query.filter(UserInfo.country == value).all()
+            result = UserInfo.query.filter(UserInfo.country.ilike('%' + value + '%')).all()
         elif type == "email":
-            result = UserInfo.query.filter(UserInfo.email == value).all()
+            result = UserInfo.query.filter(UserInfo.email.ilike('%' + value + '%')).all()
         else:
             return jsonify([])
         if result:
