@@ -3,12 +3,8 @@
 ## Note: This is a private repository. Do not share it with others.  
   
 ### Due date: 5 PM on Sunday, May 19th, 2024 (GMT+8)  
-
-#### Live Test user  
-- User Name: test@test.com  
-- Password: 123  
   
-#### Description
+#### Description  
 The Assignment 2 is asked to build a request forum application, which allows users to create accounts, post their own requests and answer other people's requests.  
   
 #### Program Structure  
@@ -40,5 +36,5 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 | Phyo Phyo Wut Yee Khine | 23650578 | [https://github.com/Phyo09](Phyo09) |
 | Chunhui Chu | 24074951 | [https://github.com/TonyChyu](TonyChyu) |
 ------  
-For full assignment description, see [https://github.com/xosadmin/c5Proj/description.md](description.md)  
+
 
