@@ -50,12 +50,18 @@
                     <th scope="col">#</th>
                     <th scope="col">Title</th>
                     <th scope="col">Author</th>
+                    <th scope="col">Delete Thread</th>
                 </tr>
                 {% for resultitem in result %}
                 <tr>
                     <td>{{ resultitem.threadID }}</td>
                     <td><a href="thread/{{resultitem.threadID}}" title="View Details">{{ resultitem.title }}</a></td>
                     <td>{{ resultitem.userID }}</td>
+                    {% if userID|int == resultitem.userID|int %}
+                        <td><a href="/deletethread/{{resultitem.userID}}/{{resultitem.threadID}}" title="Delete this thread">Delete This Thread</a></td>
+                    {% else %}
+                        <td>No Permission</td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
                 </tbody>

@@ -117,9 +117,10 @@ try:
     @app.route("/community", methods=["GET"])
     @login_required
     def communityPage():
+        userID = getSession("userid")
         try:
             result = Community.query.all()
-            return render_template('community.html', result=result)
+            return render_template('community.html', result=result, userID=userID)
         except Exception as e:
             print(e)
             return render_template('community.html', errmsg="Internal Error")
@@ -176,6 +177,18 @@ try:
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
+
+    @app.route("/deletethread/<threaduserid>/<threadID>", methods=['GET'])
+    @login_required
+    def deleteThread(threaduserid,threadID):
+        currentuserID = getSession("userid")
+        if int(threaduserid) == int(currentuserID): # Only userID matches can delete
+            dbSession.execute(delete(Thread).where(Thread.threadID == threadID))
+            dbSession.execute(delete(Community).where(Community.threadID == threadID))
+            dbSession.commit()
+            return "<script>alert('Your thread has been deleted.');window.location.href='/community';</script>"
+        else:
+            return "<script>alert('You cannot delete it!');window.location.href='/community';</script>"
         
     @app.route("/newchat",methods=['GET','POST'])
     @login_required
@@ -209,7 +222,7 @@ try:
         try:
             currentUserID = getSession("userid")
             coins = getCoins(currentUserID)
-            result = Requests.query
+            result = Requests.query.all()
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
             print(e)
@@ -221,7 +234,7 @@ try:
         userID = getSession("userid")
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
-        result = Shop.query
+        result = Shop.query.all()
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
         else:
