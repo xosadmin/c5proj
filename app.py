@@ -85,7 +85,7 @@ try:
             else:
                 return redirect(url_for('forgetPassword', infomsg="User not found."))
         else:
-            errormsg = request.args.get("infomsg")
+            errormsg = request.args.get("infomsg","")
             return render_template('forget_password.html', errormsg=errormsg, form=form)
     
     @app.route("/modifycenter",methods=["GET","POST"])
@@ -318,7 +318,7 @@ try:
             else:
                 return redirect(url_for('newRequest', msg="Insufficient Balance!"))
         else:
-            msg = request.args.get('msg', 'null')
+            msg = request.args.get('msg', '')
             userID = getSession("userid")
             currentCoin = getCoins(userID)
             return render_template('newrequest.html', balance=currentCoin,msg=msg,form=form)
