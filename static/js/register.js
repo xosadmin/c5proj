@@ -11,11 +11,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 alert("Password mismatch!");
                 event.preventDefault();
             }
-            if (pincode.length < 4) {
-                console.error("PIN code cannot less than 4 letters");
-                alert("PIN code cannot less than 4 letters");
-                event.preventDefault();
-            }
         });
     });
 });
