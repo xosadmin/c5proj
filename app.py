@@ -36,7 +36,7 @@ try:
         else:
             return render_template('login.html',form=form)
 
-    @app.route("/register", methods=["GET"])
+    @app.route("/register", methods=["GET", "POST"])
     def registerPage():
         form = RegisterForm()
         if request.method == "POST":
