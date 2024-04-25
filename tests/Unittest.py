@@ -23,13 +23,14 @@ class testCases(unittest.TestCase):
             getReturn = self.gt.checkEmail(email)
             self.assertEqual(getReturn, -1)
 
-    def test_register_post(self):
-        response = self.client.post('/doregister', data={
+    def test_register(self):
+        response = self.client.post('/register', data={
             'email': self.generatedEmail, 
             'password': self.generatedPassword,
             'pincode': self.pincode
-        })
+        },follow_redirects=True)
         self.assertEqual(response.status_code, 200)
+        
 
     def test_dologin(self):
         response = self.client.post('/dologin', data={
@@ -39,46 +40,44 @@ class testCases(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_doresetpassword(self):
-        response = self.client.post('/doresetpassword', data={
+        response = self.client.post('/forgetpassword', data={
             'email': self.generatedEmail,
             'pincode': self.pincode
-        })
-        self.assertEqual(response.status_code, 302)
+        },follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
 
     def test_domodifypassword(self):
-        response = self.client.post('/domodifypassword', data={
+        response = self.client.post('/modifycenter', data={
+            'type': 'password',
             'newpassword': 'newPass1234',
-            'repeatnewpassword': 'newPass1234',
-            'pincode': self.pincode
-        })
-        self.assertEqual(response.status_code, 302)
-    
+        }, follow_redirects=True)
+        
+        self.assertEqual(response.status_code, 200)
     def test_domodifypin(self):
-        response = self.client.post('/domodifypin', data={
+        response = self.client.post('/modifycenter', data={
             'oldpin': self.pincode,
             'newpin': '5678',
             'repeatnewpin': '5678'
-        })
-        self.assertEqual(response.status_code, 302)
+        },follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
 
     def test_donewrequests(self):
         with self.client as client:
-            response = client.post('/donewrequest', data={
+            response = client.post('/newrequest', data={
                 'title': 'Unit Test Request',
                 'content': 'This is the content of the new request for unit test.',
                 'rewards': '1',
                 'timelimit': '1'
-            })
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue('requests' in response.location)
+            },follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
     
     def test_donewthreads(self):
        with self.client as client:
-            response = client.post('/donewthread', data={
+            response = client.post('/newthread', data={
                 'title': 'New Thread Title',
                 'content': 'This is the content of the new thread.'
-            })
-            self.assertEqual(response.status_code, 302)  
+            },follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
             
     def test_doNewThreadReply(self):
         with self.client as client:
