@@ -42,16 +42,17 @@
             <h1 id="pageBanner">Sign your emotion and get coins!</h1>
             <div class="newthreadandrequest">
                 <form method="POST" action="/signs">
+                    {{ form.hidden_tag() }}
                     <div class="form-group fillForms">
                         <label for="feelings">My feelings</label>
-                        <input type="text" class="form-control" id="feelings" name="feelings" placeholder="Your Feelings (e.g. Happy/Sleepy)">
+                        {{ form.feelings(class="form-control", id="feelings", placeholder="My Feelings (e.g. Happy)", required=true) }}
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Comments</label>
-                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
+                        {{ form.comments(class="form-control", id="content", rows="4", cols="50", required=true) }}
                         <small>Do you need LLM for compose contents? <a href="#mainContent" onclick="loadLLM(3)">Click here to ask LLM to generate content for you</a></small>
                     </div>
-                    <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
+                    {{ form.submit() }}
                   </form>
                   <br>
             </div>

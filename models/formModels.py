@@ -1,54 +1,42 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, IntegerField
+from wtforms.validators import DataRequired, Email, Length
 
 class LoginForm(FlaskForm):
-    email = StringField('Email Address', validators=[DataRequired()])
+    email = StringField('Email Address', validators=[DataRequired(),Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Login', id="doSubmit")
 
 class RegisterForm(FlaskForm):
-    email = StringField('Email Address', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    repeat_password = PasswordField('Repeat Passwrd', validators=[DataRequired()])
-    pin_code = PasswordField('PIN Code', validators=[DataRequired()])
-    submit = SubmitField('Register')
+    email = StringField('Email Address', validators=[DataRequired(),Email()])
+    password = PasswordField('Password', validators=[DataRequired(),Length(min=4,max=32)])
+    repeat_password = PasswordField('Repeat Passwrd', validators=[DataRequired(),Length(min=4,max=32)])
+    pin_code = PasswordField('PIN Code', validators=[DataRequired(),Length(min=4)])
+    submit = SubmitField('Register', id="doSubmit")
 
-class ForgetPassword(FlaskForm):
-    email = StringField('Email Address', validators=[DataRequired()])
-    pin_code = PasswordField('PIN Code', validators=[DataRequired()])
-    submit = SubmitField('Reset Password')
+class ForgetPasswordForm(FlaskForm):
+    email = StringField('Email Address', validators=[DataRequired(),Email()])
+    pin_code = PasswordField('PIN Code', validators=[DataRequired(),Length(min=4)])
+    submit = SubmitField('Reset Password', id="doSubmit")
 
 class signEmotionForm(FlaskForm):
-    feelings = StringField('Your Feelings (e.g. Happy/Angry)')
-    comments = StringField('Comments')
-    submit = SubmitField('Save')
+    feelings = StringField('Your Feelings (e.g. Happy/Angry)',validators=[DataRequired()])
+    comments = TextAreaField('Comments')
+    submit = SubmitField('Save', id="doSubmit")
 
-class modifyPassword(FlaskForm):
-    new_password = PasswordField("New Password")
-    repeat_newpassword = PasswordField("Repeat New Password")
-    pin_code = PasswordField("PIN Code")
-    submit = SubmitField("Change Password")
+class newRequestForm(FlaskForm):
+    title = StringField("Request Title",validators=[DataRequired()])
+    contents = TextAreaField("Contents",validators=[DataRequired()])
+    rewards = IntegerField("Rewards",validators=[DataRequired()])
+    timelimit = StringField("Time Limit (in days)",validators=[DataRequired()])
+    submit = SubmitField("Post New Request", id="doSubmit")
 
-class modifyPinCode(FlaskForm):
-    old_pin = PasswordField("Old PIN Number")
-    new_pin = PasswordField("New PIN")
-    repeat_newpin = PasswordField("Repeat New PIN")
-    submit = SubmitField("Change PIN")
+class newThreadForm(FlaskForm):
+    title = StringField("Thread Title",validators=[DataRequired()])
+    contents = TextAreaField("Contents",validators=[DataRequired()])
+    submit = SubmitField("Submit", id="doSubmit")
 
-class newRequest(FlaskForm):
-    title = StringField("Request Title")
-    contents = StringField("Contents")
-    rewards = StringField("Rewards")
-    timelimit = StringField("Time Limit (in days)")
-    submit = SubmitField("Post New Request")
-
-class newThread(FlaskForm):
-    title = StringField("Thread Title")
-    contents = StringField("Contents")
-    submit = SubmitField("Submit")
-
-class newChat(FlaskForm):
-    dstUser = StringField("Destination User ID")
-    contents = StringField("Contents")
-    submit = SubmitField("Submit")
+class newChatForm(FlaskForm):
+    dstUser = StringField("Destination User ID",validators=[DataRequired()])
+    contents = TextAreaField("Contents",validators=[DataRequired()])
+    submit = SubmitField("Submit", id="doSubmit")

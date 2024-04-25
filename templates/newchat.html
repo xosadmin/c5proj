@@ -75,19 +75,19 @@
             <div class="newthreadandrequest">
                 <form method="POST" action="/newchat">
                     <div class="form-group fillForms">
+                        {{ form.hidden_tag() }}
                         <label for="dstuser">Destination User ID</label>
                         {% if dstuserid %}
-                        <input type="number" class="form-control" id="dstuser" name="dstuser" placeholder="Destination User" 
-                            value="{{dstuserid}}" required>
+                        {{ form.dstUser(class="form-control", id="dstuser", required=true, value=dstuserid) }}
                         {% else %}
-                        <input type="number" class="form-control" id="dstuser" name="dstuser" placeholder="Destination User" required>
+                        {{ form.dstUser(class="form-control", id="dstuser", placeholder="Destination User", required=true) }}
                         {% endif %}
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
-                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
+                        {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
                     </div>
-                    <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
+                    {{ form.submit() }}
                   </form>
                   <br>
                   <p><a href="/chat" title="Back">Back to chatroom</a></p>
