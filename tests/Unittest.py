@@ -74,8 +74,8 @@ class testCases(unittest.TestCase):
     def test_donewthreads(self):
        with self.client as client:
             response = client.post('/newthread', data={
-                'title': 'New Thread Title',
-                'content': 'This is the content of the new thread.'
+                'title': 'New Thread for Unittest',
+                'content': 'This is the content of the new thread for unittest.'
             },follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             
