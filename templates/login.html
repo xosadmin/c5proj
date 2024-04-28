@@ -10,6 +10,27 @@
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <script>
+      $(document).ready(function(){
+        var defaultImageLoaded = false;
+        var defaultImageSrc = "{{ url_for('static', filename='img/defaultlogin.png') }}"; // Default Image URL
+        if (!defaultImageLoaded){
+          $("#loginBannerImage").attr("src", defaultImageSrc); // Pass the default image URL to html
+          defaultImageLoaded = true;
+        }
+        $("#password").on('input', function() {
+          $("#loginBannerImage").attr("src", "{{ url_for('static', filename='img/inputpassword.png') }}");
+        }); // When user input the password, the banner will change
+        $("#mainContent").on('click', function(){
+          $("#loginBannerImage").attr("src", defaultImageSrc);
+        });
+        $("form").submit(function(){
+          $("#loginBannerImage").attr("src", defaultImageSrc);
+        }); 
+        // When user is input email address, click on elsewhere, or click on submit button, 
+        // the image will back to default
+      });
+    </script>
 </head>
 <body>
   <nav class="navbar navbar-default navigationBar rounded-pill">
@@ -33,6 +54,9 @@
             <h1 id="homepageBanner">Welcome come back!</h1>
             <div id="subPageTitle"><p>Ad astra abyssosque!</p></div>
             <div class="loginandsignup">
+              <div>
+                <img src="{{url_for('static',filename='img/defaultlogin.png')}}" id="loginBannerImage" alt="Login Banner Image">
+              </div>
                 <form method="POST" action="/dologin">
                   {{ form.hidden_tag() }}
                     <div class="form-group fillForms">
