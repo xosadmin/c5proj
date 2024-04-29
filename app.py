@@ -135,12 +135,14 @@ try:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
             return render_template('chat.html', infomsg="No chat. Do you want to set up a new one?")
-    
+
     @app.route("/chat/<chatid>")
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        result = Chats.query.filter(Chats.chatID == chatid).all()
+        result = Chats.query.join(UserInfo, Chats.srcUserID == UserInfo.userID). \
+                add_columns(UserInfo.avatar, Chats.srcUserID, Chats.content). \
+                filter(Chats.chatID == chatid).all()
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -483,12 +485,14 @@ try:
             dbSession.execute(item)
         dbSession.commit()
         return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
-    
+
     @app.route("/thread/<id>", methods=['GET'])
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        result = Thread.query.filter(Thread.threadID == id).all()
+        result = Thread.query.join(UserInfo, Thread.userID == UserInfo.userID). \
+                add_columns(UserInfo.avatar, Thread.userID, Thread.contents). \
+                filter(Thread.threadID == id).all()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:

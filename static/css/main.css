@@ -21,8 +21,8 @@ a {
 }
 
 .itempreview {
-    width: 17%;
-    height: 17%;
+    width: 60%;
+    height: 60%;
 }
 
 .loginandsignup {
@@ -56,6 +56,17 @@ a {
 .profileimages {
     width: 15%;
     height: 15%;
+}
+
+.descCol {
+    width: 21%;
+}
+
+.avatarInDetails {
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    height: 40%;
 }
 
 #confirmAccept {

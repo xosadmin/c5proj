@@ -36,7 +36,7 @@
                 <div class="alert alert-info">{{ infomsg }}</div>
             {% endif %}
             <h1 id="pageBanner">NFT Shop</h1>
-            <p>Let's purchase something?</p>
+            <p><i>Is the Order a Rabbit?</i></p>
             <div id="showcoins">
                 <p>Your coins: {{coins}}</p>
             </div>
@@ -44,7 +44,7 @@
                 <tbody>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Item Preview</th>
+                    <th scope="col" class="descCol">Item Preview</th>
                     <th scope="col">Item Name</th>
                     <th scope="col">Price</th>
                     <th scope="col">Buy</th>
@@ -52,7 +52,8 @@
                 {% for item in results %}
                 <tr>
                     <td>{{ item.itemID }}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + item.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td class="descCol"><img src="{{ url_for('static', filename='nft/' + item.itemID|string + '.png') }}" alt="Item Preview" 
+                        class="itempreview"></td>
                     <td>{{ item.itemDetail }}</td>
                     <td>$$ {{ item.price }}</td>
                     <td><a href="/confirmpayment/{{ item.itemID }}" title="Buy">Buy</a></td>
