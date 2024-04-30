@@ -100,6 +100,12 @@ class testCases(unittest.TestCase):
                 'content': 'test'
             },follow_redirects=True)
             self.assertEqual(response.status_code, 200)
+    
+    def test_dosetAvatar(self):
+        with self.client as client:
+            response = client.get('/setavatar/default', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            
 
             
 
