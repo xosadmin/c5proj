@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -53,8 +55,8 @@
                 </tr>
                 <tr>
                     <td>{{useritems.userID}}</td>
-                    <td>{{useritems.email}}&nbsp;<a href="/modifycenter" title="Change Email">Change</a></td>
-                    <td>{{useritems.country}}&nbsp;<a href="/modifycenter" title="Change country/region">Change</a></td>
+                    <td>{{useritems.email}}&nbsp;<a href="/modifycenter" title="Change Email"><ion-icon name="create-outline"></ion-icon> Edit</a></td>
+                    <td>{{useritems.country}}&nbsp;<a href="/modifycenter" title="Change country/region"><ion-icon name="create-outline"></ion-icon> Edit</a></td>
                     <td>{{useritems.coins}}</td>
                 </tr>
                 {% endfor %}
@@ -71,10 +73,10 @@
                                 <th scope="col">3rd Profile View</th>
                             </tr>
                             <tr>
-                                <td><a href="/modifycenter" title="Change Password">Change Password</a></td>
+                                <td><a href="/modifycenter" title="Change Password"><ion-icon name="create-outline"></ion-icon> Change Password</a></td>
                                 <td><button type="button" id="showpin" class="btn btn-success">Show/Hide Pin Code</button>
-                                    <div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifycenter" title="Modify PIN">Modify Pin Code</a></td>
-                                <td><a href="/profile/{{userID}}" title="View my profile in 3rd views" target="_blank">View my profile as 3rd person view</a></td>
+                                    <div id="pincode">{{pincode}}</div>&nbsp;<a href="/modifycenter" title="Modify PIN"><ion-icon name="create-outline"></ion-icon> Modify Pin Code</a></td>
+                                <td><a href="/profile/{{userID}}" title="View my profile in 3rd views" target="_blank"><ion-icon name="desktop-outline"></ion-icon> View my profile as 3rd person view</a></td>
                             </tr>
                         </tbody>
                     </table>
@@ -104,14 +106,14 @@
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
-                    <th scope="col">Transaction ID</th>
-                    <th scope="col">Item Preview</th>
+                    <th scope="col" class="descCol">Transaction ID</th>
+                    <th scope="col" class="descCol">Item Preview</th>
                     <th scope="col">Set as avatar</th>
                 </tr>
                 {% for nftitem in nft_details %}
                 <tr>
-                    <td>{{nftitem.transactionID}}</td>
-                    <td><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+                    <td class="descCol">{{nftitem.transactionID}}</td>
+                    <td class="descCol"><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
                     <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
                 </tr>
                 {% endfor %}

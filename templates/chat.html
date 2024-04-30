@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -47,7 +49,7 @@
                 </form>
             </div>
             <div id="new">
-                <p><a href="/newchat" title="New Ticket">New Ticket</a></p>
+                <p><a href="/newchat" title="New Ticket"><ion-icon name="add-circle-outline"></ion-icon> Compose New Ticket</a></p>
             </div>
             <table class="table table-striped listcontents">
                 <tbody>
@@ -66,7 +68,7 @@
                             <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details">{{ resultitem.srcUserID }}</a></td>
                             <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details">{{ resultitem.dstUserID }}</a></td>
                             <td><a href="/chat/{{ resultitem.chatID }}" title="Continue Chat">Continue Chat</a></td>
-                            <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat">Delete Chat</a></td>
+                            <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
                         </tr>
                         {% set _ = displayed_chatids.append(resultitem.chatID) %}
                     {% endif %}

@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -38,7 +40,7 @@
             <h1 id="pageBanner">NFT Shop</h1>
             <p><i>Is the Order a Rabbit?</i></p>
             <div id="showcoins">
-                <p>Your coins: {{coins}}</p>
+                <p><ion-icon name="logo-bitcoin"></ion-icon> Your coins: {{coins}}</p>
             </div>
             <table class="table table-striped listcontents">
                 <tbody>
@@ -56,7 +58,7 @@
                         class="itempreview"></td>
                     <td>{{ item.itemDetail }}</td>
                     <td>$$ {{ item.price }}</td>
-                    <td><a href="/confirmpayment/{{ item.itemID }}" title="Buy">Buy</a></td>
+                    <td><a href="/confirmpayment/{{ item.itemID }}" title="Buy"><ion-icon name="cart-outline"></ion-icon> Buy</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

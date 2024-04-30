@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -42,7 +44,7 @@
                 </form>
             </div>
             <div id="new">
-                <p><a href="/newthread" title="New Thread">New Thread</a></p>
+                <p><a href="/newthread" title="New Thread"><ion-icon name="add-circle-outline"></ion-icon> New Thread</a></p>
             </div>
             <table class="table table-striped listcontents">
                 <tbody>
@@ -58,7 +60,7 @@
                     <td><a href="thread/{{resultitem.threadID}}" title="View Details">{{ resultitem.title }}</a></td>
                     <td>{{ resultitem.userID }}</td>
                     {% if userID|int == resultitem.userID|int %}
-                        <td><a href="/deletethread/{{resultitem.userID}}/{{resultitem.threadID}}" title="Delete this thread">Delete This Thread</a></td>
+                        <td><a href="/deletethread/{{resultitem.userID}}/{{resultitem.threadID}}" title="Delete this thread"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
                     {% else %}
                         <td>No Permission</td>
                     {% endif %}
