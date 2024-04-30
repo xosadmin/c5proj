@@ -87,6 +87,11 @@ class testCases(unittest.TestCase):
             })
             self.assertEqual(response.status_code, 302)
 
+    def test_dopayment(self):
+        with self.client as client:
+            response = client.get('/dopayment/2', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
 # app.py Unit Test
 
     def test_llmreq(self):
@@ -184,6 +189,8 @@ class testCases(unittest.TestCase):
             input1 = "hello"
             result = gt.encryptPassword(input1)
             self.assertEqual(result,"5d41402abc4b2a76b9719d911017c592")
+
+   
 
 # get.py Unit Test
    
