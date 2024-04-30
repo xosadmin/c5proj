@@ -92,6 +92,17 @@ class testCases(unittest.TestCase):
             response = client.get('/dopayment/2', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
 
+    def test_donewchat(self):
+        with self.client as client:
+            response = client.post('/newchat', data={
+                'userID': '0',
+                'dstusr': '14',
+                'content': 'test'
+            },follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+            
+
 # app.py Unit Test
 
     def test_llmreq(self):
