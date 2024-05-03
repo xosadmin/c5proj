@@ -1,24 +1,30 @@
 import os
 from flask import *
-import llm
+import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy.orm import sessionmaker
-from login_process import login_required
-from sqlmodels import *
-from get import *
-from login_process import *
-import randomprofile as rp
-import datetime as dt
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from apps.login_process import login_required
+from models.sqlmodels import *
+from models.formModels import *
+from models.loginModels import *
+from apps.get import *
+from apps.randomprofile import *
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.getcwd() + '/database/main.db'
-app.config['SECRET_KEY'] = rp.randomSessionKey(16) # Secret Key for all sessions
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
+app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connect = engine.connect()
 alchemySession = sessionmaker(bind=engine)
 
 dbSession = alchemySession()
 db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
+migrate = Migrate(app, db) # Create a flask db migration
+login_manager = LoginManager()
+login_manager.init_app(app) # Create a new Login manager
+login_manager.login_view = "loginPage" # Default Login View
 
 try:
     @app.route("/")
@@ -27,87 +33,52 @@ try:
 
     @app.route("/login", methods=["GET"])
     def loginPage():
+        form = LoginForm()
         if request.method == "GET":
             errormsg = request.args.get('errormsg', '')
-            return render_template('login.html', errormsg=errormsg)
+            return render_template('login.html', errormsg=errormsg, form=form)
         else:
-            return render_template('login.html')
+            return render_template('login.html',form=form)
 
-    @app.route("/register", methods=["GET"])
+    @app.route("/register", methods=["GET", "POST"])
     def registerPage():
-        if request.method == "GET":
-            errormsg = request.args.get('errormsg', '')
-            return render_template('register.html', errormsg=errormsg)
+        form = RegisterForm()
+        if request.method == "POST":
+            userID = str(uuidGen())
+            email = form.email.data
+            password = form.password.data
+            country = str(rp.randomCountry())
+            pincode = form.pin_code.data
+            try:
+                checkEmailExist = checkEmail(email)
+                if checkEmailExist == 0:
+                    encryptedPassword = encryptPassword(password)
+                    insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
+                    dbSession.add(insert)
+                    dbSession.commit()
+                    return render_template("register_complete.html")
+                else:
+                    return redirect(url_for('registerPage', errormsg="Email already exists"))
+            except Exception as e:
+                print(e)
+                return redirect(url_for('registerPage', errormsg="An error occurred"))
         else:
-            return render_template('register.html')
+            errormsg = request.args.get('errormsg', '')
+            return render_template('register.html', errormsg=errormsg, form=form)
         
-    @app.route("/forgetpassword", methods=["GET"])
+    @app.route("/forgetpassword", methods=["GET","POST"])
     def forgetPassword():
-        errormsg = request.args.get("infomsg")
-        return render_template('forget_password.html',errormsg=errormsg)
-    
-    @app.route("/modifypassword")
-    @login_required
-    def modifyPassword():
-        infomsg = request.args.get("infomsg","")
-        userID = getSession("userid")
-        return render_template('modify_password.html',userID=userID,infomsg=infomsg)
-    
-    @app.route("/modifypin")
-    @login_required
-    def modifyPin():
-        infomsg = request.args.get("infomsg","")
-        userID = getSession("userid")
-        return render_template('modify_pin.html',userID=userID,infomsg=infomsg)
-    
-    @app.route("/domodifypassword", methods=['GET','POST'])
-    @login_required
-    def domodifypassword():
+        form = ForgetPasswordForm()
         if request.method == "POST":
-            userID = getSession("userid")
-            new_password = request.form['newpassword']
-            pincode = request.form['pin-code']
-            # Verify the pincode
-            if verifyPinCode(userID, pincode) != 0:
-                return redirect(url_for('modifyPassword', infomsg="Invalid PIN Code."))
-            # Update the password in the database
-            try:
-                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(password=new_password))
-                dbSession.commit()
-                return redirect(url_for('profilePage', infomsg="Password successfully updated."))
-            except Exception as e:
-                print("Details:" + str(e))
-                return redirect(url_for('modifyPassword', infomsg="Failed to update password. Please try again."))
-
-    @app.route("/domodifypin", methods=['POST'])
-    @login_required
-    def domodifypin():
-        if request.method == "POST":
-            userID = getSession("userid")
-            old_pin = request.form['oldpin']
-            new_pin = request.form['newpin']
-            # Verify the old PIN
-            if verifyPinCode(userID, old_pin) != 0:
-                return redirect(url_for('modifyPin', infomsg="Your old pin is incorrect!"))
-            try:
-                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(pincode=new_pin))
-                dbSession.commit()
-                return redirect(url_for('modifyPin', infomsg="PIN code successfully updated."))
-            except Exception as e:
-                print(str(e))
-                return redirect(url_for('modifyPin', infomsg="Failed to update PIN Code. Please try again."))
-        
-    @app.route("/doresetpassword", methods=['GET','POST'])
-    def doresetpassword():
-        if request.method == "POST":
-            email = request.form['email']
-            pincode = request.form['pin-code']
+            email = form.email.data
+            pincode = form.pin_code.data
             fetchEmail = checkEmail(email)
             if fetchEmail == -1:
                 pin_verify_result = verifyPinCode(email, pincode)
                 if pin_verify_result == 0:
                     try:
-                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password="123"))
+                        encryptedPassword = encryptPassword("123")
+                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
                         dbSession.commit()
                         return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                     except Exception as e:
@@ -117,13 +88,43 @@ try:
                     return redirect(url_for('forgetPassword', infomsg="Incorrect PIN."))
             else:
                 return redirect(url_for('forgetPassword', infomsg="User not found."))
+        else:
+            errormsg = request.args.get("infomsg","")
+            return render_template('forget_password.html', errormsg=errormsg, form=form)
+    
+    @app.route("/modifycenter",methods=["GET","POST"])
+    @login_required
+    def modifyCentre():
+        if request.method == "POST":
+            userID = current_user.id
+            changeType = request.form["type"]
+            if changeType == "email":
+                newemail = request.form["newEmail"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+            elif changeType == "country":
+                country = request.form["country"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
+            elif changeType == "pin":
+                newpin = request.form["newpin"]
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+            elif changeType == "password":
+                newpassword = request.form["newpassword"]
+                encNewPassword = encryptPassword(newpassword)
+                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+            else:
+                return render_template("change_profile.html",infomsg="Invalid Change!")
+            dbSession.commit()
+            return redirect(url_for("profilePage",infomsg="Information " + changeType + " has been updated."))
+        else:
+            return render_template("change_profile.html")
 
     @app.route("/community", methods=["GET"])
     @login_required
     def communityPage():
+        userID = current_user.id
         try:
             result = Community.query.all()
-            return render_template('community.html', result=result)
+            return render_template('community.html', result=result, userID=userID)
         except Exception as e:
             print(e)
             return render_template('community.html', errmsg="Internal Error")
@@ -131,19 +132,21 @@ try:
     @app.route("/chat")
     @login_required
     def chatPage():
-        userID = getSession("userid")
+        userID = current_user.id
         infomsg = request.args.get("infomsg","")
         result = Chats.query.filter(or_(Chats.dstUserID == userID, Chats.srcUserID == userID)).all()
         if result:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
             return render_template('chat.html', infomsg="No chat. Do you want to set up a new one?")
-    
+
     @app.route("/chat/<chatid>")
     @login_required
     def chatDetailsPage(chatid):
         dstuser = getChatInfo(chatid,"dstuser")
-        result = Chats.query.filter(Chats.chatID == chatid).all()
+        result = Chats.query.join(UserInfo, Chats.srcUserID == UserInfo.userID). \
+                add_columns(UserInfo.avatar, Chats.srcUserID, Chats.content). \
+                filter(Chats.chatID == chatid).all()
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -153,7 +156,7 @@ try:
     @login_required
     def doChatReply():
         if request.method == "POST":
-            userID = getSession("userid")
+            userID = current_user.id
             chatID = request.form['chatID']
             content = request.form['content']
             dstuser = request.form['dstUser']
@@ -171,7 +174,7 @@ try:
     @app.route("/deletechat/<chatid>", methods=['GET'])
     @login_required
     def deleteChat(chatid):
-        currentuserID = getSession("userid")
+        currentuserID = current_user.id
         dstuser = getChatInfo(chatid,"dstuser")
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
@@ -180,33 +183,52 @@ try:
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
+
+    @app.route("/deletethread/<threaduserid>/<threadID>", methods=['GET'])
+    @login_required
+    def deleteThread(threaduserid,threadID):
+        currentuserID = current_user.id
+        if int(threaduserid) == int(currentuserID): # Only userID matches can delete
+            dbSession.execute(delete(Thread).where(Thread.threadID == threadID))
+            dbSession.execute(delete(Community).where(Community.threadID == threadID))
+            dbSession.commit()
+            return "<script>alert('Your thread has been deleted.');window.location.href='/community';</script>"
+        else:
+            return "<script>alert('You cannot delete it!');window.location.href='/community';</script>"
         
     @app.route("/newchat",methods=['GET','POST'])
     @login_required
     def donewchat():
+        form = newChatForm()
         if request.method == "POST":
-            chatUUID = str(rp.uuidGen())
-            userID = getSession("userid")
-            dstuser = request.form['dstuser']
-            content = request.form['content']
+            chatUUID = str(uuidGen())
+            userID = current_user.id
+            dstuser = form.dstUser.data
+            content = form.contents.data
             try:
                 insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
                 dbSession.add(insert)
                 dbSession.commit()
-                return "<script>alert('New thread recorded.');window.location.href='/chat';</script>"
+                return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('chatPage', errmsg="Internal Error"))
         else:
-            return render_template("newchat.html")
+            return render_template("newchat.html", form=form)
+
+    @app.route("/newchat/<dstuserid>", methods=['GET'])
+    @login_required
+    def donewchatwithID(dstuserid):
+        form = newChatForm()
+        return render_template("newchat.html", dstuserid=dstuserid, form=form)
 
     @app.route("/requests")
     @login_required
     def requestPage():
         try:
-            currentUserID = getSession("userid")
+            currentUserID = current_user.id
             coins = getCoins(currentUserID)
-            result = Requests.query
+            result = Requests.query.all()
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
             print(e)
@@ -215,10 +237,10 @@ try:
     @app.route("/shop",methods=["GET"])
     @login_required
     def shopPage():
-        userID = getSession("userid")
+        userID = current_user.id
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
-        result = Shop.query
+        result = Shop.query.all()
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
         else:
@@ -227,66 +249,49 @@ try:
     @app.route("/signs",methods=["POST","GET"])
     @login_required
     def signPage():
-        signSessionID = rp.uuidGen()
-        userID = getSession("userid")
+        form = signEmotionForm()
+        signSessionID = uuidGen()
+        userID = current_user.id
         timeObject = datetime.now()
         currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day)
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
         ifSigned = ifSign(userID)
         if request.method == "POST":
-            feelings = request.form["feelings"]
-            comments = request.form["content"]
+            feelings = form.feelings.data
+            comments = form.comments.data
             if not ifSigned:
                 try:
-                    randomRewards = int(rp.randomCoinRewards())
+                    randomRewards = int(randomCoinRewards())
                     rewardCoins = randomRewards + int(currentCoin)
                     insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
                     dbSession.add(insert)
                     dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
                     dbSession.commit()
                     return redirect(url_for('profilePage',infomsg="Signed successfully! Welcome back and you have get " 
-                                            + str(rewardCoins) + " coins for reward!"))
+                                            + str(randomRewards) + " coins for reward!"))
                 except Exception as e:
                     print("[ERROR] SignPage: " + str(e))
-                    return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>")
+                    return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>",
+                                           form=form)
             else:
-                return render_template('signs.html',infomsg="You have signed today! <a href='/profile' title='Profile'>Click here for your profile</a>")
+                return render_template('signs.html',infomsg="You have signed today! <a href='/profile' title='Profile'>Click here for your profile</a>",
+                                       form=form)
         else:
-            return render_template('signs.html',infomsg=infomsg)
+            return render_template('signs.html',infomsg=infomsg,form=form)
 
-    @app.route("/newthread")
+    @app.route("/newthread",methods=["GET","POST"])
     @login_required
     def newThread():
-        return render_template('newthread.html')
-    
-    @app.route("/newrequest",methods=["GET"])
-    @login_required
-    def newRequest():
-        msg = request.args.get('msg', 'null')
-        userID = getSession("userid")
-        currentCoin = getCoins(userID)
-        return render_template('newrequest.html', balance=currentCoin,msg=msg)
-    
-    @app.route("/logout")
-    @login_required
-    def logoutPage():
-        destroySession()
-        response = make_response(render_template('logout.html'))
-        response.set_cookie('session','',expires=0)
-        return response
-    
-    @app.route("/donewthread",methods=['GET','POST'])
-    @login_required
-    def donewthreads():
+        form = newThreadForm()
         if request.method == "POST":
-            userID = getSession("userid")
-            title = request.form['title']
-            content = request.form['content']
+            userID = current_user.id
+            title = form.title.data
+            content = form.contents.data
             try:
-                threadUUID = str(rp.uuidGen())
+                threadUUID = str(uuidGen())
                 inserts = [Community(threadID=threadUUID,title=title,userID=userID),
-                           Thread(threadID=threadUUID,userID=userID,content=content)]
+                           Thread(threadID=threadUUID,userID=userID,contents=content)]
                 for item in inserts:
                     dbSession.add(item)
                 dbSession.commit()
@@ -295,13 +300,46 @@ try:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
         else:
-            return redirect(url_for('newThread', errmsg="Invalid Request!"))
+            return render_template('newthread.html',form=form)
+    
+    @app.route("/newrequest",methods=["GET","POST"])
+    @login_required
+    def newRequest():
+        form = newRequestForm()
+        if request.method == "POST":
+            userID = current_user.id
+            currentCoins = getCoins(userID)
+            title = form.title.data
+            content = form.contents.data
+            rewards = form.rewards.data
+            timelimit = form.timelimit.data
+            if int(rewards) <= int(currentCoins):
+                insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
+                remainCoins = int(currentCoins) - int(rewards)
+                coins = update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)
+                dbSession.add(insert)
+                dbSession.execute(coins)
+                dbSession.commit()
+                return "<script>alert('New request posted.');window.location.href='/requests';</script>"
+            else:
+                return redirect(url_for('newRequest', msg="Insufficient Balance!"))
+        else:
+            msg = request.args.get('msg', '')
+            userID = current_user.id
+            currentCoin = getCoins(userID)
+            return render_template('newrequest.html', balance=currentCoin,msg=msg,form=form)
+    
+    @app.route("/logout")
+    @login_required
+    def logoutPage():
+        logout_user()
+        return render_template('logout.html')
 
     @app.route("/donewthreadreply", methods=['GET', 'POST'])
     @login_required
     def doNewThreadReply():
         if request.method == "POST":
-            userID = getSession("userid")
+            userID = current_user.id
             content = request.form['content']
             threadUUID = request.form['threadID']
             try:
@@ -315,61 +353,22 @@ try:
         else:
             return redirect(url_for('newThread', errmsg="Invalid Request!"))
     
-    @app.route("/donewrequest",methods=['GET','POST'])
-    @login_required
-    def donewrequests():
-        if request.method == "POST":
-            userID = getSession("userid")
-            currentCoins = getCoins(userID)
-            title = request.form['title']
-            content = request.form['content']
-            rewards = request.form['rewards']
-            timelimit = request.form['timelimit']
-            if int(rewards) <= int(currentCoins):
-                insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
-                remainCoins = int(currentCoins) - int(rewards)
-                coins = update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)
-                dbSession.add(insert)
-                dbSession.execute(coins)
-                dbSession.commit()
-                return "<script>alert('New request posted.');window.location.href='/requests';</script>"
-            else:
-                return redirect(url_for('newRequest', msg="Insufficient Balance!"))
-        else:
-            return redirect(url_for('newRequest', msg="Invalid Request!"))
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User(user_id)
 
-    @app.route("/doregister", methods=['GET', 'POST'])
-    def doregister():
-        if request.method == "POST":
-            userID = str(rp.uuidGen())
-            email = request.form['email']
-            password = request.form['password']
-            pincode = request.form['pin-code']
-            try:
-                checkEmailExist = checkEmail(email)
-                if checkEmailExist == 0:
-                    insert = UserInfo(userID=userID,email=email,password=password,pincode=pincode)
-                    dbSession.add(insert)
-                    dbSession.commit()
-                    return render_template("register_complete.html")
-                else:
-                    return redirect(url_for('registerPage', errormsg="Email already exists"))
-            except Exception as e:
-                print(e)
-                return redirect(url_for('registerPage', errormsg="An error occurred"))
-        else:
-            return redirect(url_for('registerPage', errormsg="Invalid request"))
-    
     @app.route("/dologin",methods=['GET','POST'])
     def dologin():
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == password).first()
+            encryptedPassword = encryptPassword(password)
+            result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == encryptedPassword).first()
             if result:
                 userid = str(result.userID)
+                user = User(userid)
                 print("[Info] User " + userid + " has login in.")
-                setSession(userid,email)
+                login_user(user)
                 if ifSign(userid): # If the user signed today
                     return redirect(url_for('profilePage', userid=userid, infomsg="Welcome back to Adventurers Guild!")) # If username and password is correct
                 else:
@@ -426,9 +425,7 @@ try:
     def profilePage():
         try:
             infomsg = request.args.get('infomsg', '')
-            userID = getSession("userid")
-            rcountry = rp.randomCountry()
-            rnickname = rp.randomNickname()
+            userID = current_user.id
             pincode = getUserInfo(userID, "pincode")
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()  # User Info
             if user_details is None:
@@ -440,8 +437,6 @@ try:
                                 userID=userID,
                                 user_details=user_details,
                                 nft_details=nft_details,
-                                rcountry=rcountry,
-                                rnickname=rnickname,
                                 nftid=nftid,
                                 pincode=pincode,
                                 signHistory=signHistory,
@@ -457,8 +452,6 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
-            rcountry = rp.randomCountry()
-            rnickname = rp.randomNickname()
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
@@ -466,8 +459,6 @@ try:
             return render_template('profile_other_user_view.html',
                                 userID = userID,
                                 user_details = user_details,
-                                rcountry = rcountry,
-                                rnickname = rnickname,
                                 nftid = avatar_id,
                                 infomsg = infomsg
                                 )
@@ -478,7 +469,7 @@ try:
     @app.route('/answerrequest/<requestid>')
     @login_required
     def answerRequest(requestid):
-        userID = getSession("userid")
+        userID = current_user.id
         result = Requests.query.filter(Requests.requestID == requestid).first()
         if result:
             return render_template("answerrequest.html", result=result, userID=userID)
@@ -501,12 +492,14 @@ try:
             dbSession.execute(item)
         dbSession.commit()
         return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
-    
+
     @app.route("/thread/<id>", methods=['GET'])
     @login_required
     def threadDetails(id):
         thread_title = getThreadTitle(id)
-        result = Thread.query.filter(Thread.threadID == id).all()
+        result = Thread.query.join(UserInfo, Thread.userID == UserInfo.userID). \
+                add_columns(UserInfo.avatar, Thread.userID, Thread.contents). \
+                filter(Thread.threadID == id).all()
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:
@@ -533,7 +526,7 @@ try:
     @app.route("/deleterequest/<userid>/<requestid>", methods=['GET'])
     @login_required
     def deleteRequest(userid,requestid):
-        currentuserID = getSession("userid")
+        currentuserID = current_user.id
         state = getRequestInfo(requestid,"state")
         currentCoins = getUserInfo(userid,"coins")
         currentReqRewards = getRequestInfo(requestid,"rewards")
@@ -551,7 +544,7 @@ try:
     @app.route("/myrequest")
     @login_required
     def myRequest():
-        userID = getSession("userid")
+        userID = current_user.id
         result = Requests.query.filter(Requests.userID == userID)
         if result:
             return render_template("myrequest.html", result=result)
@@ -570,7 +563,7 @@ try:
     @app.route("/doacceptrequest/<id>", methods=['GET'])
     @login_required
     def doAcceptRequest(id):
-        userID = getSession("userid")
+        userID = current_user.id
         updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted")
         insertTodo = Todo(userID=userID,requestID=id,status="Accepted")
         dbSession.execute(updateReq)
@@ -581,7 +574,7 @@ try:
     @app.route("/setavatar/<id>", methods=['GET'])
     @login_required
     def doSetAvatar(id):
-        userID = getSession("userid")
+        userID = current_user.id
         updateusr = update(UserInfo).where(UserInfo.userID == userID).values(avatar=id)
         dbSession.execute(updateusr)
         dbSession.commit()
@@ -590,12 +583,12 @@ try:
     @app.route("/dopayment/<id>", methods=['GET'])
     @login_required
     def doPayment(id):
-        userID = getSession("userid")
+        userID = current_user.id
         itemPrice = getItemInfo(id,"price")
         userCoins = getUserInfo(userID,"coins")
         remainCoins = int(userCoins) - int(itemPrice)
         checkWarehouse = ifUserPurchased(userID,id) # Check if user already purchased this item
-        if userCoins >= itemPrice:
+        if remainCoins >= 0:
             if not checkWarehouse:
                 insert = Transaction(userID=userID,itemID=id)
                 dbSession.add(insert)
@@ -610,7 +603,7 @@ try:
     @app.route("/todo")
     @login_required
     def todoList():
-        currentUserID = getSession("userid")
+        currentUserID = current_user.id
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
         result = Todo.query.filter(Todo.userID == currentUserID)
@@ -627,6 +620,22 @@ try:
             return render_template("leaderboard.html", result=result)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
+        
+    @app.route("/api/searchuser/<type>/<value>",methods=["GET"])
+    @login_required
+    def searchFriend(type,value):
+        if type == "country":
+            result = UserInfo.query.filter(UserInfo.country.ilike('%' + value + '%')).all()
+        elif type == "email":
+            result = UserInfo.query.filter(UserInfo.email.ilike('%' + value + '%')).all()
+        else:
+            return jsonify([])
+        if result:
+            user_data = [{'id': user.userID, 'email': user.email, 'country': user.country} for user in
+                         result]
+        else:
+            user_data = []
+        return jsonify(user_data)
     
     @app.route("/robots.txt")
     def robots():

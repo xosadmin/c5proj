@@ -21,8 +21,8 @@ a {
 }
 
 .itempreview {
-    width: 20%;
-    height: 20%;
+    width: 60%;
+    height: 60%;
 }
 
 .loginandsignup {
@@ -56,6 +56,17 @@ a {
 .profileimages {
     width: 15%;
     height: 15%;
+}
+
+.descCol {
+    width: 21%;
+}
+
+.avatarInDetails {
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    height: 40%;
 }
 
 #confirmAccept {
@@ -95,10 +106,24 @@ a {
     text-align: center;
 }
 
+#subPageTitle p {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #mainContent #new {
     text-align: right;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 16pt;
+}
+
+#ChangeMenu {
+    font-size: 14pt;
+}
+
+#emailChange, #countryChange, #passwordChange, #pinChange, #submitInfo {
+    display: none;
 }
 
 #pageBanner {
@@ -129,4 +154,25 @@ a {
     margin-right: auto;
     font-size: 12pt;
     width: 80%;
+}
+
+#searchColumn {
+    margin-left: auto;
+    margin-right: auto;
+    border: solid 1px black;
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 12pt;
+    width: 60%;
+}
+
+#searchResult, #collapse {
+    display: none;
+}
+
+#loginBannerImage {
+    margin-left: auto;
+    margin-right: auto;
+    width: 19%;
+    height: 19%;
 }

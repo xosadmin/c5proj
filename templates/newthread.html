@@ -39,16 +39,17 @@
             {% endif %}
             <h1 id="pageBanner">New Thread</h1>
             <div class="newthreadandrequest">
-                <form method="POST" action="/donewthread">
+                <form method="POST" action="/newthread">
+                    {{ form.hidden_tag() }}
                     <div class="form-group fillForms">
                         <label for="title">Thread Title</label>
-                        <input type="text" class="form-control" id="title" name="title" placeholder="Thread Title" required>
+                        {{ form.title(class="form-control", id="title", placeholder="Thread Title", required=true)}}
                     </div>
                     <div class="form-group fillForms">
                         <label for="content">Contents</label>
-                        <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
+                        {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
                     </div>
-                    <button type="submit" id="doSubmit" class="btn btn-primary">Submit</button>
+                    {{ form.submit() }}
                   </form>
                   <br>
                   <p><a href="/community" title="Back">Back to community</a></p>

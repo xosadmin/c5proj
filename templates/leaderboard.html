@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -33,6 +35,7 @@
   </nav>
       <div id="mainContent">
             <h1 id="pageBanner">LeaderBoard</h1>
+            <p>Guess who are top 3?</p>
             <table class="table table-striped listcontents">
                 <tbody>
                 <tr>
@@ -42,7 +45,11 @@
                 </tr>
                 {% for resultitem in result %}
                     <tr>
-                        <td>{{ loop.index }}</td>
+                        {% if loop.index|int <= 3 %}
+                            <td><ion-icon name="rocket-outline"></ion-icon> {{ loop.index }}</td>
+                        {% else %}
+                            <td>{{ loop.index }}</td>
+                        {% endif %}
                         <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
                         <td>{{ resultitem.coins }}</td>
                     </tr>

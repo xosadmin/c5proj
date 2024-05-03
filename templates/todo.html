@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -33,13 +35,14 @@
   </nav>
       <div id="mainContent">
             <h1 id="pageBanner">To-do List</h1>
+            <p>Here's all the things you need to do.</p>
             {% if errmsg %}
                 <div class="alert alert-danger">{{ errmsg }}</div>
             {% elif infomsg%}
                 <div class="alert alert-info">{{ infomsg }}</div>
             {% endif %}
             <div id="showcoins">
-                <p>Your coins: {{coins}}</p>
+                <p><ion-icon name="logo-bitcoin"></ion-icon> Your coins: {{coins}}</p>
             </div>
             <br>
             <p>Note: Click on Request ID to see request details.</p>
@@ -57,7 +60,7 @@
                     <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details" target="_blank">{{ resultitem.requestID }}</a></td>
                     <td>{{ resultitem.status }}</td>
                     {% if resultitem.status == "Accepted" %}
-                        <td><a href="answerrequest/{{resultitem.requestID}}" title="Answer Request">Answer</a></td>
+                        <td><a href="answerrequest/{{resultitem.requestID}}" title="Answer Request"><ion-icon name="reader-outline"></ion-icon> Answer</a></td>
                     {% else %}
                         <td>Answer submitted</td>
                     {% endif %}

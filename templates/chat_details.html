@@ -32,20 +32,22 @@
     </div>
   </nav>
       <div id="mainContent">
-            <h1 id="pageBanner">Chat with {{dstUser}}</h1>
+            <h1 id="pageBanner">Ticketing with {{dstUser}}</h1>
             <br>
             <div>
                 <table id="threadContents" class="table table-striped listcontents">
                     <thead>
                         <tr>
-                            <td class="col">User ID</td>
+                            <td class="col descCol">User ID</td>
                             <td class="col">Content</td>
                         </tr>
                     </thead>
                     <tbody>
                     {% for resultitem in results %}
                     <tr>
-                        <td>{{ resultitem.srcUserID }}</td>
+                        <td class="descCol"><a href="/profile/{{resultitem.srcUserID}}" title="View User Profile" target="_blank">
+                            <img src="{{url_for('static',filename='nft/' + resultitem.avatar + '.png')}}" alt="Avatar" class="avatarInDetails">
+                            <br>{{ resultitem.srcUserID }}</a></td>
                         <td>{{ resultitem.content }}</td>
                     </tr>
                     {% endfor %}
