@@ -2,7 +2,6 @@ import unittest
 import app
 import apps.get as gt
 import apps.llm as llm
-import apps.login_process as lp
 import apps.randomprofile as rp
 
 class testCases(unittest.TestCase):
