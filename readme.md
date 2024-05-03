@@ -11,7 +11,8 @@ This program is based on the following structure:
 - The `app.py` is main application and used for template rendering, content structuring and some data processing  
 - This program contains `get.py`. Some functions (e.g. Requrements, Shop, Community and shop) are rely on the functions in `get.py` to get or set the data from the database.  
 - The `loginModels.py` is for user login/registration process. When user is authenticated, the user ID will be stored based on this model and available for read during the session till logout.  
-- The `sqlmodel.py` is used for communication between program and SQLite database. It contains data models, and to help to get/set data from/to database  
+- The `sqlModels.py` is used for communication between program and SQLite database. It contains data models, and to help to get/set data from/to database
+- The `formModels.py` is for forms on the websites. When the webpage loads the form, the forms will be loaded based on this model.  
 - This program uses SQLite database (`database/main.db`) to store data  
   
 Note: the main database (`database/main.db`) contains some test data. You could use them for program testing.  
