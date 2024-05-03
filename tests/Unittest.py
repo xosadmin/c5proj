@@ -16,7 +16,9 @@ class testCases(unittest.TestCase):
         self.generatedEmail = str(rp.randomEmail())
         self.generatedPassword = str(rp.generatePassword(10))
         self.pincode = "1234"
+
 # Setup
+
     def test_email_exists(self):
         with self.app.test_request_context():
             email = "test@test.com"
@@ -105,9 +107,6 @@ class testCases(unittest.TestCase):
         with self.client as client:
             response = client.get('/setavatar/default', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
-            
-
-            
 
 # app.py Unit Test
 
@@ -206,8 +205,6 @@ class testCases(unittest.TestCase):
             input1 = "hello"
             result = gt.encryptPassword(input1)
             self.assertEqual(result,"5d41402abc4b2a76b9719d911017c592")
-
-   
 
 # get.py Unit Test
    
