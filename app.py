@@ -10,7 +10,6 @@ from models.sqlmodels import *
 from models.formModels import *
 from models.loginModels import *
 from apps.get import *
-# from apps.login_process import *
 from apps.randomprofile import *
 
 app = Flask(__name__)
