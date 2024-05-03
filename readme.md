@@ -1,7 +1,5 @@
 # Assignment 2 Group Project  
   
-## Note: This is a private repository. Do not share it with others.  
-  
 ### Due date: 5 PM on Sunday, May 19th, 2024 (GMT+8)  
   
 #### Description  
@@ -11,8 +9,8 @@ The Assignment 2 is asked to build a request forum application, which allows use
 ![Program Structure](structure.png)  
 This program is based on the following structure:  
 - The `app.py` is main application and used for template rendering, content structuring and some data processing  
-- This program contains `get.py` and `login_process.py`. Some functions (e.g. Requrements, Shop, Community and shop) are rely on the functions in `get.py` to get or set the data from the database.  
-- The `login_process.py` is for user login/registration process. When user try to login/register, this file will used for read and verify user input data or save valid data to the database. Also, when user login successful, this file will help to set session. Besides, when user triggered `Logout`, this fill will help to destroy sessions.  
+- This program contains `get.py`. Some functions (e.g. Requrements, Shop, Community and shop) are rely on the functions in `get.py` to get or set the data from the database.  
+- The `loginModels.py` is for user login/registration process. When user is authenticated, the user ID will be stored based on this model and available for read during the session till logout.  
 - The `sqlmodel.py` is used for communication between program and SQLite database. It contains data models, and to help to get/set data from/to database  
 - This program uses SQLite database (`database/main.db`) to store data  
   
