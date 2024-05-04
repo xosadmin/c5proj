@@ -46,7 +46,7 @@ try:
             userID = str(uuidGen())
             email = form.email.data
             password = form.password.data
-            country = str(rp.randomCountry())
+            country = str(randomCountry())
             pincode = form.pin_code.data
             try:
                 checkEmailExist = checkEmail(email)
