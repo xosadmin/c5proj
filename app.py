@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
-from apps.login_process import login_required
 from models.sqlmodels import *
 from models.formModels import *
 from models.loginModels import *
