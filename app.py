@@ -204,14 +204,18 @@ try:
             userID = current_user.id
             dstuser = form.dstUser.data
             content = form.contents.data
-            try:
-                insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
-                dbSession.add(insert)
-                dbSession.commit()
-                return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
-            except Exception as e:
-                print(e)
-                return redirect(url_for('chatPage', errmsg="Internal Error"))
+            checkIfDstExist = checkIfUserExist(dstuser)
+            if checkIfDstExist and str(userID) != dstuser:
+                try:
+                    insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
+                    dbSession.add(insert)
+                    dbSession.commit()
+                    return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
+                except Exception as e:
+                    print(e)
+                    return redirect(url_for('chatPage', errmsg="Internal Error"))
+            else:
+                return render_template("newchat.html", form=form, infomsg="Invalid Destination User!")
         else:
             return render_template("newchat.html", form=form)
 
