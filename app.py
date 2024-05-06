@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
-from apps.login_process import login_required
 from models.sqlmodels import *
 from models.formModels import *
 from models.loginModels import *
@@ -47,7 +46,7 @@ try:
             userID = str(uuidGen())
             email = form.email.data
             password = form.password.data
-            country = str(rp.randomCountry())
+            country = str(randomCountry())
             pincode = form.pin_code.data
             try:
                 checkEmailExist = checkEmail(email)
@@ -205,14 +204,18 @@ try:
             userID = current_user.id
             dstuser = form.dstUser.data
             content = form.contents.data
-            try:
-                insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
-                dbSession.add(insert)
-                dbSession.commit()
-                return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
-            except Exception as e:
-                print(e)
-                return redirect(url_for('chatPage', errmsg="Internal Error"))
+            checkIfDstExist = checkIfUserExist(dstuser)
+            if checkIfDstExist and str(userID) != dstuser:
+                try:
+                    insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
+                    dbSession.add(insert)
+                    dbSession.commit()
+                    return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
+                except Exception as e:
+                    print(e)
+                    return redirect(url_for('chatPage', errmsg="Internal Error"))
+            else:
+                return render_template("newchat.html", form=form, infomsg="Invalid Destination User!")
         else:
             return render_template("newchat.html", form=form)
 

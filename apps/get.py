@@ -60,6 +60,12 @@ def getUserInfo(userID, action):
     else:
         return None
 
+def checkIfUserExist(userID): # For chatroom, check if destination user exists
+    user = UserInfo.query.filter(UserInfo.userID == userID).first()
+    if user:
+          return True
+    else:
+          return False
 
 def getChatInfo(chatID, action):
         chat = Chats.query.filter(Chats.chatID == chatID).first()
