@@ -106,6 +106,10 @@ a {
     text-align: center;
 }
 
+#homepageBanner + p {
+    text-align: center;
+}
+
 #subPageTitle p {
     text-align: center;
     margin-left: auto;
