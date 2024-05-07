@@ -1,16 +1,16 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(event) {
-            console.log("Received form.");
-            let password = document.getElementById("password").value;
-            let repeatPassword = document.getElementById("repeat_password").value;
-            let pinCode = document.getElementById("pin_code").value;
-            if (password !== repeatPassword) {
-                console.error("Password mismatch!");
-                alert("Password mismatch!");
-                event.preventDefault();
-            }
-        });
+$(document).ready(function(){
+    $("#repeat_password").on('change',function(){
+        var passwordValue = $("#password").val();
+        var repeatValue = $(this).val();
+        if (passwordValue !== repeatValue){
+            $("#dosubm").prop("disabled",true);
+            $("#whydisableSubButt").html("<p>Submit Disabled: The password is not equal to repeat password.</p>");
+            $("#whydisableSubButt").show();
+            alert("Password Mismatch!");
+        }
+        else {
+            $("#dosubm").prop("disabled",false);
+            $("#whydisableSubButt").hide();
+        }
     });
 });

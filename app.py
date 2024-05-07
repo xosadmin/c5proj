@@ -55,18 +55,19 @@ try:
                 userID = str(uuidGen())
                 email = form.email.data
                 password = form.password.data
+                repeat_password = form.repeat_password.data
                 country = str(randomCountry())
                 pincode = form.pin_code.data
                 try:
                     checkEmailExist = checkEmail(email)
-                    if checkEmailExist == 0:
+                    if checkEmailExist == 0 or password != repeat_password: # Avoid from user that trying to bypass Javascript
                         encryptedPassword = encryptPassword(password)
                         insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
                         dbSession.add(insert)
                         dbSession.commit()
                         return render_template("register_complete.html")
                     else:
-                        return redirect(url_for('registerPage', errormsg="Email already exists"))
+                        return redirect(url_for('registerPage', errormsg="Email already exists or password mismatch"))
                 except Exception as e:
                     print(e)
                     return redirect(url_for('registerPage', errormsg="An error occurred"))

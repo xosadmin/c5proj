@@ -69,6 +69,13 @@ a {
     height: 40%;
 }
 
+#whydisableSubButt {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+    display: none;
+}
+
 #confirmAccept {
     margin-left: auto;
     margin-right: auto;
