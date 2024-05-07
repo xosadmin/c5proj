@@ -32,7 +32,7 @@ function checkSubmittedForm(){
     if (type === "email"){
         const newEmail = document.getElementById("newEmail").value;
         const repeatNewEmail = document.getElementById("repeatNewEmail").value;
-        if (newEmail.indexOf("@") !== -1) {
+        if (newEmail.indexOf("@") !== -1 && newEmail.indexOf(".") !== -1) {
             if (newEmail === repeatNewEmail) {
                 return true;
             }
