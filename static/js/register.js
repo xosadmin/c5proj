@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", function() {
     forms.forEach(form => {
         form.addEventListener('submit', function(event) {
             console.log("Received form.");
-            password = document.getElementById("password").value;
-            repeatpassword = document.getElementById("repeat-password").value;
-            pincode = document.getElementById("pin-code").value;
-            if (password !== repeatpassword) {
+            let password = document.getElementById("password").value;
+            let repeatPassword = document.getElementById("repeat_password").value;
+            let pinCode = document.getElementById("pin_code").value;
+            if (password !== repeatPassword) {
                 console.error("Password mismatch!");
                 alert("Password mismatch!");
                 event.preventDefault();
