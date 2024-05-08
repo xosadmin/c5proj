@@ -672,5 +672,11 @@ except Exception as e:
     exit(-1)
 # If file is missing, the program cannot start
 
+# this is for the common code
+# Inject the request object into the Jinja2 context for all templates
+@app.context_processor
+def inject_request():
+    return dict(request=request)
+
 if __name__ == "__main__":
     app.run()

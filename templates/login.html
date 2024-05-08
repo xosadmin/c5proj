@@ -1,78 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <script>
-      $(document).ready(function(){
-        var defaultImageLoaded = false;
-        var defaultImageSrc = "{{ url_for('static', filename='img/defaultlogin.png') }}"; // Default Image URL
-        if (!defaultImageLoaded){
-          $("#loginBannerImage").attr("src", defaultImageSrc); // Pass the default image URL to html
-          defaultImageLoaded = true;
-        }
-        $("#password").on('input', function() {
-          $("#loginBannerImage").attr("src", "{{ url_for('static', filename='img/inputpassword.png') }}");
-        }); // When user input the password, the banner will change
-        $("#mainContent").on('click', function(){
-          $("#loginBannerImage").attr("src", defaultImageSrc);
-        });
-        $("form").submit(function(){
-          $("#loginBannerImage").attr("src", defaultImageSrc);
-        }); 
-        // When user is input email address, click on elsewhere, or click on submit button, 
-        // the image will back to default
-      });
-    </script>
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Adventurer Guild</a>
-    </div>
+{% extends 'base.html' %}
+
+{% block title %}Login - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+<script>
+  $(document).ready(function(){
+    var defaultImageLoaded = false;
+    var defaultImageSrc = "{{ url_for('static', filename='img/defaultlogin.png') }}"; // Default Image URL
+    if (!defaultImageLoaded){
+      $("#loginBannerImage").attr("src", defaultImageSrc); // Pass the default image URL to html
+      defaultImageLoaded = true;
+    }
+    $("#password").on('input', function() {
+      $("#loginBannerImage").attr("src", "{{ url_for('static', filename='img/inputpassword.png') }}");
+    }); // When user input the password, the banner will change
+    $("#mainContent").on('click', function(){
+      $("#loginBannerImage").attr("src", defaultImageSrc);
+    });
+    $("form").submit(function(){
+      $("#loginBannerImage").attr("src", defaultImageSrc);
+    }); 
+    // When user is input email address, click on elsewhere, or click on submit button, 
+    // the image will back to default
+  });
+</script>
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+  {% if errormsg %}
+    <div class="alert alert-danger">{{ errormsg }}</div>
+  {% endif %}
+  <h1 id="homepageBanner">Welcome back!</h1>
+  <div id="subPageTitle"><p>Ad astra abyssosque!</p></div>
+  <div class="loginandsignup">
     <div>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li class="active"><a href="#">Login</a></li>
-            <li><a href="/register">Sign Up</a></li>
-        </ul>
+      <img src="{{url_for('static',filename='img/defaultlogin.png')}}" id="loginBannerImage" alt="Login Banner Image">
     </div>
-    </div>
-  </nav>
-      <div id="mainContent">
-            {% if errormsg %}
-              <div class="alert alert-danger">{{ errormsg }}</div>
-            {% endif %}
-            <h1 id="homepageBanner">Welcome back!</h1>
-            <div id="subPageTitle"><p>Ad astra abyssosque!</p></div>
-            <div class="loginandsignup">
-              <div>
-                <img src="{{url_for('static',filename='img/defaultlogin.png')}}" id="loginBannerImage" alt="Login Banner Image">
-              </div>
-                <form method="POST" action="/dologin">
-                  {{ form.hidden_tag() }}
-                    <div class="form-group fillForms">
-                        <label for="email">Email address</label>
-                        {{ form.email(class="form-control", id="email", placeholder="Email Address", required=true) }}
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="password">Password</label>
-                        {{ form.password(class="form-control", id="password", placeholder="Password", required=true) }}
-                    </div>
-                    {{ form.submit() }}
-                  </form>
-                <br>
-                <p>Forget password? <a href="/forgetpassword" title="Register">Find it now!</a></p>
-                <p>Haven't signup yet? <a href="/register" title="Register">Sign Up Now!</a></p>
-            </div>
-      </div>
-</body>
-</html>
+      <form method="POST" action="/dologin">
+        {{ form.hidden_tag() }}
+          <div class="form-group fillForms">
+              <label for="email">Email address</label>
+              {{ form.email(class="form-control", id="email", placeholder="Email Address", required=true) }}
+          </div>
+          <div class="form-group fillForms">
+              <label for="password">Password</label>
+              {{ form.password(class="form-control", id="password", placeholder="Password", required=true) }}
+          </div>
+          {{ form.submit() }}
+        </form>
+      <br>
+      <p>Forget password? <a href="/forgetpassword" title="Register">Find it now!</a></p>
+      <p>Haven't signup yet? <a href="/register" title="Register">Sign Up Now!</a></p>
+  </div>
+{% endblock %}
+
