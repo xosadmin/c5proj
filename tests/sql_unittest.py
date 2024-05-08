@@ -76,7 +76,29 @@ class testDB(unittest.TestCase):
 
 # Shop item and purchase transaction
 
+    def test_addNewSigns(self):
+        newSigns = Signs(signID="123",userID="1234567890",time="1/1/1970",emotion="Happy",comments="comments",rewards=1)
+        db.session.add(newSigns)
+        db.session.commit()
+        self.assertEqual(Signs.query.filter(Signs.signID == "123").first().userID, "1234567890")
+
+# Signs Unit Test
+
+    def test_sendNewChat(self):
+        processes = [UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
+                     Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")]
+        for item in processes:
+            db.session.add(item)
+        db.session.commit()
+        self.assertEqual(Chats.query.filter(Chats.chatID == "123").first().content, "content")
     
+    def test_doNewReply(self):
+        newReply = Chats(chatID="123",srcUserID="666",dstUserID="1234567890",content="Received")
+        db.session.add(newReply)
+        db.session.commit()
+        self.assertEqual(Chats.query.filter(and_(Chats.chatID == "123",Chats.srcUserID == "666")).first().content, "Received")
+    
+# Chatroom Test
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
