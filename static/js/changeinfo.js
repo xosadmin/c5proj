@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    var lastExpand = "None"; // Avoid from form overlap
+    let lastExpand = "None"; // Avoid from form overlap
     $("#chooseChangeEmail").click(function(){
         $(lastExpand).hide();
         $("#emailChange").show();
@@ -28,7 +28,7 @@ $(document).ready(function(){
 });
 
 function checkSubmittedForm(){
-    var type = document.getElementById("type").value;
+    let type = document.getElementById("type").value;
     if (type === "email"){
         const newEmail = document.getElementById("newEmail").value;
         const repeatNewEmail = document.getElementById("repeatNewEmail").value;
