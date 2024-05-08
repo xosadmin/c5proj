@@ -1,7 +1,7 @@
 $(document).ready(function(){
     function controlSubmit(flag, value){
         if (flag === 1) { // Disable submit
-            var notify = "<p>Submit Disabled: ";
+            let notify = "<p>Submit Disabled: ";
             notify = notify + value + "</p>";
             $("#dosubm").prop("disabled",true);
             $("#whydisableSubButt").html(notify);
@@ -17,9 +17,9 @@ $(document).ready(function(){
     }
 
     $("#email").on('change',function(){
-        var emailInput = $("#email").val();
+        let emailInput = $("#email").val();
         if (emailInput.indexOf("@") === -1 || emailInput.indexOf(".") === -1) { // If user input invalid email address
-            var notify = "Invalid Email Address!";
+            let notify = "Invalid Email Address!";
             controlSubmit(1,notify);
             alert(notify);
         }
@@ -29,9 +29,21 @@ $(document).ready(function(){
     });
 
     $("#pin_code").on('change',function(){
-        var pincodeInput = $("#pin_code").val();
+        let pincodeInput = $("#pin_code").val();
         if (pincodeInput.length < 4) {
-            var notify = "Invalid PIN Code!";
+            let notify = "Invalid PIN Code!";
+            controlSubmit(1,notify);
+            alert(notify);
+        }
+        else {
+            controlSubmit(2,"");
+        }
+    });
+
+    $("#password").on('change',function(){
+        let passwordValue = $("#password").val();
+        if (passwordValue.length < 4){
+            let notify = "The password cannot lower than 4 words.";
             controlSubmit(1,notify);
             alert(notify);
         }
@@ -41,10 +53,10 @@ $(document).ready(function(){
     });
 
     $("#repeat_password").on('change',function(){ // Check repeat password
-        var passwordValue = $("#password").val();
-        var repeatValue = $(this).val();
+        let passwordValue = $("#password").val();
+        let repeatValue = $(this).val();
         if (passwordValue !== repeatValue){
-            var notify = "The password is not equal to repeat password.";
+            let notify = "The password is not equal to repeat password.";
             controlSubmit(1,notify);
             alert(notify);
         }
