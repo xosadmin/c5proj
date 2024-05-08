@@ -43,7 +43,6 @@ function displaySearchResults(results) {
     document.getElementById("collapse").style.display = "block";
 }
 
-
 let searchResultCollapse = false;
 $(document).ready(function(){
     $("#collapse").click(function(){
