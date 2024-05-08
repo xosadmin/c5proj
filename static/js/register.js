@@ -1,7 +1,7 @@
 $(document).ready(function(){
     function controlSubmit(flag, value){
         if (flag === 1) { // Disable submit
-            var notify = "<p>Submit Disabled: ";
+            const notify = "<p>Submit Disabled: ";
             notify = notify + value + "</p>";
             $("#dosubm").prop("disabled",true);
             $("#whydisableSubButt").html(notify);
@@ -17,9 +17,9 @@ $(document).ready(function(){
     }
 
     $("#email").on('change',function(){
-        var emailInput = $("#email").val();
+        const emailInput = $("#email").val();
         if (emailInput.indexOf("@") === -1 || emailInput.indexOf(".") === -1) { // If user input invalid email address
-            var notify = "Invalid Email Address!";
+            const notify = "Invalid Email Address!";
             controlSubmit(1,notify);
             alert(notify);
         }
@@ -29,9 +29,9 @@ $(document).ready(function(){
     });
 
     $("#pin_code").on('change',function(){
-        var pincodeInput = $("#pin_code").val();
+        const pincodeInput = $("#pin_code").val();
         if (pincodeInput.length < 4) {
-            var notify = "Invalid PIN Code!";
+            const notify = "Invalid PIN Code!";
             controlSubmit(1,notify);
             alert(notify);
         }
@@ -41,10 +41,10 @@ $(document).ready(function(){
     });
 
     $("#repeat_password").on('change',function(){ // Check repeat password
-        var passwordValue = $("#password").val();
-        var repeatValue = $(this).val();
+        const passwordValue = $("#password").val();
+        const repeatValue = $(this).val();
         if (passwordValue !== repeatValue){
-            var notify = "The password is not equal to repeat password.";
+            const notify = "The password is not equal to repeat password.";
             controlSubmit(1,notify);
             alert(notify);
         }

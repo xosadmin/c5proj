@@ -21,7 +21,7 @@ function loadLLM(flag) {
 }
 
 $(document).ready(function(){
-    var showpinExpand = false;
+    const showpinExpand = false;
     $('#showpin').click(function(){
         if (showpinExpand === false){
             $('#pincode').show();
@@ -35,7 +35,7 @@ $(document).ready(function(){
 });
 
 function confirmAcceptRequest(id) {
-    var acceptUrl = "/doacceptrequest/" + id;
+    const acceptUrl = "/doacceptrequest/" + id;
     window.location.href = acceptUrl;
 }
 
@@ -44,7 +44,7 @@ function denyAcceptRequest() {
 }
 
 function confirmPayment(id) {
-    var acceptUrl = "/dopayment/" + id;
+    const acceptUrl = "/dopayment/" + id;
     window.location.href = acceptUrl;
 }
 

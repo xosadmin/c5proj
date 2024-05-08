@@ -1,13 +1,13 @@
 function searchResult(){
-    var countryRadio = document.getElementById("country");
-    var emailRadio = document.getElementById("email");
+    const countryRadio = document.getElementById("country");
+    const emailRadio = document.getElementById("email");
     if (countryRadio.checked){
-        var type = "country";
-        var value = document.getElementById("value").value;
+        const type = "country";
+        const value = document.getElementById("value").value;
     }
     else if (emailRadio.checked) {
-        var type = "email";
-        var value = document.getElementById("value").value;
+        const type = "email";
+        const value = document.getElementById("value").value;
         if (value.indexOf("@") == -1){
             alert("Please insert correct email address.");
             return;
@@ -20,17 +20,17 @@ function searchResult(){
     const xhttp = new XMLHttpRequest();
     xhttp.open("GET", "/api/searchuser/" + type + "/" + value);
     xhttp.onload = function() {
-        var responseData = JSON.parse(this.responseText);
+        const responseData = JSON.parse(this.responseText);
         displaySearchResults(responseData);
     }
     xhttp.send();
 }
 
 function displaySearchResults(results) {
-    var tableBody = document.querySelector("#searchResult tbody"); // Choose tbody in searchResult div
+    const tableBody = document.querySelector("#searchResult tbody"); // Choose tbody in searchResult div
     tableBody.innerHTML = ""; // Clear all contents in the table body
     results.forEach(function(user) {
-        var row = `
+        const row = `
             <tr>
                 <td><a href="/profile/${user.id}" title="View User Info" target="_blank">${user.id}</a></td>
                 <td><a href="/profile/${user.id}" title="View User Info" target="_blank">${user.email}</a></td>
@@ -44,7 +44,7 @@ function displaySearchResults(results) {
 }
 
 
-var searchResultCollapse = false;
+const searchResultCollapse = false;
 $(document).ready(function(){
     $("#collapse").click(function(){
         if (searchResultCollapse === false){
