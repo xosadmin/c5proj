@@ -55,7 +55,8 @@
                         <p>The pin code is used for reset or modify your password. Please <b>keep it safe.</b></p>
                         <p>Note: The PIN code cannot less than <b>4 letters.</b></p>
                       </div>
-                    {{ form.submit() }}
+                    {{ form.submit(id="dosubm") }}
+                    <div id="whydisableSubButt"><p>&nbsp;</p></div>
                   </form>
                 <br>
                 <p>Already have an account? <a href="/login" title="Login">Login Now!</a></p>

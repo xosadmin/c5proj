@@ -28,42 +28,52 @@ login_manager.login_view = "loginPage" # Default Login View
 try:
     @app.route("/")
     def homepage():
-        return render_template('index.html')
+        if current_user.is_authenticated:
+            return redirect(url_for('profilePage',infomsg="You have already logged in. Welcome Back!"))
+        else:
+            return render_template('index.html')
 
     @app.route("/login", methods=["GET"])
     def loginPage():
         form = LoginForm()
-        if request.method == "GET":
-            errormsg = request.args.get('errormsg', '')
-            return render_template('login.html', errormsg=errormsg, form=form)
+        if current_user.is_authenticated:
+            return redirect(url_for('profilePage',infomsg="You have already logged in. Welcome Back!"))
         else:
-            return render_template('login.html',form=form)
+            if request.method == "GET":
+                errormsg = request.args.get('errormsg', '')
+                return render_template('login.html', errormsg=errormsg, form=form)
+            else:
+                return render_template('login.html',form=form)
 
     @app.route("/register", methods=["GET", "POST"])
     def registerPage():
         form = RegisterForm()
-        if request.method == "POST":
-            userID = str(uuidGen())
-            email = form.email.data
-            password = form.password.data
-            country = str(randomCountry())
-            pincode = form.pin_code.data
-            try:
-                checkEmailExist = checkEmail(email)
-                if checkEmailExist == 0:
-                    encryptedPassword = encryptPassword(password)
-                    insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
-                    dbSession.add(insert)
-                    dbSession.commit()
-                    return render_template("register_complete.html")
-                else:
-                    return redirect(url_for('registerPage', errormsg="Email already exists"))
-            except Exception as e:
-                print(e)
-                return redirect(url_for('registerPage', errormsg="An error occurred"))
+        if current_user.is_authenticated:
+            return redirect(url_for('profilePage',infomsg="You have already logged in. Welcome Back!"))
         else:
-            errormsg = request.args.get('errormsg', '')
-            return render_template('register.html', errormsg=errormsg, form=form)
+            if request.method == "POST":
+                userID = str(uuidGen())
+                email = form.email.data
+                password = form.password.data
+                repeat_password = form.repeat_password.data
+                country = str(randomCountry())
+                pincode = form.pin_code.data
+                try:
+                    checkEmailExist = checkEmail(email)
+                    if checkEmailExist == 0 or password != repeat_password: # Avoid from user that trying to bypass Javascript
+                        encryptedPassword = encryptPassword(password)
+                        insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
+                        dbSession.add(insert)
+                        dbSession.commit()
+                        return render_template("register_complete.html")
+                    else:
+                        return redirect(url_for('registerPage', errormsg="Email already exists or password mismatch"))
+                except Exception as e:
+                    print(e)
+                    return redirect(url_for('registerPage', errormsg="An error occurred"))
+            else:
+                errormsg = request.args.get('errormsg', '')
+                return render_template('register.html', errormsg=errormsg, form=form)
         
     @app.route("/forgetpassword", methods=["GET","POST"])
     def forgetPassword():
