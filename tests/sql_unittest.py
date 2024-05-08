@@ -25,6 +25,11 @@ class testDB(unittest.TestCase):
         db.session.execute(update(UserInfo).filter(UserInfo.userID == "1234567890").values(password="12345678"))
         db.session.commit()
         self.assertEqual(UserInfo.query.first().password, "12345678")
+
+    def test_changeCountry(self):
+        db.session.execute(update(UserInfo).filter(UserInfo.userID == "1234567890").values(country="New Zealand"))
+        db.session.commit()
+        self.assertEqual(UserInfo.query.first().country, "New Zealand")
     
     def test_removeUser(self):
         user = UserInfo(userID="666",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234") 
