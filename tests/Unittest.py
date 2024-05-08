@@ -9,7 +9,6 @@ class testCases(unittest.TestCase):
         self.app = app.app
         self.gt = gt
         self.llm = llm
-        self.lp = lp
         app.app.config['TESTING'] = True
         self.client = self.app.test_client()
         self.generatedEmail = str(rp.randomEmail())

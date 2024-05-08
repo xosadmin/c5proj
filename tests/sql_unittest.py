@@ -1,16 +1,21 @@
 import unittest
-from app import *
+from app import app,db
 from models.sqlmodels import *
+from sqlalchemy import *
 
 class testDB(unittest.TestCase):
     def setUp(self):
+        self.app = app.test_client()
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        self.app_context.pop()
 
 # Unit Test Setup
 
@@ -29,13 +34,13 @@ class testDB(unittest.TestCase):
         db.session.execute(update(UserInfo).filter(UserInfo.userID == "1234567890").values(country="New Zealand"))
         db.session.commit()
         self.assertEqual(UserInfo.query.first().country, "New Zealand")
-    
+
     def test_removeUser(self):
-        user = UserInfo(userID="666",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234") 
+        user = UserInfo(userID="666",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234")
             # Create a new user for deletion
         db.session.add(user)
         db.session.execute(delete(UserInfo).filter(UserInfo.userID == "666"))
-        checkIfDelete = UserInfo.query.filter(userID="666").first()
+        checkIfDelete = UserInfo.query.filter(UserInfo.userID == "666").first()
         self.assertIsNone(checkIfDelete)
 
 # UserInfo Test
