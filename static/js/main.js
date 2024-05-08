@@ -35,7 +35,7 @@ $(document).ready(function(){
 });
 
 function confirmAcceptRequest(id) {
-    let acceptUrl = "/doacceptrequest/" + id;
+    const acceptUrl = "/doacceptrequest/" + id;
     window.location.href = acceptUrl;
 }
 
@@ -44,7 +44,7 @@ function denyAcceptRequest() {
 }
 
 function confirmPayment(id) {
-    let acceptUrl = "/dopayment/" + id;
+    const acceptUrl = "/dopayment/" + id;
     window.location.href = acceptUrl;
 }
 
