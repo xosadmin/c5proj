@@ -1,5 +1,5 @@
 import unittest
-from app import app,db
+from app import *
 from models.sqlmodels import *
 
 class testDB(unittest.TestCase):
@@ -18,8 +18,7 @@ class testDB(unittest.TestCase):
         user = UserInfo(userID="1234567890",email="unittest@unittest.com",password="1234",country="Australia",pincode="1234")
         db.session.add(user)
         db.session.commit()
-        self.assertEqual(UserInfo.query.count(), 1)
-        self.assertEqual(UserInfo.query.first().userID, '1234567890')
+        self.assertEqual(UserInfo.query.filter(UserInfo.userID == "1234567890").first().email, 'unittest@unittest.com')
 
     def test_changePassword(self):
         db.session.execute(update(UserInfo).filter(UserInfo.userID == "1234567890").values(password="12345678"))
@@ -97,7 +96,14 @@ class testDB(unittest.TestCase):
         db.session.add(newReply)
         db.session.commit()
         self.assertEqual(Chats.query.filter(and_(Chats.chatID == "123",Chats.srcUserID == "666")).first().content, "Received")
-    
+
+    def test_removeChat(self):
+        deletion = delete(Chats).filter(Chats.chatID == "123")
+        db.session.add(deletion)
+        db.session.commit()
+        checkIfDelete = Chats.query.filter(Chats.chatID == "123").first()
+        self.assertIsNone(checkIfDelete)
+
 # Chatroom Test
 
 if __name__ == '__main__':
