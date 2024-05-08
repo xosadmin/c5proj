@@ -1,29 +1,50 @@
 import unittest
+import logging
 from app import app,db
-from models.sqlmodels import *
-from sqlalchemy import *
+from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
+from sqlalchemy import and_
 
 class testDB(unittest.TestCase):
     def setUp(self):
-        self.app = app.test_client()
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
+        self.remain_test_data_detector()
         db.create_all()
+        self.add_test_data()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
+    def remain_test_data_detector(self): # Detect & delete remain data left by previous test
+        query = Requests.query.filter(Requests.requestID == 123456789).first()
+        if query:
+            db.drop_all()
+
+    def add_test_data(self):
+        datas = [UserInfo(userID="1234567890",email="unittest@unittest.com",password="1234",country="Australia",pincode="1234"),
+                 UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
+                 UserInfo(userID="777",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234"),
+                 Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890"),
+                 Shop(itemID=123,itemDetail="Test Item",price=1),
+                 Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
+                 ]
+        for item in datas:
+            db.session.add(item)
+        db.session.commit()
+        logging.debug("Test data has been created.")
+
 # Unit Test Setup
 
     def test_regist_newuser(self):
-        user = UserInfo(userID="1234567890",email="unittest@unittest.com",password="1234",country="Australia",pincode="1234")
+        user = UserInfo(userID="666777",email="unittest2@unittest.com",password="1234",country="Australia",pincode="1234")
         db.session.add(user)
         db.session.commit()
-        self.assertEqual(UserInfo.query.filter(UserInfo.userID == "1234567890").first().email, 'unittest@unittest.com')
+        self.assertEqual(UserInfo.query.filter(UserInfo.userID == "666777").first().email, 'unittest2@unittest.com')
 
     def test_changePassword(self):
         db.session.execute(update(UserInfo).filter(UserInfo.userID == "1234567890").values(password="12345678"))
@@ -36,20 +57,17 @@ class testDB(unittest.TestCase):
         self.assertEqual(UserInfo.query.first().country, "New Zealand")
 
     def test_removeUser(self):
-        user = UserInfo(userID="666",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234")
-            # Create a new user for deletion
-        db.session.add(user)
-        db.session.execute(delete(UserInfo).filter(UserInfo.userID == "666"))
-        checkIfDelete = UserInfo.query.filter(UserInfo.userID == "666").first()
+        db.session.delete(UserInfo.query.filter(UserInfo.userID == "777").first())
+        checkIfDelete = UserInfo.query.filter(UserInfo.userID == "777").first()
         self.assertIsNone(checkIfDelete)
 
 # UserInfo Test
 
     def test_addRequets(self):
-        request = Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890")
+        request = Requests(requestID=12345678912,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890")
         db.session.add(request)
         db.session.commit()
-        self.assertEqual(Requests.query.filter(Requests.userID == "1234567890").first().title, "title")
+        self.assertEqual(Requests.query.filter(Requests.requestID == 12345678912).first().title, "title")
 
     def test_answerRequest(self):
         request = update(Requests).filter(Requests.requestID == 123456789).values(status="Completed",answer="content")
@@ -67,10 +85,10 @@ class testDB(unittest.TestCase):
 # Request Test
 
     def test_addShopItem(self):
-        addShop = Shop(id=123,itemDetail="Test Item",price=1)
+        addShop = Shop(itemID=1234,itemDetail="Test Item 2",price=1)
         db.session.add(addShop)
         db.session.commit()
-        self.assertEqual(Shop.query.filter(Shop.id == 123).first().price, 1)
+        self.assertEqual(Shop.query.filter(Shop.itemID == 1234).first().price, 1)
 
     def test_purchaseItem(self):
         purchaseRequest = Transaction(userID="1234567890",itemID="123")
@@ -89,12 +107,10 @@ class testDB(unittest.TestCase):
 # Signs Unit Test
 
     def test_sendNewChat(self):
-        processes = [UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
-                     Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")]
-        for item in processes:
-            db.session.add(item)
+        processes = Chats(chatID="1234",srcUserID="1234567890",dstUserID="666",content="content")
+        db.session.add(processes)
         db.session.commit()
-        self.assertEqual(Chats.query.filter(Chats.chatID == "123").first().content, "content")
+        self.assertEqual(Chats.query.filter(Chats.chatID == "1234").first().content, "content")
     
     def test_doNewReply(self):
         newReply = Chats(chatID="123",srcUserID="666",dstUserID="1234567890",content="Received")
@@ -103,8 +119,8 @@ class testDB(unittest.TestCase):
         self.assertEqual(Chats.query.filter(and_(Chats.chatID == "123",Chats.srcUserID == "666")).first().content, "Received")
 
     def test_removeChat(self):
-        deletion = delete(Chats).filter(Chats.chatID == "123")
-        db.session.add(deletion)
+        chat_to_delete = Chats.query.filter(Chats.chatID == "123").first()
+        db.session.delete(chat_to_delete)
         db.session.commit()
         checkIfDelete = Chats.query.filter(Chats.chatID == "123").first()
         self.assertIsNone(checkIfDelete)

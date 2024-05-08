@@ -1,4 +1,5 @@
 import os
+#from app import db
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import *
 from flask import Flask
