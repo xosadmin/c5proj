@@ -1,13 +1,14 @@
 function searchResult(){
     let countryRadio = document.getElementById("country");
     let emailRadio = document.getElementById("email");
+    let type,value,responseData;
     if (countryRadio.checked){
-        let type = "country";
-        let value = document.getElementById("value").value;
+        type = "country";
+        value = document.getElementById("value").value;
     }
     else if (emailRadio.checked) {
-        let type = "email";
-        let value = document.getElementById("value").value;
+        type = "email";
+        value = document.getElementById("value").value;
         if (value.indexOf("@") == -1){
             alert("Please insert correct email address.");
             return;

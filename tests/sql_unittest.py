@@ -1,15 +1,16 @@
 import unittest
-import logging
-from app import app,db
+from app import create_app,db
 from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
 from sqlalchemy import update,delete,and_,or_
 
 class testDB(unittest.TestCase):
+
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app = app.test_client()
-        self.app_context = app.app_context()
+        self.app = create_app({
+            'TESTING': True,
+            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        })
+        self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
         self.add_test_data()
@@ -30,7 +31,6 @@ class testDB(unittest.TestCase):
         for item in datas:
             db.session.add(item)
         db.session.commit()
-        logging.debug("Test data has been created.")
 
 # Unit Test Setup
 

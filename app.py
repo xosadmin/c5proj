@@ -3,7 +3,6 @@ from flask import *
 import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from models.sqlmodels import *
 from models.formModels import *
@@ -11,19 +10,22 @@ from models.loginModels import *
 from apps.get import *
 from apps.randomprofile import *
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
-app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
-engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-connect = engine.connect()
-alchemySession = sessionmaker(bind=engine)
-
-dbSession = alchemySession()
-db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
 migrate = Migrate(app, db) # Create a flask db migration
 login_manager = LoginManager()
-login_manager.init_app(app) # Create a new Login manager
-login_manager.login_view = "loginPage" # Default Login View
+
+def create_app(config=None):
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
+    if config is not None:
+        app.config.update(config)
+    else: 
+        app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
+    db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
+    login_manager.init_app(app) # Create a new Login manager
+    login_manager.login_view = "loginPage" # Default Login View
+    return app
+
+app = create_app()
 
 try:
     @app.route("/index")
@@ -64,8 +66,8 @@ try:
                     if checkEmailExist == 0 or password != repeat_password: # Avoid from user that trying to bypass Javascript
                         encryptedPassword = encryptPassword(password)
                         insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
-                        dbSession.add(insert)
-                        dbSession.commit()
+                        db.session.add(insert)
+                        db.session.commit()
                         return render_template("register_complete.html")
                     else:
                         return redirect(url_for('registerPage', errormsg="Email already exists or password mismatch"))
@@ -89,8 +91,8 @@ try:
                     if pin_verify_result == 0:
                         try:
                             encryptedPassword = encryptPassword("123")
-                            dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
-                            dbSession.commit()
+                            db.session.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
+                            db.session.commit()
                             return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                         except Exception as e:
                             print(f"Error resetting password: {str(e)}")
@@ -114,16 +116,16 @@ try:
             changeType = request.form["type"]
             if changeType == "email":
                 newemail = request.form["newEmail"]
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+                db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
             elif changeType == "country":
                 country = request.form["country"]
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
+                db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
             elif changeType == "pin":
                 OldpinCode = request.form["oldpin"]
                 newpin = request.form["newpin"]
                 verifyPinCodeResult = verifyPinCode(userID,OldpinCode)
                 if verifyPinCodeResult == 0:
-                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
                 else:
                     return render_template("change_profile.html",infomsg="Invalid Old PIN Code!")
             elif changeType == "password":
@@ -132,12 +134,12 @@ try:
                 encNewPassword = encryptPassword(newpassword)
                 verifyPinCodeResult = verifyPinCode(userID,pinCode)
                 if verifyPinCodeResult == 0:
-                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
                 else:
                     return render_template("change_profile.html",infomsg="Invalid PIN Code!")
             else:
                 return render_template("change_profile.html",infomsg="Invalid Change!")
-            dbSession.commit()
+            db.session.commit()
             return redirect(url_for("profilePage",infomsg="Information " + changeType + " has been updated."))
         else:
             return render_template("change_profile.html")
@@ -186,8 +188,8 @@ try:
             dstuser = request.form['dstUser']
             try:
                 insert = Chats(chatID=chatID,srcUserID=userID,dstUserID=dstuser,content=content)
-                dbSession.add(insert)
-                dbSession.commit()
+                db.session.add(insert)
+                db.session.commit()
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
             except Exception as e:
                 print(e)
@@ -202,8 +204,8 @@ try:
         dstuser = getChatInfo(chatid,"dstuser")
         srcuser = getChatInfo(chatid,"srcuser")
         if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
-            dbSession.execute(delete(Chats).where(Chats.chatID == chatid))
-            dbSession.commit()
+            db.session.execute(delete(Chats).where(Chats.chatID == chatid))
+            db.session.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/chat';</script>"
@@ -213,9 +215,9 @@ try:
     def deleteThread(threaduserid,threadID):
         currentuserID = current_user.id
         if int(threaduserid) == int(currentuserID): # Only userID matches can delete
-            dbSession.execute(delete(Thread).where(Thread.threadID == threadID))
-            dbSession.execute(delete(Community).where(Community.threadID == threadID))
-            dbSession.commit()
+            db.session.execute(delete(Thread).where(Thread.threadID == threadID))
+            db.session.execute(delete(Community).where(Community.threadID == threadID))
+            db.session.commit()
             return "<script>alert('Your thread has been deleted.');window.location.href='/community';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/community';</script>"
@@ -233,8 +235,8 @@ try:
             if checkIfDstExist and str(userID) != dstuser:
                 try:
                     insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
-                    dbSession.add(insert)
-                    dbSession.commit()
+                    db.session.add(insert)
+                    db.session.commit()
                     return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
                 except Exception as e:
                     print(e)
@@ -293,9 +295,9 @@ try:
                     randomRewards = int(randomCoinRewards())
                     rewardCoins = randomRewards + int(currentCoin)
                     insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
-                    dbSession.add(insert)
-                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
-                    dbSession.commit()
+                    db.session.add(insert)
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
+                    db.session.commit()
                     return redirect(url_for('profilePage',infomsg="Signed successfully! Welcome back and you have get " 
                                             + str(randomRewards) + " coins for reward!"))
                 except Exception as e:
@@ -321,8 +323,8 @@ try:
                 inserts = [Community(threadID=threadUUID,title=title,userID=userID),
                            Thread(threadID=threadUUID,userID=userID,contents=content)]
                 for item in inserts:
-                    dbSession.add(item)
-                dbSession.commit()
+                    db.session.add(item)
+                db.session.commit()
                 return "<script>alert('New thread recorded.');window.location.href='/community';</script>"
             except Exception as e:
                 print(e)
@@ -345,9 +347,9 @@ try:
                 insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
                 remainCoins = int(currentCoins) - int(rewards)
                 coins = update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)
-                dbSession.add(insert)
-                dbSession.execute(coins)
-                dbSession.commit()
+                db.session.add(insert)
+                db.session.execute(coins)
+                db.session.commit()
                 return "<script>alert('New request posted.');window.location.href='/requests';</script>"
             else:
                 return redirect(url_for('newRequest', msg="Insufficient Balance!"))
@@ -372,8 +374,8 @@ try:
             threadUUID = request.form['threadID']
             try:
                 insert = Thread(threadID=threadUUID,userID=userID,contents=content)
-                dbSession.add(insert)
-                dbSession.commit()
+                db.session.add(insert)
+                db.session.commit()
                 return "<script>alert('New reply recorded.');window.location.href='/thread/"+ threadUUID +"';</script>"
             except Exception as e:
                 print(e)
@@ -527,8 +529,8 @@ try:
                     update(Todo).where(Todo.requestID == requestID).values(status="Completed"),
                     update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)]
         for item in updates:
-            dbSession.execute(item)
-        dbSession.commit()
+            db.session.execute(item)
+        db.session.commit()
         return redirect(url_for('todoList',infomsg="Thank you! You have completed the request."))
 
     @app.route("/thread/<id>", methods=['GET'])
@@ -573,8 +575,8 @@ try:
             commands = [delete(Requests).where(Requests.requestID == requestid),
                         update(UserInfo).filter(UserInfo.userID == userid).values(coins=remainCoins)]
             for item in commands:
-                dbSession.execute(item)
-            dbSession.commit()
+                db.session.execute(item)
+            db.session.commit()
             return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
             return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
@@ -604,9 +606,9 @@ try:
         userID = current_user.id
         updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted")
         insertTodo = Todo(userID=userID,requestID=id,status="Accepted")
-        dbSession.execute(updateReq)
-        dbSession.add(insertTodo)
-        dbSession.commit()
+        db.session.execute(updateReq)
+        db.session.add(insertTodo)
+        db.session.commit()
         return redirect(url_for('todoList'))
 
     @app.route("/setavatar/<id>", methods=['GET'])
@@ -614,8 +616,8 @@ try:
     def doSetAvatar(id):
         userID = current_user.id
         updateusr = update(UserInfo).where(UserInfo.userID == userID).values(avatar=id)
-        dbSession.execute(updateusr)
-        dbSession.commit()
+        db.session.execute(updateusr)
+        db.session.commit()
         return redirect(url_for('profilePage',infomsg="Avatar updated."))
     
     @app.route("/dopayment/<id>", methods=['GET'])
@@ -629,9 +631,9 @@ try:
         if remainCoins >= 0:
             if not checkWarehouse:
                 insert = Transaction(userID=userID,itemID=id)
-                dbSession.add(insert)
-                dbSession.execute(update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins))
-                dbSession.commit()
+                db.session.add(insert)
+                db.session.execute(update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins))
+                db.session.commit()
                 return redirect(url_for('shopPage',infomsg="Payment for #" + id + " Successful."))
             else:
                 return redirect(url_for('shopPage', infomsg="You already purchased this item. You cannot purchase it once again."))
