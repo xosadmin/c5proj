@@ -1,7 +1,10 @@
 import unittest
 from app import create_app,db
+from apps.randomprofile import uuidGen
 from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
 from sqlalchemy import update,delete,and_,or_
+
+threadUUID = uuidGen()
 
 class testDB(unittest.TestCase):
 
@@ -25,6 +28,7 @@ class testDB(unittest.TestCase):
                  UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
                  UserInfo(userID="777",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234"),
                  Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890"),
+                 Community(threadID="1234567",title="title",userID="1234567890"),
                  Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
                  Shop(itemID=123,itemDetail="Test Item",price=1),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
@@ -58,7 +62,6 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # UserInfo Test
-
     def test_addRequests(self):
         request = Requests(requestID=12345678912,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890")
         db.session.add(request)
@@ -79,7 +82,6 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # Request Test
-
     def test_addShopItem(self):
         addShop = Shop(itemID=1234,itemDetail="Test Item 2",price=1)
         db.session.add(addShop)
@@ -93,20 +95,17 @@ class testDB(unittest.TestCase):
         self.assertEqual(Transaction.query.filter(Transaction.userID == "1234567890").first().itemID, 123)
 
 # Shop item and purchase transaction
-
-
     def test_addThreads(self):
         thread = Thread(threadID="title",contents="content")
         db.session.add(thread)
         db.session.commit()
         self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
 
-    def answerThreads(self):
+    def test_answerThreads(self):
         thread = update(Thread).filter(Thread.threadID == 1234567).values(contents="content")
         db.session.execute(thread)
         db.session.commit()
         self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
-    
 
     def test_deleteRequest(self):
         thread = delete(Thread).filter(Thread.threadID == 1234567)
@@ -114,13 +113,6 @@ class testDB(unittest.TestCase):
         db.session.commit()
         checkIfDelete = Thread.query.filter(Thread.threadID == 1234567).first()
         self.assertIsNone(checkIfDelete)
-        
-
-
-
-
-
-
 
     def test_addNewSigns(self):
         newSigns = Signs(signID="123",userID="1234567890",time="1/1/1970",emotion="Happy",comments="comments",rewards=1)
@@ -129,7 +121,6 @@ class testDB(unittest.TestCase):
         self.assertEqual(Signs.query.filter(Signs.signID == "123").first().userID, "1234567890")
 
 # Signs Unit Test
-
     def test_sendNewChat(self):
         processes = Chats(chatID="1234",srcUserID="1234567890",dstUserID="666",content="content")
         db.session.add(processes)
@@ -150,6 +141,40 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # Chatroom Test
+
+    def test_addNewThread(self):
+        inserts = [Community(threadID=threadUUID,title="New Thread Test",userID="666777"),
+                    Thread(threadID=threadUUID,userID="666777",contents="content")]
+        for item in inserts:
+            db.session.add(item)
+        db.session.commit()
+        checks = [Community.query.filter(Community.threadID == threadUUID).first().userID,
+                  Thread.query.filter(Thread.threadID == threadUUID).first().userID]
+        for item in checks:
+            if item != "666777":
+                self.assertFalse(False)
+        self.assertTrue(True)
+    
+    def test_doNewReply(self):
+        insert = Thread(threadID=threadUUID,userID="1234567890",contents="reply content")
+        db.session.add(insert)
+        db.session.commit()
+        self.assertEqual(Thread.query.filter(Thread.threadID == threadUUID).first().contents, "reply content")
+    
+    def test_removeThread(self):
+        deleteCommands = [delete(Community).filter(Community.threadID == threadUUID),
+                          delete(Thread).filter(Thread.threadID == threadUUID)]
+        for item in deleteCommands:
+            db.session.execute(item)
+        db.session.commit()
+        checkScripts = [Community.query.filter(Community.threadID == threadUUID).first(),
+                        Thread.query.filter(Thread.threadID == threadUUID).first()]
+        for item in checkScripts:
+            if item is not None:
+                self.assertFalse(False)
+        self.assertTrue(True)
+
+# Tests Community & Threads
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
