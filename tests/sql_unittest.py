@@ -1,7 +1,10 @@
 import unittest
 from app import create_app,db
+from apps.randomprofile import uuidGen
 from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
-from sqlalchemy import update,delete,and_,or_
+from sqlalchemy import update,delete,and_
+
+threadUUID = uuidGen()
 
 class testDB(unittest.TestCase):
 
@@ -25,7 +28,10 @@ class testDB(unittest.TestCase):
                  UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
                  UserInfo(userID="777",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234"),
                  Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890"),
+                 Community(threadID="1234567",title="title",userID="1234567890"),
+                 Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
                  Shop(itemID=123,itemDetail="Test Item",price=1),
+                 Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
                  ]
         for item in datas:
@@ -56,8 +62,7 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # UserInfo Test
-
-    def test_addRequets(self):
+    def test_addRequests(self):
         request = Requests(requestID=12345678912,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890")
         db.session.add(request)
         db.session.commit()
@@ -77,7 +82,6 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # Request Test
-
     def test_addShopItem(self):
         addShop = Shop(itemID=1234,itemDetail="Test Item 2",price=1)
         db.session.add(addShop)
@@ -120,6 +124,56 @@ class testDB(unittest.TestCase):
         self.assertIsNone(checkIfDelete)
 
 # Chatroom Test
+
+    def test_addNewThread(self):
+        inserts = [Community(threadID=threadUUID,title="New Thread Test",userID="666777"),
+                    Thread(threadID=threadUUID,userID="666777",contents="content")]
+        for item in inserts:
+            db.session.add(item)
+        db.session.commit()
+        checks = [Community.query.filter(Community.threadID == threadUUID).first().userID,
+                  Thread.query.filter(Thread.threadID == threadUUID).first().userID]
+        for item in checks:
+            if item != "666777":
+                self.assertFalse(False)
+        self.assertTrue(True)
+    
+    def test_doNewReply(self):
+        insert = Thread(threadID=threadUUID,userID="1234567890",contents="reply content")
+        db.session.add(insert)
+        db.session.commit()
+        self.assertEqual(Thread.query.filter(Thread.threadID == threadUUID).first().contents, "reply content")
+    
+    def test_removeThread(self):
+        deleteCommands = [delete(Community).filter(Community.threadID == threadUUID),
+                          delete(Thread).filter(Thread.threadID == threadUUID)]
+        for item in deleteCommands:
+            db.session.execute(item)
+        db.session.commit()
+        checkScripts = [Community.query.filter(Community.threadID == threadUUID).first(),
+                        Thread.query.filter(Thread.threadID == threadUUID).first()]
+        for item in checkScripts:
+            if item is not None:
+                self.assertFalse(False)
+        self.assertTrue(True)
+
+# Tests Community & Threads
+    
+    def test_addtodo(self):
+        new_todo = Todo(userID="1234567890", requestID=47897484)
+        db.session.add(new_todo)
+        db.session.commit()
+        added_todo = Todo.query.filter(Todo.requestID == 47897484).first().userID
+        self.assertEqual(added_todo,"1234567890")
+
+    def test_answertodo(self):
+        todo_to_update = update(Todo).where(Todo.todoID == 321).values(status="Completed")
+        db.session.execute(todo_to_update)
+        db.session.commit()
+        updated_todo = Todo.query.filter(Todo.todoID == 321).first().status
+        self.assertEqual(updated_todo, "Completed")
+
+# Todo Tests
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
