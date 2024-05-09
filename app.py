@@ -118,12 +118,22 @@ try:
                 country = request.form["country"]
                 dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
             elif changeType == "pin":
+                OldpinCode = request.form["oldpin"]
                 newpin = request.form["newpin"]
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+                verifyPinCodeResult = verifyPinCode(userID,OldpinCode)
+                if verifyPinCodeResult == 0:
+                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+                else:
+                    return render_template("change_profile.html",infomsg="Invalid Old PIN Code!")
             elif changeType == "password":
+                pinCode = request.form["pin-code"]
                 newpassword = request.form["newpassword"]
                 encNewPassword = encryptPassword(newpassword)
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+                verifyPinCodeResult = verifyPinCode(userID,pinCode)
+                if verifyPinCodeResult == 0:
+                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+                else:
+                    return render_template("change_profile.html",infomsg="Invalid PIN Code!")
             else:
                 return render_template("change_profile.html",infomsg="Invalid Change!")
             dbSession.commit()
