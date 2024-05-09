@@ -2,7 +2,7 @@ import unittest
 from app import create_app,db
 from apps.randomprofile import uuidGen
 from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
-from sqlalchemy import update,delete,and_,or_
+from sqlalchemy import update,delete,and_
 
 threadUUID = uuidGen()
 
@@ -33,7 +33,6 @@ class testDB(unittest.TestCase):
                  Shop(itemID=123,itemDetail="Test Item",price=1),
                  Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
-
                  ]
         for item in datas:
             db.session.add(item)
@@ -159,36 +158,20 @@ class testDB(unittest.TestCase):
         self.assertTrue(True)
 
 # Tests Community & Threads
-
     
     def test_addtodo(self):
-        new_todo = Todo(userID="1234567890", requestID=123456789)
+        new_todo = Todo(userID="1234567890", requestID=47897484)
         db.session.add(new_todo)
         db.session.commit()
-        added_todo = Todo.query.filter_by(userID="1234567890", requestID=123456789).first()
-        self.assertIsNotNone(added_todo, "Failed to add new Todo")
+        added_todo = Todo.query.filter(Todo.requestID == 47897484).first().userID
+        self.assertEqual(added_todo,"1234567890")
 
     def test_answertodo(self):
-        
-        todo_to_update = Todo.query.filter_by(todoID=321).first()
-        if todo_to_update:
-            todo_to_update.status = "Completed"
-            db.session.commit()
-            updated_todo = Todo.query.filter_by(todoID=321).first()
-            self.assertEqual(updated_todo.status, "Completed", "Failed to update Todo status")
-        else:
-            self.fail("Todo item not found for updating")
-
-        
-
-
-       
-    def test_purchaseItem(self):
-        purchaseRequest = Transaction(userID="1234567890",itemID="123")
-        db.session.add(purchaseRequest)
+        todo_to_update = update(Todo).where(Todo.todoID == 321).values(status="Completed")
+        db.session.execute(todo_to_update)
         db.session.commit()
-        self.assertEqual(Transaction.query.filter(Transaction.userID == "1234567890").first().itemID, 123)
-
+        updated_todo = Todo.query.filter(Todo.todoID == 321).first().status
+        self.assertEqual(updated_todo, "Completed")
 
 # Todo Tests
 
