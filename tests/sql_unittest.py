@@ -25,8 +25,10 @@ class testDB(unittest.TestCase):
                  UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
                  UserInfo(userID="777",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234"),
                  Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890"),
+                 Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
                  Shop(itemID=123,itemDetail="Test Item",price=1),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
+
                  ]
         for item in datas:
             db.session.add(item)
@@ -57,7 +59,7 @@ class testDB(unittest.TestCase):
 
 # UserInfo Test
 
-    def test_addRequets(self):
+    def test_addRequests(self):
         request = Requests(requestID=12345678912,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890")
         db.session.add(request)
         db.session.commit()
@@ -91,6 +93,34 @@ class testDB(unittest.TestCase):
         self.assertEqual(Transaction.query.filter(Transaction.userID == "1234567890").first().itemID, 123)
 
 # Shop item and purchase transaction
+
+
+    def test_addThreads(self):
+        thread = Thread(threadID="title",contents="content")
+        db.session.add(thread)
+        db.session.commit()
+        self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
+
+    def answerThreads(self):
+        thread = update(Thread).filter(Thread.threadID == 1234567).values(contents="content")
+        db.session.execute(thread)
+        db.session.commit()
+        self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
+    
+
+    def test_deleteRequest(self):
+        thread = delete(Thread).filter(Thread.threadID == 1234567)
+        db.session.execute(thread)
+        db.session.commit()
+        checkIfDelete = Thread.query.filter(Thread.threadID == 1234567).first()
+        self.assertIsNone(checkIfDelete)
+        
+
+
+
+
+
+
 
     def test_addNewSigns(self):
         newSigns = Signs(signID="123",userID="1234567890",time="1/1/1970",emotion="Happy",comments="comments",rewards=1)
