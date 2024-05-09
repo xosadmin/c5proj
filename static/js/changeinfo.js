@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    var lastExpand = "None"; // Avoid from form overlap
+    let lastExpand = "None"; // Avoid from form overlap
     $("#chooseChangeEmail").click(function(){
         $(lastExpand).hide();
         $("#emailChange").show();
@@ -28,7 +28,7 @@ $(document).ready(function(){
 });
 
 function checkSubmittedForm(){
-    var type = document.getElementById("type").value;
+    let type = document.getElementById("type").value;
     if (type === "email"){
         const newEmail = document.getElementById("newEmail").value;
         const repeatNewEmail = document.getElementById("repeatNewEmail").value;
@@ -59,8 +59,12 @@ function checkSubmittedForm(){
     else if (type === "password") {
         const newpassword = document.getElementById("newpassword").value;
         const repeatnewpassword = document.getElementById("repeatnewpassword").value;
-        if (newpassword !== repeatnewpassword || newpassword.length() < 4) {
+        if (newpassword !== repeatnewpassword) {
             alert("PIN/Password Mismatch or invalid PIN!");
+            return false;
+        }
+        else if (newpassword.length < 4 || newpassword.length > 32) {
+            alert("Password cannot lower than 4 or larger than 32 words.");
             return false;
         }
         else {

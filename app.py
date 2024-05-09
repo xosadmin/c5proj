@@ -26,6 +26,7 @@ login_manager.init_app(app) # Create a new Login manager
 login_manager.login_view = "loginPage" # Default Login View
 
 try:
+    @app.route("/index")
     @app.route("/")
     def homepage():
         if current_user.is_authenticated:
