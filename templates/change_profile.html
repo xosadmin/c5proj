@@ -62,17 +62,17 @@
                     <div id="pinChange">
                       <div class="form-group fillForms">
                         <label for="oldpin">Old Pin Code</label>
-                        <input type="password" class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" >
+                        <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" >
                       </div>
                       <div class="form-group fillForms">
                         <label for="newpin">New Pin Code</label>
-                        <input type="password" class="form-control" id="newpin" name="newpin" placeholder="New Pin" >
-                        <p>Please note that pin code cannot less than <b>4 letters</b></p>
+                        <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="newpin" name="newpin" placeholder="New Pin" >
+                        <p>Please note that pin code cannot less than <b>4 digits</b></p>
                       </div>
                       <div class="form-group fillForms">
                           <input type="hidden" id="userID" name="userID" value="{{userID}}">
                           <label for="repeatnewpin">Repeat New Pin Code</label>
-                          <input type="password" class="form-control" id="repeatnewpin" name="repeatnewpin" placeholder="Repeat Pin Code" >
+                          <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="repeatnewpin" name="repeatnewpin" placeholder="Repeat Pin Code" >
                       </div>
                     </div>
                     <div id="passwordChange">
