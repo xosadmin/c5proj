@@ -42,8 +42,8 @@ $(document).ready(function(){
 
     $("#password").on('change',function(){
         let passwordValue = $("#password").val();
-        if (passwordValue.length < 4){
-            let notify = "The password cannot lower than 4 words.";
+        if (passwordValue.length < 4 || passwordValue.length > 32){
+            let notify = "The password cannot lower than 4 or larger than 32 words.";
             controlSubmit(1,notify);
             alert(notify);
         }

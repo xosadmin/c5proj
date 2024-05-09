@@ -59,8 +59,12 @@ function checkSubmittedForm(){
     else if (type === "password") {
         const newpassword = document.getElementById("newpassword").value;
         const repeatnewpassword = document.getElementById("repeatnewpassword").value;
-        if (newpassword !== repeatnewpassword || newpassword.length() < 4) {
+        if (newpassword !== repeatnewpassword) {
             alert("PIN/Password Mismatch or invalid PIN!");
+            return false;
+        }
+        else if (newpassword.length < 4 || newpassword.length > 32) {
+            alert("Password cannot lower than 4 or larger than 32 words.");
             return false;
         }
         else {
