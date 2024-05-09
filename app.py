@@ -78,28 +78,32 @@ try:
     @app.route("/forgetpassword", methods=["GET","POST"])
     def forgetPassword():
         form = ForgetPasswordForm()
-        if request.method == "POST":
-            email = form.email.data
-            pincode = form.pin_code.data
-            fetchEmail = checkEmail(email)
-            if fetchEmail == -1:
-                pin_verify_result = verifyPinCode(email, pincode)
-                if pin_verify_result == 0:
-                    try:
-                        encryptedPassword = encryptPassword("123")
-                        dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
-                        dbSession.commit()
-                        return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
-                    except Exception as e:
-                        print(f"Error resetting password: {str(e)}")
-                        return redirect(url_for('forgetPassword', infomsg="Failed to reset password. Please contact support."))
+        if not current_user.is_authenticated: # If user is not logged in
+            if request.method == "POST":
+                email = form.email.data
+                pincode = form.pin_code.data
+                fetchEmail = checkEmail(email)
+                if fetchEmail == -1:
+                    pin_verify_result = verifyPinCode(email, pincode)
+                    if pin_verify_result == 0:
+                        try:
+                            encryptedPassword = encryptPassword("123")
+                            dbSession.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
+                            dbSession.commit()
+                            return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
+                        except Exception as e:
+                            print(f"Error resetting password: {str(e)}")
+                            return redirect(url_for('forgetPassword', infomsg="Failed to reset password. Please contact support."))
+                    else:
+                        return redirect(url_for('forgetPassword', infomsg="Incorrect PIN."))
                 else:
-                    return redirect(url_for('forgetPassword', infomsg="Incorrect PIN."))
+                    return redirect(url_for('forgetPassword', infomsg="User not found."))
             else:
-                return redirect(url_for('forgetPassword', infomsg="User not found."))
+                infomsg = request.args.get('infomsg','')
+                return render_template('forget_password.html', errormsg=infomsg, form=form)
         else:
-            errormsg = request.args.get("infomsg","")
-            return render_template('forget_password.html', errormsg=errormsg, form=form)
+            errormsg = "You cannot perform this request while signed in."
+            return redirect(url_for('profilePage', infomsg=errormsg))
     
     @app.route("/modifycenter",methods=["GET","POST"])
     @login_required
