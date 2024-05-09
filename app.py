@@ -118,12 +118,22 @@ try:
                 country = request.form["country"]
                 dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
             elif changeType == "pin":
+                OldpinCode = request.form["oldpin"]
                 newpin = request.form["newpin"]
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+                verifyPinCodeResult = verifyPinCode(userID,OldpinCode)
+                if verifyPinCodeResult == 0:
+                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
+                else:
+                    return render_template("change_profile.html",infomsg="Invalid Old PIN Code!")
             elif changeType == "password":
+                pinCode = request.form["pin-code"]
                 newpassword = request.form["newpassword"]
                 encNewPassword = encryptPassword(newpassword)
-                dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+                verifyPinCodeResult = verifyPinCode(userID,pinCode)
+                if verifyPinCodeResult == 0:
+                    dbSession.execute(update(UserInfo).where(UserInfo.userID==userID).values(password=encNewPassword))
+                else:
+                    return render_template("change_profile.html",infomsg="Invalid PIN Code!")
             else:
                 return render_template("change_profile.html",infomsg="Invalid Change!")
             dbSession.commit()
@@ -450,8 +460,13 @@ try:
             nft_details = Transaction.query.filter(Transaction.userID==userID).all()
             signHistory = Signs.query.filter(Signs.userID == userID).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
+            if "-" in userID:
+                userID_Show_On_Browser = userID.split("-")[0]
+            else:
+                userID_Show_On_Browser = userID
             return render_template('profile.html',
                                 userID=userID,
+                                userID_Show_On_Browser=userID_Show_On_Browser,
                                 user_details=user_details,
                                 nft_details=nft_details,
                                 nftid=nftid,
@@ -469,11 +484,16 @@ try:
         try:
             infomsg = request.args.get('infomsg', '')
             userID = userid
+            if "-" in userID:
+                userID_Show_On_Browser = userID.split("-")[0]
+            else:
+                userID_Show_On_Browser = userID
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()
             if user_details is None:
                 return "<script>alert('Cannot find this user');history.back();</script>"
             avatar_id = str(getUserInfo(userID,"avatar"))
             return render_template('profile_other_user_view.html',
+                                userID_Show_On_Browser = userID_Show_On_Browser,
                                 userID = userID,
                                 user_details = user_details,
                                 nftid = avatar_id,
@@ -675,12 +695,6 @@ except Exception as e:
     print("Details: " + str(e))
     exit(-1)
 # If file is missing, the program cannot start
-
-# this is for the common code
-# Inject the request object into the Jinja2 context for all templates
-@app.context_processor
-def inject_request():
-    return dict(request=request)
 
 if __name__ == "__main__":
     app.run()
