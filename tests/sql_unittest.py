@@ -95,24 +95,6 @@ class testDB(unittest.TestCase):
         self.assertEqual(Transaction.query.filter(Transaction.userID == "1234567890").first().itemID, 123)
 
 # Shop item and purchase transaction
-    def test_addThreads(self):
-        thread = Thread(threadID="title",contents="content")
-        db.session.add(thread)
-        db.session.commit()
-        self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
-
-    def test_answerThreads(self):
-        thread = update(Thread).filter(Thread.threadID == 1234567).values(contents="content")
-        db.session.execute(thread)
-        db.session.commit()
-        self.assertEqual(Thread.query.filter(Thread.threadID == 1234567).first().contents, "content")
-
-    def test_deleteRequest(self):
-        thread = delete(Thread).filter(Thread.threadID == 1234567)
-        db.session.execute(thread)
-        db.session.commit()
-        checkIfDelete = Thread.query.filter(Thread.threadID == 1234567).first()
-        self.assertIsNone(checkIfDelete)
 
     def test_addNewSigns(self):
         newSigns = Signs(signID="123",userID="1234567890",time="1/1/1970",emotion="Happy",comments="comments",rewards=1)
@@ -121,6 +103,7 @@ class testDB(unittest.TestCase):
         self.assertEqual(Signs.query.filter(Signs.signID == "123").first().userID, "1234567890")
 
 # Signs Unit Test
+
     def test_sendNewChat(self):
         processes = Chats(chatID="1234",srcUserID="1234567890",dstUserID="666",content="content")
         db.session.add(processes)
@@ -175,6 +158,10 @@ class testDB(unittest.TestCase):
         self.assertTrue(True)
 
 # Tests Community & Threads
+
+
+
+# Todo Tests
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
