@@ -2,7 +2,7 @@ import unittest
 import logging
 from app import app,db
 from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
-from sqlalchemy import and_
+from sqlalchemy import update,delete,and_,or_
 
 class testDB(unittest.TestCase):
     def setUp(self):
@@ -11,7 +11,6 @@ class testDB(unittest.TestCase):
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
-        self.remain_test_data_detector()
         db.create_all()
         self.add_test_data()
 
@@ -19,11 +18,6 @@ class testDB(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
-
-    def remain_test_data_detector(self): # Detect & delete remain data left by previous test
-        query = Requests.query.filter(Requests.requestID == 123456789).first()
-        if query:
-            db.drop_all()
 
     def add_test_data(self):
         datas = [UserInfo(userID="1234567890",email="unittest@unittest.com",password="1234",country="Australia",pincode="1234"),
