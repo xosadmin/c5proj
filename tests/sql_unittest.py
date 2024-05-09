@@ -31,6 +31,7 @@ class testDB(unittest.TestCase):
                  Community(threadID="1234567",title="title",userID="1234567890"),
                  Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
                  Shop(itemID=123,itemDetail="Test Item",price=1),
+                 Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
 
                  ]
@@ -159,6 +160,34 @@ class testDB(unittest.TestCase):
 
 # Tests Community & Threads
 
+    
+    def test_addtodo(self):
+        new_todo = Todo(userID="1234567890", requestID=123456789)
+        db.session.add(new_todo)
+        db.session.commit()
+        added_todo = Todo.query.filter_by(userID="1234567890", requestID=123456789).first()
+        self.assertIsNotNone(added_todo, "Failed to add new Todo")
+
+    def test_answertodo(self):
+        
+        todo_to_update = Todo.query.filter_by(todoID=321).first()
+        if todo_to_update:
+            todo_to_update.status = "Completed"
+            db.session.commit()
+            updated_todo = Todo.query.filter_by(todoID=321).first()
+            self.assertEqual(updated_todo.status, "Completed", "Failed to update Todo status")
+        else:
+            self.fail("Todo item not found for updating")
+
+        
+
+
+       
+    def test_purchaseItem(self):
+        purchaseRequest = Transaction(userID="1234567890",itemID="123")
+        db.session.add(purchaseRequest)
+        db.session.commit()
+        self.assertEqual(Transaction.query.filter(Transaction.userID == "1234567890").first().itemID, 123)
 
 
 # Todo Tests
