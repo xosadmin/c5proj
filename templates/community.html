@@ -1,73 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li class="active"><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}Community - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    <h1 id="pageBanner">Community</h1>
+    <p>Let's chat with other adventurers and NPCs.</p>
+    <div id="searchBar">
+        <form method="POST" action="/docommsearch">
+            <p>Search: </p>
+            <p><input type="text" class="form-control" id="keyword" name="keyword" placeholder="Insert thread ID or title to search. Support fuzzy search." required></p>
+            <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
+        </form>
     </div>
-  </nav>
-      <div id="mainContent">
-            <h1 id="pageBanner">Community</h1>
-            <p>Let's chat with other adventurers and NPCs.</p>
-            <div id="searchBar">
-                <form method="POST" action="/docommsearch">
-                    <p>Search: </p>
-                    <p><input type="text" class="form-control" id="keyword" name="keyword" placeholder="Insert thread ID or title to search. Support fuzzy search." required></p>
-                    <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
-                </form>
-            </div>
-            <div id="new">
-                <p><a href="/newthread" title="New Thread"><ion-icon name="add-circle-outline"></ion-icon> New Thread</a></p>
-            </div>
-            <table class="table table-striped listcontents">
-                <tbody>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Delete Thread</th>
-                </tr>
-                {% for resultitem in result %}
-                <tr>
-                    <td>{{ resultitem.threadID }}</td>
-                    <td><a href="thread/{{resultitem.threadID}}" title="View Details">{{ resultitem.title }}</a></td>
-                    <td>{{ resultitem.userID }}</td>
-                    {% if userID|int == resultitem.userID|int %}
-                        <td><a href="/deletethread/{{resultitem.userID}}/{{resultitem.threadID}}" title="Delete this thread"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
-                    {% else %}
-                        <td>No Permission</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-      </div>
-</body>
-</html>
+    <div id="new">
+        <p><a href="/newthread" title="New Thread"><ion-icon name="add-circle-outline"></ion-icon> New Thread</a></p>
+    </div>
+    <table class="table table-striped listcontents">
+        <tbody>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Delete Thread</th>
+        </tr>
+        {% for resultitem in result %}
+        <tr>
+            <td>{{ resultitem.threadID }}</td>
+            <td><a href="thread/{{resultitem.threadID}}" title="View Details">{{ resultitem.title }}</a></td>
+            <td>{{ resultitem.userID }}</td>
+            {% if userID|int == resultitem.userID|int %}
+                <td><a href="/deletethread/{{resultitem.userID}}/{{resultitem.threadID}}" title="Delete this thread"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
+            {% else %}
+                <td>No Permission</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

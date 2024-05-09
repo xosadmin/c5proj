@@ -1,66 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <script src="{{url_for('static',filename='js/register.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Adventurer Guild</a>
-    </div>
-    <div>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/login">Login</a></li>
-            <li class="active"><a href="/register">Sign Up</a></li>
-        </ul>
-    </div>
-    </div>
-  </nav>
-      <div id="mainContent">
-            {% if errormsg %}
-              <div class="alert alert-danger">{{ errormsg }}</div>
-            {% endif %}
-            <h1 id="homepageBanner">Become an user!</h1>
-            <div id="subPageTitle"><p>Become an adventurer now!</p></div>
-            <div class="loginandsignup">
-                <form method="POST" action="/register" id="registerForm">
-                  {{ form.hidden_tag() }}
-                    <div class="form-group fillForms">
-                      <label for="email">Email address</label>
-                      {{ form.email(class="form-control", id="email", placeholder="Email Address", required=true) }}
-                    </div>
-                    <div class="form-group fillForms">
-                      <label for="password">Password</label>
-                      {{ form.password(class="form-control", id="password", placeholder="Password", required=true) }}
-                      <p>Note: The password can not lower than 4 words and higher than 32 words.</p>
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="repeat_password">Repeat Password</label>
-                        {{ form.repeat_password(class="form-control", id="repeat_password", placeholder="Repeat Password", required=true) }}
-                      </div>
-                    <div class="form-group fillForms">
-                        <label for="pin_code">PIN Code</label>
-                        {{ form.pin_code(class="form-control", id="pin_code", placeholder="PIN Code", required=true) }}
-                        <p>The pin code is used for reset or modify your password. Please <b>keep it safe.</b></p>
-                        <p>Note: The PIN code cannot less than <b>4 words and can only be digits.</b></p>
-                      </div>
-                    {{ form.submit(id="dosubm") }}
-                    <div id="whydisableSubButt"><p>&nbsp;</p></div>
-                  </form>
-                <br>
-                <p>Already have an account? <a href="/login" title="Login">Login Now!</a></p>
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+  <script src="{{url_for('static',filename='js/register.js')}}"></script>
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+  {% if errormsg %}
+    <div class="alert alert-danger">{{ errormsg }}</div>
+  {% endif %}
+  <h1 id="homepageBanner">Become an user!</h1>
+  <div id="subPageTitle"><p>Become an adventurer now!</p></div>
+  <div class="loginandsignup">
+      <form method="POST" action="/register" id="registerForm">
+        {{ form.hidden_tag() }}
+          <div class="form-group fillForms">
+            <label for="email">Email address</label>
+            {{ form.email(class="form-control", id="email", placeholder="Email Address", required=true) }}
+          </div>
+          <div class="form-group fillForms">
+            <label for="password">Password</label>
+            {{ form.password(class="form-control", id="password", placeholder="Password", required=true) }}
+            <p>Note: The password can not lower than 4 words and higher than 32 words.</p>
+          </div>
+          <div class="form-group fillForms">
+              <label for="repeat_password">Repeat Password</label>
+              {{ form.repeat_password(class="form-control", id="repeat_password", placeholder="Repeat Password", required=true) }}
             </div>
-      </div>
-</body>
-</html>
+          <div class="form-group fillForms">
+              <label for="pin_code">PIN Code</label>
+              {{ form.pin_code(class="form-control", id="pin_code", placeholder="PIN Code", required=true, pattern="[0-9]*", title="Please enter only numbers") }} 
+              <p>The pin code is used for reset or modify your password. Please <b>keep it safe.</b></p>
+              <p>Note: The PIN code cannot less than <b>4 digits.</b></p>
+            </div>
+          {{ form.submit(id="dosubm") }}
+          <div id="whydisableSubButt"><p>&nbsp;</p></div>
+        </form>
+      <br>
+      <p>Already have an account? <a href="/login" title="Login">Login Now!</a></p>
+  </div>
+
+{% endblock %}

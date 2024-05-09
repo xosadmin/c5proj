@@ -1,80 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatroom - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li class="active"><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}Chatroom - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    <h1 id="pageBanner">Chatroom - Ticketing System</h1>
+    <p>You can contact with NPC or other Adventurers here.</p>
+    {% if errmsg %}
+        <div class="alert alert-danger">{{ errormsg }}</div>
+    {% elif infomsg%}
+        <div class="alert alert-info">{{ infomsg }}</div>
+    {% endif %}
+    <div id="searchBar">
+        <form method="POST" action="/dochatsearch">
+            <p>Search: </p>
+            <p><input type="text" class="form-control" id="keyword" name="keyword" placeholder="Insert Keywords to search. Support fuzzy search." required></p>
+            <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
+        </form>
     </div>
-  </nav>
-      <div id="mainContent">
-            <h1 id="pageBanner">Chatroom - Ticketing System</h1>
-            <p>You can contact with NPC or other Adventurers here.</p>
-            {% if errmsg %}
-                <div class="alert alert-danger">{{ errormsg }}</div>
-            {% elif infomsg%}
-                <div class="alert alert-info">{{ infomsg }}</div>
-            {% endif %}
-            <div id="searchBar">
-                <form method="POST" action="/dochatsearch">
-                    <p>Search: </p>
-                    <p><input type="text" class="form-control" id="keyword" name="keyword" placeholder="Insert Keywords to search. Support fuzzy search." required></p>
-                    <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
-                </form>
-            </div>
-            <div id="new">
-                <p><a href="/newchat" title="New Ticket"><ion-icon name="add-circle-outline"></ion-icon> Compose New Ticket</a></p>
-            </div>
-            <table class="table table-striped listcontents">
-                <tbody>
+    <div id="new">
+        <p><a href="/newchat" title="New Ticket"><ion-icon name="add-circle-outline"></ion-icon> Compose New Ticket</a></p>
+    </div>
+    <table class="table table-striped listcontents">
+        <tbody>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Source User ID</th>
+            <th scope="col">Receiver User ID</th>
+            <th scope="col">Continue Chat</th>
+            <th scope="col">Delete Chat</th>
+        </tr>
+        {% set displayed_chatids = [] %}
+        {% for resultitem in results %}
+            {% if resultitem.chatID not in displayed_chatids %}
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Source User ID</th>
-                    <th scope="col">Receiver User ID</th>
-                    <th scope="col">Continue Chat</th>
-                    <th scope="col">Delete Chat</th>
+                    <td>{{ resultitem.chatID }}</td>
+                    <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details">{{ resultitem.srcUserID }}</a></td>
+                    <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details">{{ resultitem.dstUserID }}</a></td>
+                    <td><a href="/chat/{{ resultitem.chatID }}" title="Continue Chat">Continue Chat</a></td>
+                    <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
                 </tr>
-                {% set displayed_chatids = [] %}
-                {% for resultitem in results %}
-                    {% if resultitem.chatID not in displayed_chatids %}
-                        <tr>
-                            <td>{{ resultitem.chatID }}</td>
-                            <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details">{{ resultitem.srcUserID }}</a></td>
-                            <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details">{{ resultitem.dstUserID }}</a></td>
-                            <td><a href="/chat/{{ resultitem.chatID }}" title="Continue Chat">Continue Chat</a></td>
-                            <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
-                        </tr>
-                        {% set _ = displayed_chatids.append(resultitem.chatID) %}
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-      </div>
-</body>
-</html>
+                {% set _ = displayed_chatids.append(resultitem.chatID) %}
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

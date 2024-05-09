@@ -1,38 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Adventurer Guild</a>
-    </div>
-    <div>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/login">Login</a></li>
-            <li class="active"><a href="/register">Sign Up</a></li>
-        </ul>
-    </div>
-    </div>
-  </nav>
-      <div id="mainContent">
-            <h1 id="homepageBanner">Registration complete!</h1>
-            <div class="loginandsignup">
-                <p>Registration finished. Welcome to Adventurer Guild!</p>
-                <br>
-                <p><a href="/login" title="Login">Return to Login!</a></p>
-            </div>
-      </div>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+  <h1 id="homepageBanner">Registration complete!</h1>
+  <div class="loginandsignup">
+      <p>Registration finished. Welcome to Adventurer Guild!</p>
+      <br>
+      <p><a href="/login" title="Login">Return to Login!</a></p>
+  </div>
+{% endblock %}
