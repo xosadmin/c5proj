@@ -17,8 +17,7 @@ class testDB(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.session.rollback()
-        db.session.commit()
+        db.drop_all()
         self.app_context.pop()
 
     def add_test_data(self):

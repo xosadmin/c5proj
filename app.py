@@ -15,11 +15,11 @@ login_manager = LoginManager()
 
 def create_app(config=None):
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
     if config is not None:
         app.config.update(config)
     else: 
         app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(os.getcwd(), 'database', 'main.db')
-        app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
     db.init_app(app) # Create a new instance. db has been defined in sqlmodel.py
     login_manager.init_app(app) # Create a new Login manager
     login_manager.login_view = "loginPage" # Default Login View
