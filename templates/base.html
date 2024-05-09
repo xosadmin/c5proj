@@ -27,12 +27,12 @@
             <ul class="nav navbar-nav">
                 <!-- If not logged in, show below navi bar -->
                 {% if current_user.is_anonymous %}
-                <li class="{% if request.path == '/' %}active{% endif %}"><a href="/">Home</a></li>                
+                <li class="{% if request.path == '/' %}active{% endif %}{% if request.path == '/index' %}active{% endif %}"><a href="/">Home</a></li>                
                 <li class="{% if request.path == '/login' %}active{% endif %}"><a href="/login">Login</a></li>
                 <li class="{% if request.path == '/register' %}active{% endif %}"><a href="/register">Sign Up</a></li>
                 <!-- If logged in, show below navi bar -->
                 {% else %}
-                <li class="{% if request.path == '/profile' %}active{% endif %}"><a href="/profile">Home</a></li>
+                <li class="{% if request.path.startswith('/profile') %}active{% endif %}"><a href="/profile">Home</a></li>
                 <li class="{% if request.path == '/requests' %}active{% endif %}"><a href="/requests">Request List</a></li>
                 <li class="{% if request.path == '/todo' %}active{% endif %}"><a href="/todo">To-do List</a></li>
                 <li class="{% if request.path == '/shop' %}active{% endif %}"><a href="/shop">Shop</a></li>
