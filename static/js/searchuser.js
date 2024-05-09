@@ -1,6 +1,8 @@
 function searchResult(){
     let countryRadio = document.getElementById("country");
     let emailRadio = document.getElementById("email");
+    let type;
+    let value;
     if (countryRadio.checked){
         let type = "country";
         let value = document.getElementById("value").value;
