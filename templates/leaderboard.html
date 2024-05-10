@@ -19,7 +19,7 @@
         {% for resultitem in result %}
             <tr>
                 {% if loop.index|int <= 3 %}
-                    <td><ion-icon name="rocket-outline"></ion-icon> {{ loop.index }}</td>
+                    <td class="top3"><ion-icon name="rocket-outline"></ion-icon> {{ loop.index }}</td>
                 {% else %}
                     <td>{{ loop.index }}</td>
                 {% endif %}

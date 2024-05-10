@@ -38,8 +38,8 @@
             {% if resultitem.chatID not in displayed_chatids %}
                 <tr>
                     <td>{{ resultitem.chatID }}</td>
-                    <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details">{{ resultitem.srcUserID }}</a></td>
-                    <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details">{{ resultitem.dstUserID }}</a></td>
+                    <td><a href="/profile/{{ resultitem.srcUserID }}" title="View Details" target="_blank">{{ resultitem.srcUserID }}</a></td>
+                    <td><a href="/profile/{{ resultitem.dstUserID }}" title="View Details" target="_blank">{{ resultitem.dstUserID }}</a></td>
                     <td><a href="/chat/{{ resultitem.chatID }}" title="Continue Chat">Continue Chat</a></td>
                     <td><a href="/deletechat/{{ resultitem.chatID }}" title="Delete Chat"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
                 </tr>

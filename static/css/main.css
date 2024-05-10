@@ -69,6 +69,11 @@ a {
     height: 40%;
 }
 
+.top3 {
+    font-weight: bold;
+    color: red;
+}
+
 #whydisableSubButt {
     text-align: center;
     color: red;
