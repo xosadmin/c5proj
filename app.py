@@ -28,6 +28,10 @@ def create_app(config=None):
 app = create_app()
 
 try:
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User(user_id)
+
     @app.route("/index")
     @app.route("/")
     def homepage():
@@ -54,7 +58,7 @@ try:
         if current_user.is_authenticated:
             return redirect(url_for('profilePage',infomsg="You have already logged in. Welcome Back!"))
         else:
-            if request.method == "POST":
+            if request.method == "POST": # If user triggered register button
                 userID = str(uuidGen())
                 email = form.email.data
                 password = form.password.data
@@ -63,7 +67,8 @@ try:
                 pincode = form.pin_code.data
                 try:
                     checkEmailExist = checkEmail(email)
-                    if checkEmailExist == 0 or password != repeat_password: # Avoid from user that trying to bypass Javascript
+                    if checkEmailExist == 0 or password != repeat_password: 
+                        # Check if the email is registered & Avoid from user that trying to bypass Javascript
                         encryptedPassword = encryptPassword(password)
                         insert = UserInfo(userID=userID,email=email,password=encryptedPassword,country=country,pincode=pincode)
                         db.session.add(insert)
@@ -82,24 +87,24 @@ try:
     def forgetPassword():
         form = ForgetPasswordForm()
         if not current_user.is_authenticated: # If user is not logged in
-            if request.method == "POST":
+            if request.method == "POST": # If user trigger Submit button on the frontend
                 email = form.email.data
                 pincode = form.pin_code.data
                 fetchEmail = checkEmail(email)
                 if fetchEmail == -1:
-                    pin_verify_result = verifyPinCode(email, pincode)
-                    if pin_verify_result == 0:
+                    pin_verify_result = verifyPinCode(email, pincode) # Verify if user's inputed PIN code is correct
+                    if pin_verify_result == 0: # If it's correct
                         try:
                             encryptedPassword = encryptPassword("123")
                             db.session.execute(update(UserInfo).filter(UserInfo.email == email).values(password=encryptedPassword))
                             db.session.commit()
                             return "<script>alert('Your password has been reset to: 123.');window.location.href='/login';</script>"
                         except Exception as e:
-                            print(f"Error resetting password: {str(e)}")
-                            return redirect(url_for('forgetPassword', infomsg="Failed to reset password. Please contact support."))
-                    else:
+                            print(f"Error resetting password: {str(e)}") # Print error detail in the console
+                            return redirect(url_for('forgetPassword', infomsg="Failed to reset password due to system error."))
+                    else: # If it's not incorrect
                         return redirect(url_for('forgetPassword', infomsg="Incorrect PIN."))
-                else:
+                else: # If the backend cannot find the user
                     return redirect(url_for('forgetPassword', infomsg="User not found."))
             else:
                 infomsg = request.args.get('infomsg','')
@@ -107,12 +112,13 @@ try:
         else:
             errormsg = "You cannot perform this request while signed in."
             return redirect(url_for('profilePage', infomsg=errormsg))
+            # If user is logged in, this function is disabled until logout
     
     @app.route("/modifycenter",methods=["GET","POST"])
     @login_required
     def modifyCentre():
-        if request.method == "POST":
-            userID = current_user.id
+        if request.method == "POST": # If user triggered submit button
+            userID = current_user.id # Fetch current logged in user ID
             changeType = request.form["type"]
             if changeType == "email":
                 newemail = request.form["newEmail"]
@@ -123,10 +129,10 @@ try:
             elif changeType == "pin":
                 OldpinCode = request.form["oldpin"]
                 newpin = request.form["newpin"]
-                verifyPinCodeResult = verifyPinCode(userID,OldpinCode)
-                if verifyPinCodeResult == 0:
+                verifyPinCodeResult = verifyPinCode(userID,OldpinCode) # Verify provided PIN code
+                if verifyPinCodeResult == 0: # If it's right
                     db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(pincode=newpin))
-                else:
+                else: # If it's wrong
                     return render_template("change_profile.html",infomsg="Invalid Old PIN Code!")
             elif changeType == "password":
                 pinCode = request.form["pin-code"]
@@ -147,20 +153,21 @@ try:
     @app.route("/community", methods=["GET"])
     @login_required
     def communityPage():
-        userID = current_user.id
+        userID = current_user.id # Fetch current logged in user ID
         try:
-            result = Community.query.all()
+            result = Community.query.all() # Fetch all data from Community
             return render_template('community.html', result=result, userID=userID)
         except Exception as e:
-            print(e)
+            print(e) # Print error in the console
             return render_template('community.html', errmsg="Internal Error")
         
     @app.route("/chat")
     @login_required
     def chatPage():
-        userID = current_user.id
+        userID = current_user.id # Fetch current logged in user ID
         infomsg = request.args.get("infomsg","")
         result = Chats.query.filter(or_(Chats.dstUserID == userID, Chats.srcUserID == userID)).all()
+            # Fetch all sent or received chat data for current logged in user
         if result:
             return render_template('chat.html', results=result, infomsg=infomsg)
         else:
@@ -169,10 +176,11 @@ try:
     @app.route("/chat/<chatid>")
     @login_required
     def chatDetailsPage(chatid):
-        dstuser = getChatInfo(chatid,"dstuser")
+        dstuser = getChatInfo(chatid,"dstuser") # Fetch destination user for reply form
         result = Chats.query.join(UserInfo, Chats.srcUserID == UserInfo.userID). \
                 add_columns(UserInfo.avatar, Chats.srcUserID, Chats.content). \
                 filter(Chats.chatID == chatid).all()
+            # Using inner join to fetch userinfo for both side, contents and their avatar
         if result:
             return render_template('chat_details.html',results=result, dstUser=dstuser, chatID=chatid)
         else:
@@ -181,7 +189,7 @@ try:
     @app.route("/dochatreply",methods=['GET','POST'])
     @login_required
     def doChatReply():
-        if request.method == "POST":
+        if request.method == "POST": # If user triggered send button on the reply chat page
             userID = current_user.id
             chatID = request.form['chatID']
             content = request.form['content']
@@ -191,8 +199,9 @@ try:
                 db.session.add(insert)
                 db.session.commit()
                 return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
+                # Prompt dialog to notify Message sent to user
             except Exception as e:
-                print(e)
+                print(e) # Print detailed error on the console
                 return redirect(url_for('chatPage', errmsg="Internal Error"))
         else:
             return redirect(url_for('chatPage', errmsg="Invalid Request!"))
@@ -201,9 +210,9 @@ try:
     @login_required
     def deleteChat(chatid):
         currentuserID = current_user.id
-        dstuser = getChatInfo(chatid,"dstuser")
-        srcuser = getChatInfo(chatid,"srcuser")
-        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches can delete
+        dstuser = getChatInfo(chatid,"dstuser") # Fetch chat destination user
+        srcuser = getChatInfo(chatid,"srcuser") # Fetch chat source user
+        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches src or dst can delete
             db.session.execute(delete(Chats).where(Chats.chatID == chatid))
             db.session.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
@@ -227,11 +236,11 @@ try:
     def donewchat():
         form = newChatForm()
         if request.method == "POST":
-            chatUUID = str(uuidGen())
+            chatUUID = str(uuidGen()) # Generate unique UUID for ticket session
             userID = current_user.id
             dstuser = form.dstUser.data
             content = form.contents.data
-            checkIfDstExist = checkIfUserExist(dstuser)
+            checkIfDstExist = checkIfUserExist(dstuser) # Check if destination user exists
             if checkIfDstExist and str(userID) != dstuser:
                 try:
                     insert = Chats(chatID=chatUUID,srcUserID=userID,dstUserID=dstuser,content=content)
@@ -239,7 +248,7 @@ try:
                     db.session.commit()
                     return "<script>alert('New ticket recorded.');window.location.href='/chat';</script>"
                 except Exception as e:
-                    print(e)
+                    print(e) # Print detailed error on the console
                     return redirect(url_for('chatPage', errmsg="Internal Error"))
             else:
                 return render_template("newchat.html", form=form, infomsg="Invalid Destination User!")
@@ -258,19 +267,19 @@ try:
         try:
             currentUserID = current_user.id
             coins = getCoins(currentUserID)
-            result = Requests.query.all()
+            result = Requests.query.all() # Fetch all requests from DB
             return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
         except Exception as e:
-            print(e)
+            print(e) # Print detailed error on the console
             return render_template('requests.html', errmsg="Internal Error")
 
     @app.route("/shop",methods=["GET"])
     @login_required
     def shopPage():
         userID = current_user.id
-        currentCoin = getCoins(userID)
-        infomsg = request.args.get("infomsg","")
-        result = Shop.query.all()
+        currentCoin = getCoins(userID) # Fetch coins amount that current user have
+        infomsg = request.args.get("infomsg","") # Fetch information message, if exists
+        result = Shop.query.all() # Fetch all items from the DB
         if result:
             return render_template('shop.html',coins=currentCoin,results=result, infomsg=infomsg)
         else:
@@ -280,20 +289,20 @@ try:
     @login_required
     def signPage():
         form = signEmotionForm()
-        signSessionID = uuidGen()
+        signSessionID = uuidGen() # Generate unique UUID for each sign session
         userID = current_user.id
         timeObject = datetime.now()
-        currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day)
+        currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day) # Get current date based on server timezone
         currentCoin = getCoins(userID)
         infomsg = request.args.get("infomsg","")
         ifSigned = ifSign(userID)
-        if request.method == "POST":
+        if request.method == "POST": # If user click on submit button
             feelings = form.feelings.data
             comments = form.comments.data
-            if not ifSigned:
+            if not ifSigned: # If user didn't signs today
                 try:
                     randomRewards = int(randomCoinRewards())
-                    rewardCoins = randomRewards + int(currentCoin)
+                    rewardCoins = randomRewards + int(currentCoin) # Generate random rewards and add to user's coins
                     insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
                     db.session.add(insert)
                     db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
@@ -304,7 +313,7 @@ try:
                     print("[ERROR] SignPage: " + str(e))
                     return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>",
                                            form=form)
-            else:
+            else: # If user signed today and try to sign second time
                 return render_template('signs.html',infomsg="You have signed today! <a href='/profile' title='Profile'>Click here for your profile</a>",
                                        form=form)
         else:
@@ -319,9 +328,10 @@ try:
             title = form.title.data
             content = form.contents.data
             try:
-                threadUUID = str(uuidGen())
+                threadUUID = str(uuidGen()) # GEnerate unique UUID for thread
                 inserts = [Community(threadID=threadUUID,title=title,userID=userID),
                            Thread(threadID=threadUUID,userID=userID,contents=content)]
+                # Community = Record metadata for the thread, Thread = Save conversations related to the thread
                 for item in inserts:
                     db.session.add(item)
                 db.session.commit()
@@ -336,22 +346,22 @@ try:
     @login_required
     def newRequest():
         form = newRequestForm()
-        if request.method == "POST":
+        if request.method == "POST": # User triggered submit button
             userID = current_user.id
             currentCoins = getCoins(userID)
             title = form.title.data
             content = form.contents.data
             rewards = form.rewards.data
             timelimit = form.timelimit.data
-            if int(rewards) <= int(currentCoins):
+            if int(rewards) <= int(currentCoins): # If user's coin is enough to pay for rewards
                 insert = Requests(title=title,content=content,rewards=rewards,timelimit=timelimit,userID=userID)
-                remainCoins = int(currentCoins) - int(rewards)
+                remainCoins = int(currentCoins) - int(rewards) # Deduct rewards from user account
                 coins = update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)
                 db.session.add(insert)
                 db.session.execute(coins)
                 db.session.commit()
                 return "<script>alert('New request posted.');window.location.href='/requests';</script>"
-            else:
+            else: # If user's coin is not enough to pay for rewards
                 return redirect(url_for('newRequest', msg="Insufficient Balance!"))
         else:
             msg = request.args.get('msg', '')
@@ -362,13 +372,13 @@ try:
     @app.route("/logout")
     @login_required
     def logoutPage():
-        logout_user()
+        logout_user() # Logout user and destroy session
         return render_template('logout.html')
 
     @app.route("/donewthreadreply", methods=['GET', 'POST'])
     @login_required
     def doNewThreadReply():
-        if request.method == "POST":
+        if request.method == "POST": # If user triggered on submit button
             userID = current_user.id
             content = request.form['content']
             threadUUID = request.form['threadID']
@@ -382,18 +392,15 @@ try:
                 return redirect(url_for('newThread', errmsg="Internal Error"))
         else:
             return redirect(url_for('newThread', errmsg="Invalid Request!"))
-    
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User(user_id)
 
     @app.route("/dologin",methods=['GET','POST'])
     def dologin():
         if request.method == "POST":
             email = request.form['email']
             password = request.form['password']
-            encryptedPassword = encryptPassword(password)
+            encryptedPassword = encryptPassword(password) # encode input password to MD5
             result = UserInfo.query.filter(UserInfo.email == email, UserInfo.password == encryptedPassword).first()
+            # Retrieve user info based on provided username and encrypted password
             if result:
                 userid = str(result.userID)
                 user = User(userid)
@@ -412,9 +419,10 @@ try:
     @login_required
     def doCommSearch():
         if request.method == "POST":
-            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
+            keyword = request.form['keyword'].strip()  # The form field is named 'keyword'
             result = Community.query.filter(or_(Community.threadID.ilike('%' + keyword + '%'), 
                         Community.title.ilike('%' + keyword + '%')))
+                # use ilike to enable fuzzy search
             if result:
                 return render_template("search_result.html", act="thread", result=result, redosearch="docommsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -426,9 +434,10 @@ try:
     @login_required
     def doReqSearch():
         if request.method == "POST":
-            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
+            keyword = request.form['keyword'].strip()  # The form field is named 'keyword'
             result = Requests.query.filter(or_(Requests.requestID.ilike('%' + keyword + '%'), 
                         Requests.title.ilike('%' + keyword + '%')))
+                # use ilike to enable fuzzy search
             if result:
                 return render_template("search_result.html", act="answerrequest", result=result, redosearch="doreqsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -440,9 +449,10 @@ try:
     @login_required
     def doChatSearch():
         if request.method == "POST":
-            keyword = request.form['keyword'].strip()  # assuming the form field is named 'keyword'
+            keyword = request.form['keyword'].strip()  # The form field is named 'keyword'
             result = Chats.query.filter(or_(Chats.srcUserID.ilike('%' + keyword + '%'), 
                         Chats.dstUserID.ilike('%' + keyword + '%')))
+                # Use ilike to enable fuzzy search
             if result:
                 return render_template("search_result.html", act="chat", result=result, redosearch="dochatsearch", infomsg=f"We have found result(s) based on your keyword '{keyword}'")
             else:
@@ -463,8 +473,8 @@ try:
             nft_details = Transaction.query.filter(Transaction.userID==userID).all()
             signHistory = Signs.query.filter(Signs.userID == userID).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
-            if "-" in userID:
-                userID_Show_On_Browser = userID.split("-")[0]
+            if "-" in userID: # If "-" is in the userID
+                userID_Show_On_Browser = userID.split("-")[0] # Get the first part of the UUID
             else:
                 userID_Show_On_Browser = userID
             return render_template('profile.html',
@@ -481,7 +491,7 @@ try:
             print(f"An error occurred: " + str(e))
             return render_template('profile.html', errmsg="An internal error occurred")
         
-    @app.route('/profile/<userid>')
+    @app.route('/profile/<userid>') # User profile in 3rd user view
     @login_required
     def profilePageOthersView(userid):
         try:
@@ -528,6 +538,8 @@ try:
         updates = [update(Requests).where(Requests.requestID == requestID).values(status="Completed",answer=content),
                     update(Todo).where(Todo.requestID == requestID).values(status="Completed"),
                     update(UserInfo).filter(UserInfo.userID == userID).values(coins=remainCoins)]
+            # Update Request = Record answer from adventurer; Update Todo = change the request state to complete;
+            # Update UserInfo = Add reward to user's wallet
         for item in updates:
             db.session.execute(item)
         db.session.commit()
@@ -540,6 +552,7 @@ try:
         result = Thread.query.join(UserInfo, Thread.userID == UserInfo.userID). \
                 add_columns(UserInfo.avatar, Thread.userID, Thread.contents). \
                 filter(Thread.threadID == id).all()
+            # Show UserID, contents and user's avatar based on inner join
         if result:
             return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
         else:
@@ -548,7 +561,7 @@ try:
     @app.route("/acceptrequest/<id>", methods=['GET'])
     @login_required
     def acceptRequest(id):
-        result = Requests.query.filter(Requests.requestID == id).first()
+        result = Requests.query.filter(Requests.requestID == id).first() # Get the request details
         if result:
             return render_template("accept_request.html", result=result)
         else:
@@ -557,7 +570,7 @@ try:
     @app.route("/confirmpayment/<id>", methods=['GET'])
     @login_required
     def confirmPayment(id):
-        result = Shop.query.filter(Shop.itemID == id).first()
+        result = Shop.query.filter(Shop.itemID == id).first() # Get the item details
         if result:
             return render_template("confirm_buy.html", result=result)
         else:
@@ -585,7 +598,7 @@ try:
     @login_required
     def myRequest():
         userID = current_user.id
-        result = Requests.query.filter(Requests.userID == userID)
+        result = Requests.query.filter(Requests.userID == userID).all() # Show all requests that current user posted
         if result:
             return render_template("myrequest.html", result=result)
         else:
@@ -604,8 +617,8 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = current_user.id
-        updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted")
-        insertTodo = Todo(userID=userID,requestID=id,status="Accepted")
+        updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted") # Change the request state to accepted
+        insertTodo = Todo(userID=userID,requestID=id,status="Accepted") # Update this request to user's todo list
         db.session.execute(updateReq)
         db.session.add(insertTodo)
         db.session.commit()
@@ -615,7 +628,7 @@ try:
     @login_required
     def doSetAvatar(id):
         userID = current_user.id
-        updateusr = update(UserInfo).where(UserInfo.userID == userID).values(avatar=id)
+        updateusr = update(UserInfo).where(UserInfo.userID == userID).values(avatar=id) # Set the avatar with specific ID for current user
         db.session.execute(updateusr)
         db.session.commit()
         return redirect(url_for('profilePage',infomsg="Avatar updated."))
@@ -646,7 +659,7 @@ try:
         currentUserID = current_user.id
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        result = Todo.query.filter(Todo.userID == currentUserID)
+        result = Todo.query.filter(Todo.userID == currentUserID).all()
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
@@ -677,9 +690,11 @@ try:
             user_data = []
         return jsonify(user_data)
     
-    @app.route("/robots.txt")
+    @app.route("/robots.txt") # Discourage search engine to index this website
     def robots():
         return render_template("robots.txt")
+
+# APIs for LLM auto generate & filled, which called by Javascript
 
     @app.route("/api/llmrequest")
     def llmreq():
