@@ -128,3 +128,13 @@ def encryptPassword(text):
      md5.update(text.encode(encoding='utf-8')) # Encode text as UTF-8
      return str(md5.hexdigest())
 
+def getCountForLeaderboard():
+    requestCount = db.session.query(Requests.userID, func.count(Requests.userID).label("requestcount")). \
+                    group_by(Requests.userID).subquery()
+    todoCount = db.session.query(Todo.userID, func.count(Todo.userID).label("todocount")). \
+                    group_by(Todo.userID).subquery()
+    # requestCount = return an object that includes userID and its request count
+    # todoCount = return an object that includes userID and its accepted request count
+    # Both objects are group user by userID to avoid from duplicate count
+    # .subquery() = define these queries as sub-query and the main query is required
+    return requestCount, todoCount

@@ -3,6 +3,7 @@ from flask import *
 import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import func
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from models.sqlmodels import *
 from models.formModels import *
@@ -212,7 +213,7 @@ try:
         currentuserID = current_user.id
         dstuser = getChatInfo(chatid,"dstuser") # Fetch chat destination user
         srcuser = getChatInfo(chatid,"srcuser") # Fetch chat source user
-        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches src or dst can delete
+        if dstuser == currentuserID or srcuser == currentuserID: # Only userID matches src or dst can delete
             db.session.execute(delete(Chats).where(Chats.chatID == chatid))
             db.session.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
@@ -223,7 +224,7 @@ try:
     @login_required
     def deleteThread(threaduserid,threadID):
         currentuserID = current_user.id
-        if int(threaduserid) == int(currentuserID): # Only userID matches can delete
+        if threaduserid == currentuserID: # Only userID matches can delete
             db.session.execute(delete(Thread).where(Thread.threadID == threadID))
             db.session.execute(delete(Community).where(Community.threadID == threadID))
             db.session.commit()
@@ -584,7 +585,7 @@ try:
         currentCoins = getUserInfo(userid,"coins")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         remainCoins = int(currentCoins) + int(currentReqRewards) # Refund coins
-        if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
+        if userid == currentuserID and state == "Available": # Only userID matches and status is Available can delete
             commands = [delete(Requests).where(Requests.requestID == requestid),
                         update(UserInfo).filter(UserInfo.userID == userid).values(coins=remainCoins)]
             for item in commands:
@@ -659,7 +660,10 @@ try:
         currentUserID = current_user.id
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        result = Todo.query.filter(Todo.userID == currentUserID).all()
+        result = Todo.query.join(Todo, Requests.requestID == Todo.requestID). \
+                add_columns(Todo.todoID, Todo.requestID, Requests.title, Todo.status). \
+                filter(Todo.userID == currentUserID).all()
+            # Fetch TodoID, requestID, Request Title, Request Status by inner join
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
@@ -668,9 +672,25 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        result = UserInfo.query.order_by(UserInfo.coins.desc())
+        currentUserID = current_user.id
+        requestCount, todoCount = getCountForLeaderboard() 
+            # Count Request Count and Todo Count for each user in DB and get the return subquery objects
+        result = db.session.query(UserInfo). \
+                    outerjoin(requestCount, UserInfo.userID == requestCount.c.userID). \
+                    outerjoin(todoCount, UserInfo.userID == todoCount.c.userID). \
+                    add_columns(UserInfo.userID, UserInfo.coins, 
+                                func.coalesce(requestCount.c.requestcount, 0).label("requestcount"),
+                                func.coalesce(todoCount.c.todocount, 0).label("todoidcount")). \
+                    group_by(UserInfo.userID). \
+                    order_by(UserInfo.coins.desc()).all()
+        # requestCount.c.userID = read userID from subquery object named requestCount
+        # todoCount.c.userID = read userID from subquery object named todoCount
+        # func.coalesce = count of requests and todo, if no request posted, 
+        # mark as 0. And label these columns as requestcount and todoidcount,
+        # and group by the userID to avoid from duplicate count
+        # Ranking user based on coin amounts in decreasing sort. Get all results.
         if result:
-            return render_template("leaderboard.html", result=result)
+            return render_template("leaderboard.html", result=result, curusrid=currentUserID)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
         
