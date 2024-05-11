@@ -659,7 +659,10 @@ try:
         currentUserID = current_user.id
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        result = Todo.query.filter(Todo.userID == currentUserID).all()
+        result = Todo.query.join(Todo, Requests.requestID == Todo.requestID). \
+                add_columns(Todo.todoID, Todo.requestID, Requests.title, Todo.status). \
+                filter(Todo.userID == currentUserID).all()
+            # Fetch TodoID, requestID, Request Title, Request Status by inner join
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:

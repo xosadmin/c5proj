@@ -23,14 +23,14 @@
         <tbody>
         <tr>
             <th scope="col">To-Do Quest ID</th>
-            <th scope="col">Request ID</th>
+            <th scope="col">Request Title</th>
             <th scope="col">Request Status</th>
             <th scope="col">Answer</th>
         </tr>
         {% for resultitem in result %}
         <tr>
             <td>{{ resultitem.todoID }}</td>
-            <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details" target="_blank">{{ resultitem.requestID }}</a></td>
+            <td><a href="requestdetails/{{resultitem.requestID}}" title="View Details" target="_blank">{{ resultitem.title }}</a></td>
             <td>{{ resultitem.status }}</td>
             {% if resultitem.status == "Accepted" %}
                 <td><a href="answerrequest/{{resultitem.requestID}}" title="Answer Request"><ion-icon name="reader-outline"></ion-icon> Answer</a></td>
