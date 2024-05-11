@@ -30,8 +30,8 @@ def generatePassword(length):
 def randomSessionKey(length):
     return secrets.token_hex(length)
 
-def randomPinCode(length):
-    return generatePassword(4)
+def randomPinCode():
+    return random.randint(1000,9999)
 
 def randomCoinRewards():
     number = int(random.randint(0,10))
