@@ -25,7 +25,11 @@
                 {% else %}
                     <td>{{ loop.index }}</td>
                 {% endif %}
-                <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
+                {% if resultitem.userID == curusrid %}
+                    <td><b><ion-icon name="accessibility-outline"></ion-icon> <a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a> (Me)</b></td>
+                {% else %}
+                    <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
+                {% endif %}
                 <td>{{ resultitem.coins }}</td>
                 <td>{{ resultitem.requestcount }}</td>
                 <td>{{ resultitem.todoidcount }}</td>

@@ -672,6 +672,7 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
+        currentUserID = current_user.id
         requestCount, todoCount = getCountForLeaderboard() 
             # Count Request Count and Todo Count for each user in DB and get the return subquery objects
         result = db.session.query(UserInfo). \
@@ -689,7 +690,7 @@ try:
         # and group by the userID to avoid from duplicate count
         # Ranking user based on coin amounts in decreasing sort. Get all results.
         if result:
-            return render_template("leaderboard.html", result=result)
+            return render_template("leaderboard.html", result=result, curusrid=currentUserID)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
         
