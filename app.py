@@ -212,7 +212,7 @@ try:
         currentuserID = current_user.id
         dstuser = getChatInfo(chatid,"dstuser") # Fetch chat destination user
         srcuser = getChatInfo(chatid,"srcuser") # Fetch chat source user
-        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches src or dst can delete
+        if dstuser == currentuserID or srcuser == currentuserID: # Only userID matches src or dst can delete
             db.session.execute(delete(Chats).where(Chats.chatID == chatid))
             db.session.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
@@ -223,7 +223,7 @@ try:
     @login_required
     def deleteThread(threaduserid,threadID):
         currentuserID = current_user.id
-        if int(threaduserid) == int(currentuserID): # Only userID matches can delete
+        if threaduserid == currentuserID: # Only userID matches can delete
             db.session.execute(delete(Thread).where(Thread.threadID == threadID))
             db.session.execute(delete(Community).where(Community.threadID == threadID))
             db.session.commit()
@@ -584,7 +584,7 @@ try:
         currentCoins = getUserInfo(userid,"coins")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         remainCoins = int(currentCoins) + int(currentReqRewards) # Refund coins
-        if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
+        if userid == currentuserID and state == "Available": # Only userID matches and status is Available can delete
             commands = [delete(Requests).where(Requests.requestID == requestid),
                         update(UserInfo).filter(UserInfo.userID == userid).values(coins=remainCoins)]
             for item in commands:
