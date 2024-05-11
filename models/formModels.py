@@ -28,7 +28,7 @@ class newRequestForm(FlaskForm):
     title = StringField("Request Title",validators=[DataRequired()])
     contents = TextAreaField("Contents",validators=[DataRequired()])
     rewards = IntegerField("Rewards",validators=[DataRequired()])
-    timelimit = StringField("Time Limit (in days)",validators=[DataRequired()])
+    timelimit = IntegerField("Time Limit (in days)",validators=[DataRequired()])
     submit = SubmitField("Post New Request", id="doSubmit")
 
 class newThreadForm(FlaskForm):
