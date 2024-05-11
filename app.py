@@ -671,7 +671,15 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        result = UserInfo.query.order_by(UserInfo.coins.desc())
+        #result = UserInfo.query.order_by(UserInfo.coins.desc())
+        result = db.session.query(UserInfo,
+                func.coalesce(func.count(Requests.userID), 0).label("requestcount"),
+                func.coalesce(func.count(Todo.todoID), 0).label("todoidcount")). \
+                outerjoin(Requests, UserInfo.userID == Requests.userID). \
+                outerjoin(Todo, UserInfo.userID == Todo.userID). \
+                add_columns(UserInfo.userID, UserInfo.coins). \
+                group_by(UserInfo.userID). \
+                order_by(UserInfo.coins.desc()).distinct().all()
         if result:
             return render_template("leaderboard.html", result=result)
         else:
