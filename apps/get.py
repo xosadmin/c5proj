@@ -129,10 +129,10 @@ def encryptPassword(text):
      return str(md5.hexdigest())
 
 def getCountForLeaderboard():
-    requestCount = db.session.query(Requests.userID, func.count(Requests.userID).label("request_count")). \
+    requestCount = db.session.query(Requests.userID, func.count(Requests.userID).label("requestcount")). \
                     group_by(Requests.userID).subquery()
-    todoCount = db.session.query(Todo.userID, func.count(Todo.userID).label("todo_count")). \
-                            group_by(Todo.userID).subquery()
+    todoCount = db.session.query(Todo.userID, func.count(Todo.userID).label("todocount")). \
+                    group_by(Todo.userID).subquery()
     # requestCount = return an object that includes userID and its request count
     # todoCount = return an object that includes userID and its accepted request count
     # Both objects are group user by userID to avoid from duplicate count

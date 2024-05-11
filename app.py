@@ -678,8 +678,8 @@ try:
                     outerjoin(requestCount, UserInfo.userID == requestCount.c.userID). \
                     outerjoin(todoCount, UserInfo.userID == todoCount.c.userID). \
                     add_columns(UserInfo.userID, UserInfo.coins, 
-                                func.coalesce(requestCount.c.request_count, 0).label("requestcount"),
-                                func.coalesce(todoCount.c.todo_count, 0).label("todoidcount")). \
+                                func.coalesce(requestCount.c.requestcount, 0).label("requestcount"),
+                                func.coalesce(todoCount.c.todocount, 0).label("todoidcount")). \
                     group_by(UserInfo.userID). \
                     order_by(UserInfo.coins.desc()).all()
         # requestCount.c.userID = read userID from subquery object named requestCount
