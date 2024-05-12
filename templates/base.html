@@ -39,6 +39,7 @@
                 <li class="{% if request.path == '/community' %}active{% endif %}"><a href="/community">Community</a></li>
                 <li class="{% if request.path == '/leaderboard' %}active{% endif %}"><a href="/leaderboard">Leaderboard</a></li>
                 <li class="{% if request.path == '/chat' %}active{% endif %}"><a href="/chat">Chatroom</a></li>
+                <li class="{% if request.path == '/help' %}active{% endif %}"><a href="/help">Help Center</a></li>
                 <li class="{% if request.path == '/logout' %}active{% endif %}"><a href="/logout">Logout</a></li>
                 {% endif %}
             </ul>
@@ -48,6 +49,6 @@
     <!-- Main content goes here -->
     <div id="mainContent">
         {% block content %}{% endblock %}
-    </div>    
+    </div>
 </body>
 </html>

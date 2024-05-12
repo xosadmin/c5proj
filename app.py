@@ -11,11 +11,12 @@ from models.loginModels import *
 from apps.get import *
 from apps.randomprofile import *
 
+app = Flask(__name__)
 migrate = Migrate(app, db) # Create a flask db migration
 login_manager = LoginManager()
 
 def create_app(config=None):
-    app = Flask(__name__)
+    #app = Flask(__name__)
     app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
     if config is not None:
         app.config.update(config)
@@ -693,6 +694,38 @@ try:
             return render_template("leaderboard.html", result=result, curusrid=currentUserID)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
+        
+    @app.route("/help",methods=["GET","POST"])
+    @login_required
+    def helpCenter():
+        currentUserID = current_user.id
+        showTranscription = FaqChatTransaction.query.filter(FaqChatTransaction.userID == currentUserID).all()
+        if request.method == "POST":
+            userInput = request.form["content"]
+            userInputStore = FaqChatTransaction(userID=currentUserID,role="User",content=userInput)
+            userInputSplit = str(userInput).lower().split(" ")
+            for item in userInputSplit:
+                result = Faq.query.filter(or_(Faq.keyword.ilike(f'%{item}%'), Faq.answer.ilike(f'%{item}%'))).first()
+                # Look up answer from both keyword and answer columns
+                if result:
+                    newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content=result.answer)
+                    #break
+                else:
+                    newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content="I can't find any answer.")
+            db.session.add(userInputStore)
+            db.session.add(newResult)
+            db.session.commit()
+            return redirect(url_for("helpCenter"))
+        else:
+            return render_template("helpcenter.html",showTranscription=showTranscription)
+    
+    @app.route("/clearhelp")
+    @login_required
+    def ClearHelpCenter():
+        currentUserID = current_user.id
+        db.session.execute(delete(FaqChatTransaction).where(FaqChatTransaction.userID == currentUserID))
+        db.session.commit()
+        return "<script>alert('You have started a new help session.');window.location.href='/help';</script>"
         
     @app.route("/api/searchuser/<type>/<value>",methods=["GET"])
     @login_required

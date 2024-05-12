@@ -107,3 +107,21 @@ class Signs(db.Model):
         return '[signID:{},userID:{},time:{},emotion:{},comments:{},rewards:{}]'.format(self.signID,self.userID,
                                                                                         self.time,self.emotion,self.comments,self.rewards)
     
+class Faq(db.Model):
+    __tablename__ = 'faq'
+    faqID = Column(Integer,primary_key=True,autoincrement=True)
+    keyword = Column(Text,nullable=False)
+    answer = Column(Text,nullable=False)
+
+    def __repr__(self):
+        return '[faqID:{},keyword:{},answer:{}]'.format(self.faqID,self.keyword,self.answer)
+    
+class FaqChatTransaction(db.Model):
+    __tablename__ = 'faqChat'
+    TransactionID = Column(Integer,primary_key=True,autoincrement=True)
+    userID = Column(String(120), ForeignKey('users.userID', name='fk_faqchat_userID'))
+    role = Column(Text,nullable=False)
+    content = Column(Text,nullable=False)
+
+    def __repr__(self):
+        return '[TransactionID: {}, userID: {}, role: {}, content: {}]'.format(self.TransactionID,self.userID,self.role,self.content)
