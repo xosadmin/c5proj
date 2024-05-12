@@ -52,7 +52,7 @@ function checkSubmittedForm(){
             return true;
         }
         else {
-            alert("Country cannot be None!");
+            alert("Country cannot be empty!");
             return false;
         }
     }

@@ -51,43 +51,43 @@
                     <input type="hidden" id="type" name="type" value="NoType">
                     <div class="form-group fillForms" id="emailChange">
                       <label for="newEmail">New Email Address</label>
-                      <input type="email" class="form-control" id="newEmail" name="newEmail" placeholder="New Email" >
+                      <input type="email" class="form-control" id="newEmail" name="newEmail" placeholder="New Email" required>
                       <label for="repeatNewEmail">Repeat New Email Address</label>
-                      <input type="email" class="form-control" id="repeatNewEmail" name="repeatNewEmail" placeholder="Repeat New Email" >
+                      <input type="email" class="form-control" id="repeatNewEmail" name="repeatNewEmail" placeholder="Repeat New Email" required>
                     </div>
                     <div class="form-group fillForms" id="countryChange">
                         <label for="country">Country/Region</label>
-                        <input type="text" class="form-control" id="country" name="country" placeholder="Type your country/region" >
+                        <input type="text" class="form-control" id="country" name="country" placeholder="Type your country/region" required>
+                    </div>                    
+                    <div id="passwordChange">
+                        <div class="form-group fillForms">
+                          <label for="newpassword">New Password</label>
+                          <input type="password" class="form-control" id="newpassword" name="newpassword" placeholder="New Password" minlength="4" maxlength="32" title="Password must be between 6 and 32 characters." required>
+                        </div>
+                        <div class="form-group fillForms">
+                          <label for="repeatnewpassword">Repeat New Password</label>
+                          <input type="password" class="form-control" id="repeatnewpassword" name="repeatnewpassword" placeholder="Repeat New Password" minlength="4" maxlength="32" title="Password must be between 6 and 32 characters." required>
+                        </div>
+                        <div class="form-group fillForms">
+                            <label for="pin-code">PIN Code</label>
+                            <input type="password" class="form-control" id="pin-code" name="pin-code" placeholder="Pin Code" pattern="[0-9]*" minlength="4" title="Please enter only numbers (min 4 digits).">
+                        </div>
                     </div>
                     <div id="pinChange">
                       <div class="form-group fillForms">
                         <label for="oldpin">Old Pin Code</label>
-                        <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" >
+                        <input type="password" pattern="[0-9]*" minlength="4" title="Please enter only numbers (min 4 digits)." class="form-control" id="oldpin" name="oldpin" placeholder="Old Pin Number" >
                       </div>
                       <div class="form-group fillForms">
                         <label for="newpin">New Pin Code</label>
-                        <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="newpin" name="newpin" placeholder="New Pin" >
+                        <input type="password" pattern="[0-9]*" minlength="4" title="Please enter only numbers (min 4 digits)." class="form-control" id="newpin" name="newpin" placeholder="New Pin" >
                         <p>Please note that pin code cannot less than <b>4 digits</b></p>
                       </div>
                       <div class="form-group fillForms">
                           <input type="hidden" id="userID" name="userID" value="{{userID}}">
                           <label for="repeatnewpin">Repeat New Pin Code</label>
-                          <input type="password" pattern="[0-9]*" title="Please enter only numbers" class="form-control" id="repeatnewpin" name="repeatnewpin" placeholder="Repeat Pin Code" >
+                          <input type="password" pattern="[0-9]*" minlength="4" title="Please enter only numbers (min 4 digits)." class="form-control" id="repeatnewpin" name="repeatnewpin" placeholder="Repeat Pin Code" >
                       </div>
-                    </div>
-                    <div id="passwordChange">
-                        <div class="form-group fillForms">
-                          <label for="newpassword">New Password</label>
-                          <input type="password" class="form-control" id="newpassword" name="newpassword" placeholder="New Password" >
-                        </div>
-                        <div class="form-group fillForms">
-                          <label for="repeatnewpassword">Repeat New Password</label>
-                          <input type="password" class="form-control" id="repeatnewpassword" name="repeatnewpassword" placeholder="Repeat New Password" >
-                        </div>
-                        <div class="form-group fillForms">
-                            <label for="pin-code">PIN Code</label>
-                            <input type="password" class="form-control" id="pin-code" name="pin-code" placeholder="Pin Code" >
-                        </div>
                     </div>
                     <button type="submit" id="submitInfo" class="btn btn-primary actButtons">Change Information</button>
                   </form>

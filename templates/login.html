@@ -41,7 +41,7 @@
         {{ form.hidden_tag() }}
           <div class="form-group fillForms">
               <label for="email">Email address</label>
-              {{ form.email(class="form-control", id="email", placeholder="Email Address", required=true) }}
+              {{ form.email(class="form-control", id="email", type="email", placeholder="Email Address", required=true) }}
           </div>
           <div class="form-group fillForms">
               <label for="password">Password</label>
@@ -50,7 +50,7 @@
           {{ form.submit() }}
         </form>
       <br>
-      <p>Forget password? <a href="/forgetpassword" title="Register">Find it now!</a></p>
+      <p>Forgot password? <a href="/forgetpassword" title="Register">Find it now!</a></p>
       <p>Haven't signup yet? <a href="/register" title="Register">Sign Up Now!</a></p>
   </div>
 {% endblock %}

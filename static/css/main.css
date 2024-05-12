@@ -74,7 +74,7 @@ a {
     color: red;
 }
 
-#whydisableSubButt {
+.errorMsg {
     text-align: center;
     color: red;
     font-weight: bold;
