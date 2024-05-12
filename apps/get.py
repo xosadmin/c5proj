@@ -90,6 +90,14 @@ def verifyPinCode(id, pincode):
                 return -1
     return -1
 
+def verifyEmail(newEmail):
+    user = UserInfo.query.filter(UserInfo.email == newEmail).first()
+    if user:
+            return True
+    else:
+            return False
+
+
 def ifUserPurchased(userid,itemid): # Check if user already buy the specified item
      result = Transaction.query.filter(and_(Transaction.userID == userid, Transaction.itemID == itemid)).first()
      if result:

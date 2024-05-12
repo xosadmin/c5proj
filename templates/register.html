@@ -22,12 +22,12 @@
           </div>
           <div class="form-group fillForms">
             <label for="password">Password</label>
-            {{ form.password(class="form-control", type="password", id="password", placeholder="Password", minlength="4", maxlength="32", title="Password must be between 6 and 32 characters.", required=true) }}
-            <p>Note: The password can not lower than 4 characters and higher than 32 characters.</p>
+            {{ form.password(class="form-control", type="password", id="password", placeholder="Password", minlength="4", maxlength="32", title="Password must be between 4 and 32 characters, inclusive.", required=true) }}
+            <p>Note: The password cannot be lower than 4 characters or higher than 32 characters.</p>
           </div>
           <div class="form-group fillForms">
               <label for="repeat_password">Repeat Password</label>
-              {{ form.repeat_password(class="form-control", type="password", id="repeat_password", placeholder="Repeat Password", minlength="4", maxlength="32", title="Password must be between 6 and 32 characters.", required=true) }}
+              {{ form.repeat_password(class="form-control", type="password", id="repeat_password", placeholder="Repeat Password", minlength="4", maxlength="32", title="Password must be between 4 and 32 characters, inclusive.", required=true) }}
             </div>
           <div class="form-group fillForms">
               <label for="pin_code">PIN Code</label>

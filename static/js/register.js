@@ -1,6 +1,6 @@
 $(document).ready(function(){
     function controlSubmit(flag, value){
-        if (flag === 1) { // Disable submit
+        if (flag === 1) { // Disable submit and show error msg
             let notify = "<p>Submit Disabled: ";
             notify = notify + value + "</p>";
             $("#btnRegister").prop("disabled",true);

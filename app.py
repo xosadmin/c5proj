@@ -157,8 +157,12 @@ try:
             userID = current_user.id # Fetch current logged in user ID
             changeType = request.form["type"]
             if changeType == "email":
-                newemail = request.form["newEmail"]
-                db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+                newEmail = request.form["newEmail"]
+                verifyEmailResult = verifyEmail(newEmail) # Verify provided new email existing in the system
+                if verifyEmailResult: # If exists.
+                    return render_template("change_profile.html",infomsg="Email address already exists!")                    
+                else: # If new email not exists in the system
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newEmail))                                    
             elif changeType == "country":
                 country = request.form["country"]
                 db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
