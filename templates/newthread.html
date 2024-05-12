@@ -1,59 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Thread - Community - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li class="active"><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </div>
-    </div>
-  </nav>
-      <div id="mainContent">
-            {% if errmsg %}
-                <div class="alert alert-danger">{{ errormsg }}</div>
-            {% elif infomsg %}
-                <div class="alert alert-info">{{ infomsg }}</div>
-            {% endif %}
-            <h1 id="pageBanner">New Thread</h1>
-            <div class="newthreadandrequest">
-                <form method="POST" action="/newthread">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group fillForms">
-                        <label for="title">Thread Title</label>
-                        {{ form.title(class="form-control", id="title", placeholder="Thread Title", required=true)}}
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="content">Contents</label>
-                        {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
-                    </div>
-                    {{ form.submit() }}
-                  </form>
-                  <br>
-                  <p><a href="/community" title="Back">Back to community</a></p>
+{% extends 'base.html' %}
+
+{% block title %}New Thread - Community - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    {% if errmsg %}
+        <div class="alert alert-danger">{{ errormsg }}</div>
+    {% elif infomsg %}
+        <div class="alert alert-info">{{ infomsg }}</div>
+    {% endif %}
+    <h1 id="pageBanner">New Thread</h1>
+    <div class="newthreadandrequest">
+        <form method="POST" action="/newthread">
+            {{ form.hidden_tag() }}
+            <div class="form-group fillForms">
+                <label for="title">Thread Title</label>
+                {{ form.title(class="form-control", id="title", placeholder="Thread Title", required=true)}}
             </div>
-      </div>
-</body>
-</html>
+            <div class="form-group fillForms">
+                <label for="content">Contents</label>
+                {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
+            </div>
+            {{ form.submit() }}
+            </form>
+            <br>
+            <p><a href="/community" title="Back">Back to community</a></p>
+    </div>
+{% endblock %}

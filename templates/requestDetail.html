@@ -1,68 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Detail - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </div>
-    </div>
-  </nav>
-      <div id="mainContent">
-            {% if errmsg %}
-                <div class="alert alert-danger">{{ errormsg }}</div>
-            {% endif %}
-            <h1 id="pageBanner">Request Snaphost</h1>
-            <p>You can view the accepted request details here.</p>
-            <br>
-            <h3>Request Details</h3>
-            <table class="table table-striped listcontents">
-                <tbody>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Request Title</th>
-                    <th scope="col">Request Content</th>
-                    <th scope="col">Rewards</th>
-                    <th scope="col">Time Limitation</th>
-                    <th scope="col">NPC User ID</th>
-                    <th scope="col">Status</th>
-                </tr>
-                <tr>
-                    <td>{{ result.requestID }}</td>
-                    <td>{{ result.title }}</td>
-                    <td>{{ result.content }}</td>
-                    <td>{{ result.rewards }}</td>
-                    <td>{{ result.timelimit }}</td>
-                    <td><a href="/profile/{{result.userID}}" title="View NPC details" target="_blank">{{ result.userID }}</a></td>
-                    <td>{{ result.status }}</td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>Answer provided</h3>
-            <p>{{ result.answer }}</p>
-      </div>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Request Detail - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    {% if errmsg %}
+        <div class="alert alert-danger">{{ errormsg }}</div>
+    {% endif %}
+    <h1 id="pageBanner">Request Snapshot</h1>
+    <p>You can view the accepted request details here.</p>
+    <br>
+    <h3>Request Details</h3>
+    <table class="table table-striped listcontents">
+        <tbody>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Request Title</th>
+            <th scope="col">Request Content</th>
+            <th scope="col">Rewards</th>
+            <th scope="col">Time Limitation</th>
+            <th scope="col">NPC User ID</th>
+            <th scope="col">Status</th>
+        </tr>
+        <tr>
+            <td>{{ result.requestID }}</td>
+            <td>{{ result.title }}</td>
+            <td>{{ result.content }}</td>
+            <td>{{ result.rewards }}</td>
+            <td>{{ result.timelimit }}</td>
+            <td><a href="/profile/{{result.userID}}" title="View NPC details" target="_blank">{{ result.userID }}</a></td>
+            <td>{{ result.status }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>Answer provided</h3>
+    <p>{{ result.answer }}</p>
+{% endblock %}
