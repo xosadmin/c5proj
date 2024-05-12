@@ -11,12 +11,12 @@ from models.loginModels import *
 from apps.get import *
 from apps.randomprofile import *
 
-app = Flask(__name__)
+#app = Flask(__name__)
 migrate = Migrate(app, db) # Create a flask db migration
 login_manager = LoginManager()
 
 def create_app(config=None):
-    #app = Flask(__name__)
+    app = Flask(__name__)
     app.config['SECRET_KEY'] = randomSessionKey(16) # Secret Key for all sessions
     if config is not None:
         app.config.update(config)
