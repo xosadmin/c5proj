@@ -138,3 +138,4 @@ def getCountForLeaderboard():
     # Both objects are group user by userID to avoid from duplicate count
     # .subquery() = define these queries as sub-query and the main query is required
     return requestCount, todoCount
+
