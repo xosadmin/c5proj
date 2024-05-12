@@ -1,8 +1,8 @@
 import unittest
 from app import create_app,db
 from apps.randomprofile import uuidGen
-from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs, Faq
-from sqlalchemy import update,delete,and_
+from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs,Faq,FaqChatTransaction
+from sqlalchemy import update,delete,and_,or_
 
 threadUUID = uuidGen()
 
@@ -33,7 +33,8 @@ class testDB(unittest.TestCase):
                  Shop(itemID=123,itemDetail="Test Item",price=1),
                  Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content"),
-                 Faq(faqID = 123, keyword = "emu", answer = "I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
+                 Faq(faqID=123, keyword="UnitTest", answer="UnitTest"),
+                 FaqChatTransaction(TransactionID=123,userID="1234567890",role="User",content="Unit Test")
                  ]
         for item in datas:
             db.session.add(item)
@@ -173,24 +174,38 @@ class testDB(unittest.TestCase):
         db.session.commit()
         updated_todo = Todo.query.filter(Todo.todoID == 321).first().status
         self.assertEqual(updated_todo, "Completed")
-    
-    def test_chatbot(self):
-         existing_faq = Faq.query.filter(Faq.faqID == 123).first()
-         if existing_faq:
-            db.session.delete(existing_faq)
-            db.session.commit()
-         newfaq = Faq(faqID = 123, keyword = "emu", answer="I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
-         db.session.add(newfaq)
-         db.session.commit()
-         updatedfaq= Faq.query.filter(Faq.faqID == 123).first()
-         self.assertEqual(updatedfaq.keyword, "emu")
-         self.assertEqual(updatedfaq.answer, "I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
-     
-     
-        
-        
 
 # Todo Tests
+
+    def test_chatbot(self):
+        existing_faq = Faq.query.filter(Faq.faqID == 123).first().answer
+        self.assertEqual(existing_faq, "UnitTest")
+
+    def test_faqChat(self):
+        getChat = FaqChatTransaction.query.filter(FaqChatTransaction.TransactionID == 123).first().content
+        self.assertEqual(getChat, "Unit Test")
+
+    def test_answerChat(self):
+        getAsk = FaqChatTransaction.query.filter(FaqChatTransaction.TransactionID == 123).first()
+        if getAsk:
+            getAskSplit = getAsk.content.split(" ")
+            for item in getAskSplit:
+                getReply = Faq.query.filter(or_(Faq.keyword.ilike(f'%{item}%'), Faq.answer.ilike(f'%{item}%'))).first()
+            newReply = FaqChatTransaction(TransactionID=124, userID="1234567890",role="Bot",content=getReply.answer)
+            db.session.add(newReply)
+            db.session.commit()
+            self.assertEqual(FaqChatTransaction.query.filter(FaqChatTransaction.TransactionID == 124).first().content, "UnitTest")
+        else:
+            self.assertFalse(False)
+    
+    def test_deleteChat(self):
+        query = FaqChatTransaction.query.filter(FaqChatTransaction.userID == "1234567890").all()
+        for item in query:
+            db.session.delete(item)
+        db.session.commit()
+        self.assertEqual(FaqChatTransaction.query.filter(FaqChatTransaction.userID == "1234567890").count(), 0)
+
+# Chatbot & FAQ Tests
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
