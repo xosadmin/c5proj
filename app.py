@@ -709,12 +709,13 @@ try:
                 # Look up answer from both keyword and answer columns
                 if result:
                     newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content=result.answer)
+                    #break
                 else:
                     newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content="I can't find any answer.")
             db.session.add(userInputStore)
             db.session.add(newResult)
             db.session.commit()
-            return redirect(url_for("helpCenter",showTranscription=showTranscription))
+            return redirect(url_for("helpCenter"))
         else:
             return render_template("helpcenter.html",showTranscription=showTranscription)
     
