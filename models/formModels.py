@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, TextAreaField, Inte
 from wtforms.validators import DataRequired, Email, Length
 from wtforms.validators import DataRequired, NumberRange
 
+
 class LoginForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired(),Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -29,7 +30,7 @@ class newRequestForm(FlaskForm):
     title = StringField("Request Title",validators=[DataRequired()])
     contents = TextAreaField("Contents",validators=[DataRequired()])
     rewards = IntegerField("Rewards",validators=[DataRequired(), NumberRange(min=1)])
-    timelimit = IntegerField("Time Limit (in days)",validators=[DataRequired()])
+    timelimit = IntegerField("Time Limit (in days)", validators=[DataRequired(), NumberRange(min=1)])
     submit = SubmitField("Post New Request", id="doSubmit")
 
 class newThreadForm(FlaskForm):
