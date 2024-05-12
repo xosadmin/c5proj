@@ -238,7 +238,7 @@ try:
                 insert = Chats(chatID=chatID,srcUserID=userID,dstUserID=dstuser,content=content)
                 db.session.add(insert)
                 db.session.commit()
-                return "<script>alert('Message sent.');window.location.href='/chat/" + chatID + "';</script>"
+                return "<script>window.location.href='/chat/" + chatID + "';</script>"
                 # Prompt dialog to notify Message sent to user
             except Exception as e:
                 print(e) # Print detailed error on the console
@@ -392,7 +392,7 @@ try:
                 insert = Thread(threadID=threadUUID,userID=userID,contents=content)
                 db.session.add(insert)
                 db.session.commit()
-                return "<script>alert('New reply recorded.');window.location.href='/thread/"+ threadUUID +"';</script>"
+                return "<script>window.location.href='/thread/"+ threadUUID +"';</script>"
             except Exception as e:
                 print(e)
                 return redirect(url_for('newThread', errmsg="Internal Error"))
