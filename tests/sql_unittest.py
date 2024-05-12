@@ -1,7 +1,7 @@
 import unittest
 from app import create_app,db
 from apps.randomprofile import uuidGen
-from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs
+from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs, Faq
 from sqlalchemy import update,delete,and_
 
 threadUUID = uuidGen()
@@ -32,7 +32,8 @@ class testDB(unittest.TestCase):
                  Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
                  Shop(itemID=123,itemDetail="Test Item",price=1),
                  Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
-                 Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content")
+                 Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content"),
+                 Faq(faqID = 123, keyword = "emu", answer = "I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
                  ]
         for item in datas:
             db.session.add(item)
@@ -172,6 +173,22 @@ class testDB(unittest.TestCase):
         db.session.commit()
         updated_todo = Todo.query.filter(Todo.todoID == 321).first().status
         self.assertEqual(updated_todo, "Completed")
+    
+    def test_chatbot(self):
+         existing_faq = Faq.query.filter(Faq.faqID == 123).first()
+         if existing_faq:
+            db.session.delete(existing_faq)
+            db.session.commit()
+         newfaq = Faq(faqID = 123, keyword = "emu", answer="I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
+         db.session.add(newfaq)
+         db.session.commit()
+         updatedfaq= Faq.query.filter(Faq.faqID == 123).first()
+         self.assertEqual(updatedfaq.keyword, "emu")
+         self.assertEqual(updatedfaq.answer, "I'm a emu from CITS1003. Are you a hooman? PS: I will NOT give you a flag for project!")
+     
+     
+        
+        
 
 # Todo Tests
 
