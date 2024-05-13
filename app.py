@@ -150,6 +150,41 @@ try:
         else:
             return render_template('signs.html',infomsg=infomsg,form=form)
     
+
+    @app.route("/signs",methods=["POST","GET"])
+    @login_required
+    def signPage():
+        form = signEmotionForm()
+        signSessionID = uuidGen() # Generate unique UUID for each sign session
+        userID = current_user.id
+        timeObject = datetime.now()
+        currentDay = str(timeObject.year) + "/" + str(timeObject.month) + "/" + str(timeObject.day) # Get current date based on server timezone
+        currentCoin = getCoins(userID)
+        infomsg = request.args.get("infomsg","")
+        ifSigned = ifSign(userID)
+        if request.method == "POST": # If user click on submit button
+            feelings = form.feelings.data
+            comments = form.comments.data
+            if not ifSigned: # If user didn't signs today
+                try:
+                    randomRewards = int(randomCoinRewards())
+                    rewardCoins = randomRewards + int(currentCoin) # Generate random rewards and add to user's coins
+                    insert = Signs(signID=signSessionID,userID=userID,time=currentDay,emotion=feelings,comments=comments,rewards=randomRewards)
+                    db.session.add(insert)
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(coins=rewardCoins))
+                    db.session.commit()
+                    return redirect(url_for('profilePage',infomsg="Signed successfully! Welcome back and you have get " 
+                                            + str(randomRewards) + " coins for reward!"))
+                except Exception as e:
+                    print("[ERROR] SignPage: " + str(e))
+                    return render_template('signs.html',infomsg="Internal Error! <a href='/profile' title='Profile'>Click here for your profile</a>",
+                                           form=form)
+            else: # If user signed today and try to sign second time
+                return render_template('signs.html',infomsg="You have signed today! <a href='/profile' title='Profile'>Click here for your profile</a>",
+                                       form=form)
+        else:
+            return render_template('signs.html',infomsg=infomsg,form=form)
+    
     @app.route("/modifycenter",methods=["GET","POST"])
     @login_required
     def modifyCentre():
