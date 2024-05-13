@@ -158,8 +158,8 @@ try:
             changeType = request.form["type"]
             if changeType == "email":
                 newEmail = request.form["newEmail"]
-                verifyEmailResult = verifyEmail(newEmail) # Verify provided new email existing in the system
-                if verifyEmailResult: # If exists.
+                verifyEmailResult = checkEmail(newEmail) # Verify provided new email existing in the system
+                if verifyEmailResult == -1: # If exists.
                     return render_template("change_profile.html",infomsg="Email address already exists!")                    
                 else: # If new email not exists in the system
                     db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newEmail))                                    
@@ -291,7 +291,7 @@ try:
                     print(e) # Print detailed error on the console
                     return redirect(url_for('chatPage', errmsg="Internal Error"))
             else:
-                return render_template("newchat.html", form=form, infomsg="Invalid Destination User!")
+                return render_template("newchat.html", form=form, infomsg="Destination user not exists!")
         else:
             return render_template("newchat.html", form=form)
 
