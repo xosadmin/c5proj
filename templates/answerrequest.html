@@ -21,7 +21,7 @@
                 <input type="hidden" id="userID" name="userID" value="{{userID}}">
                 <input type="hidden" id="rewards" name="rewards" value="{{result.rewards}}">
                 <input type="hidden" id="requestID" name="requestID" value="{{result.requestID}}">
-                <textarea class="form-control" id="content" name="content" rows="4" cols="50"></textarea>
+                <textarea class="form-control" id="content" name="content" rows="4" cols="50" required></textarea>
                 <small>Do you need LLM for compose contents? <a href="#newthreadandrequest" onclick="loadLLM(2)">Click here to ask LLM to generate content for you</a></small>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
