@@ -1,88 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Result - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}Search Result - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    {% if errormsg %}
+        <div class="alert alert-danger">{{ errormsg }}</div>
+    {% elif content %}
+        <div class="alert alert-info">{{ content }}</div>
+    {% endif %}
+    <h1 id="pageBanner">Search Result</h1>
+    <div id="searchBar">
+        <form method="POST" action="/{{redosearch}}">
+            <p>Search: <input type="text" class="form-control" id="keyword" name="keyword" value="" required></p>
+            <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
+        </form>
     </div>
-  </nav>
-      <div id="mainContent">
-            {% if errormsg %}
-                <div class="alert alert-danger">{{ errormsg }}</div>
-            {% elif content %}
-                <div class="alert alert-info">{{ content }}</div>
-            {% endif %}
-            <h1 id="pageBanner">Search Result</h1>
-            <div id="searchBar">
-                <form method="POST" action="/{{redosearch}}">
-                    <p>Search: <input type="text" class="form-control" id="keyword" name="keyword" value="" required></p>
-                    <button type="submit" id="searchButton" class="btn btn-info" name="submitSearch">Search</button>
-                </form>
-            </div>
-            <p>Based on given keyword(s), we have found results as below.</p>
-            <table class="table table-striped listcontents">
-                <tbody>
-                {% if act == "thread" %}
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                </tr>
-                {% for resultitem in result %}
-                <tr>
-                    <td>{{ resultitem.threadID }}</td>
-                    <td><a href="{{act}}/{{resultitem.threadID}}" title="Click for result">{{ resultitem.title }}</a></td>
-                </tr>
-                {% endfor %}
-                {% elif act == "answerrequest" %}
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                </tr>
-                    {% for resultitem in result %}
-                <tr>
-                        <td>{{ resultitem.requestID }}</td>
-                        <td><a href="requestdetails/{{resultitem.requestID}}" title="Click for result">{{ resultitem.title }}</a></td>
-                    {% endfor %}
-                </tr>
-                {% elif act == "chat" %}
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                </tr>
-                    {% for resultitem in result %}
-                <tr>
-                        <td>{{ resultitem.chatID }}</td>
-                        <td><a href="{{act}}/{{resultitem.chatID}}" title="Click for result">{{ resultitem.content }}</a></td>
-                    {% endfor %}
-                </tr>
-                {% endif %}
-                </tbody>
-            </table>
-      </div>
-</body>
-</html>
+    <p>Based on given keyword(s), we have found results as below.</p>
+    <table class="table table-striped listcontents">
+        <tbody>
+        {% if act == "thread" %}
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+        </tr>
+        {% for resultitem in result %}
+        <tr>
+            <td>{{ resultitem.threadID }}</td>
+            <td><a href="{{act}}/{{resultitem.threadID}}" title="Click for result">{{ resultitem.title }}</a></td>
+        </tr>
+        {% endfor %}
+        {% elif act == "answerrequest" %}
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+        </tr>
+            {% for resultitem in result %}
+        <tr>
+                <td>{{ resultitem.requestID }}</td>
+                <td><a href="requestdetails/{{resultitem.requestID}}" title="Click for result">{{ resultitem.title }}</a></td>
+            {% endfor %}
+        </tr>
+        {% elif act == "chat" %}
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+        </tr>
+            {% for resultitem in result %}
+        <tr>
+                <td>{{ resultitem.chatID }}</td>
+                <td><a href="{{act}}/{{resultitem.chatID}}" title="Click for result">{{ resultitem.content }}</a></td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+{% endblock %}

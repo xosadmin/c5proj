@@ -1,102 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Chat - Adventurer Guild</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <script src="{{url_for('static',filename='js/searchuser.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-</head>
-<body>
-  <nav class="navbar navbar-default navigationBar rounded-pill">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">Adventurer Guild</a>
+{% extends 'base.html' %}
+
+{% block title %}New Chat - Adventurer Guild{% endblock %}
+
+{% block javascript %}
+<script src="{{url_for('static',filename='js/searchuser.js')}}"></script>
+{% endblock %}
+
+<!-- Main content goes here -->
+{% block content %}
+    {% if infomsg %}
+        <div class="alert alert-info">{{ infomsg }}</div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>Note: All forms are compulsory.</p>
         </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/profile">Home</a></li>
-                <li><a href="/requests">Request List</a></li>
-                <li><a href="/todo">To-do List</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/community">Community</a></li>
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                <li class="active"><a href="/chat">Chatroom</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
+    {% endif %}
+    <h1 id="pageBanner">New Ticket</h1>
+    <div id="searchColumn">
+        <h3>Search User ID</h3>
+        <form action="#">
+            <p>Search criteria: <input type="radio" id="country" name="searchType" checked>
+                <label for="country">Country/Region</label>&nbsp;
+                <input type="radio" id="email" name="searchType">
+                <label for="email">Email Address</label><br>
+                <br></p>
+            <p>Note: Support Fuzzy Search (e.g. Aus is equal to Australia)</p>
+            <p>Value: <input type="text" id="value" name="value"></p>
+            <button type="button" id="search" name="search" onclick="searchResult()">Search</button>
+            <button type="button" id="collapse" name="collapse">Collapse/Show Result</button>
+        </form>
+        <br>
+        <div id="searchResult">
+            <p>Based on your criteria, the system found following users.</p>
+            <p>Click on userID or email to see user profile.</p>
+            <table class="table table-striped listcontents">
+                <thead>
+                    <tr>
+                        <th scope="col">UserID</th>
+                        <th scope="col">User Email</th>
+                        <th scope="col">Set this user as destination user</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-  </nav>
-      <div id="mainContent">
-            {% if infomsg %}
-                <div class="alert alert-info">{{ infomsg }}</div>
-            {% else %}
-                <div class="alert alert-info">
-                    <p>Note: All forms are compulsory.</p>
-                </div>
-            {% endif %}
-            <h1 id="pageBanner">New Ticket</h1>
-            <div id="searchColumn">
-                <h3>Search User ID</h3>
-                <form action="#">
-                    <p>Search criteria: <input type="radio" id="country" name="searchType" checked>
-                        <label for="country">Country/Region</label>&nbsp;
-                        <input type="radio" id="email" name="searchType">
-                        <label for="email">Email Address</label><br>
-                        <br></p>
-                    <p>Note: Support Fuzzy Search (e.g. Aus is equal to Australia)</p>
-                    <p>Value: <input type="text" id="value" name="value"></p>
-                    <button type="button" id="search" name="search" onclick="searchResult()">Search</button>
-                    <button type="button" id="collapse" name="collapse">Collapse/Show Result</button>
-                </form>
-                <br>
-                <div id="searchResult">
-                    <p>Based on your criteria, the system found following users.</p>
-                    <p>Click on userID or email to see user profile.</p>
-                    <table class="table table-striped listcontents">
-                        <thead>
-                            <tr>
-                                <th scope="col">UserID</th>
-                                <th scope="col">User Email</th>
-                                <th scope="col">Set this user as destination user</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <br>
+    <div class="newthreadandrequest">
+        <form method="POST" action="/newchat">
+            <div class="form-group fillForms">
+                {{ form.hidden_tag() }}
+                <label for="dstuser">Destination User ID</label>
+                {% if dstuserid %}
+                {{ form.dstUser(class="form-control", id="dstuser", required=true, value=dstuserid) }}
+                {% else %}
+                {{ form.dstUser(class="form-control", id="dstuser", placeholder="Destination User", required=true) }}
+                {% endif %}
             </div>
+            <div class="form-group fillForms">
+                <label for="content">Contents</label>
+                {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
+            </div>
+            {{ form.submit() }}
+            </form>
             <br>
-            <div class="newthreadandrequest">
-                <form method="POST" action="/newchat">
-                    <div class="form-group fillForms">
-                        {{ form.hidden_tag() }}
-                        <label for="dstuser">Destination User ID</label>
-                        {% if dstuserid %}
-                        {{ form.dstUser(class="form-control", id="dstuser", required=true, value=dstuserid) }}
-                        {% else %}
-                        {{ form.dstUser(class="form-control", id="dstuser", placeholder="Destination User", required=true) }}
-                        {% endif %}
-                    </div>
-                    <div class="form-group fillForms">
-                        <label for="content">Contents</label>
-                        {{ form.contents(class="form-control", id="content", rows="4", cols="50", required=true)}}
-                    </div>
-                    {{ form.submit() }}
-                  </form>
-                  <br>
-                  <p><a href="/chat" title="Back">Back to chatroom</a></p>
-            </div>
-      </div>
-</body>
-</html>
+            <p><a href="/chat" title="Back">Back to chatroom</a></p>
+    </div>
+{% endblock %}

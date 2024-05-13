@@ -32,13 +32,13 @@
                 <li class="{% if request.path == '/register' %}active{% endif %}"><a href="/register">Sign Up</a></li>
                 <!-- If logged in, show below navi bar -->
                 {% else %}
-                <li class="{% if request.path.startswith('/profile') %}active{% endif %}"><a href="/profile">Home</a></li>
+                <li class="{% if request.path == '/profile' %}active{% endif %}"><a href="/profile">Home</a></li>
                 <li class="{% if request.path == '/requests' %}active{% endif %}"><a href="/requests">Request List</a></li>
                 <li class="{% if request.path == '/todo' %}active{% endif %}"><a href="/todo">To-do List</a></li>
                 <li class="{% if request.path == '/shop' %}active{% endif %}"><a href="/shop">Shop</a></li>
                 <li class="{% if request.path == '/community' %}active{% endif %}"><a href="/community">Community</a></li>
                 <li class="{% if request.path == '/leaderboard' %}active{% endif %}"><a href="/leaderboard">Leaderboard</a></li>
-                <li class="{% if request.path == '/chat' %}active{% endif %}"><a href="/chat">Chatroom</a></li>
+                <li class="{% if request.path.startswith('/chat') %}active{% endif %}"><a href="/chat">Chatroom</a></li>
                 <li class="{% if request.path == '/help' %}active{% endif %}"><a href="/help">Help Center</a></li>
                 <li class="{% if request.path == '/logout' %}active{% endif %}"><a href="/logout">Logout</a></li>
                 {% endif %}

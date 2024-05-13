@@ -37,7 +37,7 @@ function checkSubmittedForm(){
                 return true;
             }
             else {
-                alert("Email Address Mismatch!");
+                alert("Email addresses are mismatch!");
                 return false;
             }
         }
@@ -52,7 +52,7 @@ function checkSubmittedForm(){
             return true;
         }
         else {
-            alert("Country cannot be None!");
+            alert("Country cannot be empty!");
             return false;
         }
     }
@@ -60,11 +60,11 @@ function checkSubmittedForm(){
         const newpassword = document.getElementById("newpassword").value;
         const repeatnewpassword = document.getElementById("repeatnewpassword").value;
         if (newpassword !== repeatnewpassword) {
-            alert("PIN/Password Mismatch or invalid PIN!");
+            alert("Passwords are mismatch!");
             return false;
         }
         else if (newpassword.length < 4 || newpassword.length > 32) {
-            alert("Password cannot lower than 4 or larger than 32 words.");
+            alert("Password cannot lower than 4 or larger than 32 characters.");
             return false;
         }
         else {
@@ -72,14 +72,14 @@ function checkSubmittedForm(){
         }
     }
     else if (type === "pin") {
-        const newpassword = document.getElementById("newpin").value;
-        const repeatnewpassword = document.getElementById("repeatnewpin").value;
-        if (newpassword.length < 4) {
-            alert("PIN code cannot be less than 4 characters");
+        const newpin = document.getElementById("newpin").value;
+        const repeatnewpin = document.getElementById("repeatnewpin").value;
+        if (newpin.length < 4) {
+            alert("PIN code cannot be less than 4 digits");
             return false;
         }
-        else if (newpassword !== repeatnewpassword) {
-            alert("PIN/Password Mismatch!");
+        else if (newpin !== repeatnewpin) {
+            alert("PINs are mismatch!");
             return false;
         }
         else {
