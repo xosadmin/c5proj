@@ -56,22 +56,23 @@
         </div>
     </div>
     <h3>My Signs History</h3>
+    <p>Note: Only shows last 5 sign history.</p>
     <table class="table table-striped listcontents">
         <tbody>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col">Emotional Feelings</th>
-            <th scope="col">Comments</th>
-            <th scope="col">Rewards</th>
-        </tr>
-        {% for item in signHistory %}
-        <tr>
-            <td>{{item.time}}</td>
-            <td>{{item.emotion}}</td>
-            <td>{{item.comments}}</td>
-            <td>+ $${{item.rewards}}</td>
-        </tr>
-        {% endfor %}
+            <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Emotional Feelings</th>
+                <th scope="col">Comments</th>
+                <th scope="col">Rewards</th>
+            </tr>
+            {% for item in signHistory %}
+                    <tr>
+                        <td>{{item.time}}</td>
+                        <td>{{item.emotion}}</td>
+                        <td>{{item.comments}}</td>
+                        <td>+ $${{item.rewards}}</td>
+                    </tr>
+            {% endfor %}
         </tbody>
     </table>
     <h3>My Items</h3>
@@ -81,12 +82,14 @@
         <tr>
             <th scope="col" class="descCol">Transaction ID</th>
             <th scope="col" class="descCol">Item Preview</th>
+            <th scope="col" class="descCol">Item Name</th>
             <th scope="col">Set as avatar</th>
         </tr>
         {% for nftitem in nft_details %}
         <tr>
             <td class="descCol">{{nftitem.transactionID}}</td>
             <td class="descCol"><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
+            <td class="descCol">{{nftitem.itemDetail}}</td>
             <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
         </tr>
         {% endfor %}

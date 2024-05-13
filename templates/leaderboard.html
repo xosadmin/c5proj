@@ -14,6 +14,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">User ID</th>
+            <th scope="col">Country/Region</th>
             <th scope="col">Coins</th>
             <th scope="col">Posted Requests</th>
             <th scope="col">Accepted Requests</th>
@@ -30,6 +31,7 @@
                 {% else %}
                     <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
                 {% endif %}
+                <td>{{ resultitem.country }}</td>
                 <td>{{ resultitem.coins }}</td>
                 <td>{{ resultitem.requestcount }}</td>
                 <td>{{ resultitem.todoidcount }}</td>
