@@ -291,7 +291,7 @@ try:
                     print(e) # Print detailed error on the console
                     return redirect(url_for('chatPage', errmsg="Internal Error"))
             else:
-                return render_template("newchat.html", form=form, infomsg="Destination user not exists!")
+                return render_template("newchat.html", form=form, infomsg="Destination user not exists or you cannot send ticket to yourself!")
         else:
             return render_template("newchat.html", form=form)
 
@@ -476,8 +476,10 @@ try:
             user_details = UserInfo.query.filter(UserInfo.userID == userID).all()  # User Info
             if user_details is None:
                 return render_template('profile.html', errmsg="User not found")
-            nft_details = Transaction.query.filter(Transaction.userID==userID).all()
-            signHistory = Signs.query.filter(Signs.userID == userID).all()
+            nft_details = Transaction.query.join(Transaction, Transaction.itemID == Shop.itemID). \
+                        add_columns(Transaction.transactionID, Shop.itemID, Shop.itemDetail). \
+                        filter(Transaction.userID==userID).all()
+            signHistory = Signs.query.filter(Signs.userID == userID).limit(5).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
             if "-" in userID: # If "-" is in the userID
                 userID_Show_On_Browser = userID.split("-")[0] # Get the first part of the UUID
@@ -623,12 +625,16 @@ try:
     @login_required
     def doAcceptRequest(id):
         userID = current_user.id
-        updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted") # Change the request state to accepted
-        insertTodo = Todo(userID=userID,requestID=id,status="Accepted") # Update this request to user's todo list
-        db.session.execute(updateReq)
-        db.session.add(insertTodo)
-        db.session.commit()
-        return redirect(url_for('todoList'))
+        requestBelongs = getRequestInfo(id,"userID")
+        if userID != requestBelongs:
+            updateReq = update(Requests).where(Requests.requestID == id).values(status="accepted") # Change the request state to accepted
+            insertTodo = Todo(userID=userID,requestID=id,status="Accepted") # Update this request to user's todo list
+            db.session.execute(updateReq)
+            db.session.add(insertTodo)
+            db.session.commit()
+            return redirect(url_for('todoList'))
+        else:
+            return "<script>alert('You cannot accept your own request.');window.location.href='/requests';</script>"
 
     @app.route("/setavatar/<id>", methods=['GET'])
     @login_required
@@ -683,7 +689,7 @@ try:
         result = db.session.query(UserInfo). \
                     outerjoin(requestCount, UserInfo.userID == requestCount.c.userID). \
                     outerjoin(todoCount, UserInfo.userID == todoCount.c.userID). \
-                    add_columns(UserInfo.userID, UserInfo.coins, 
+                    add_columns(UserInfo.userID, UserInfo.coins, UserInfo.country,
                                 func.coalesce(requestCount.c.requestcount, 0).label("requestcount"),
                                 func.coalesce(todoCount.c.todocount, 0).label("todoidcount")). \
                     group_by(UserInfo.userID). \

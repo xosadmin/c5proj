@@ -46,7 +46,7 @@
                     <td><a href="profile/{{resultitem.userID}}" title="View Details">{{ resultitem.userID }}</a></td>
                     <td>{{ resultitem.rewards }}</td>
                     <td>{{ resultitem.timelimit }}</td>
-                    {% if userid|int == resultitem.userID|int %}
+                    {% if userid == resultitem.userID %}
                         <td><a href="/deleterequest/{{resultitem.userID}}/{{resultitem.requestID}}" title="Delete Request"><ion-icon name="close-circle-outline"></ion-icon> Delete</a></td>
                     {% else %}
                         <td>No permission</td>

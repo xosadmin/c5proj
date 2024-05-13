@@ -1,6 +1,7 @@
 from selenium import webdriver
 import unittest
 import threading
+import time
 from app import create_app, db
 from selenium.webdriver.common.by import By
 from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transaction, Todo, Chats, Signs, Faq, FaqChatTransaction
@@ -9,7 +10,7 @@ webAddr = "http://127.0.0.1:5000/"
 
 class FlaskAppTest(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUp(cls):
         cls.app = create_app({
             'TESTING': True,
             'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
@@ -22,6 +23,8 @@ class FlaskAppTest(unittest.TestCase):
         cls.server_thread = threading.Thread(target=cls.app.run)
         cls.server_thread.start()
 
+        time.sleep(2)
+
         options = webdriver.ChromeOptions()
         options.add_argument("--headless=new")
 
@@ -29,13 +32,12 @@ class FlaskAppTest(unittest.TestCase):
         cls.driver.get(webAddr)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDown(cls):
         cls.driver.quit()
         cls.server_thread.join()
         db.session.remove()
         db.drop_all()
         cls.app_context.pop()
-        cls.app_context.destroy()
 
     @staticmethod
     def add_test_data():
