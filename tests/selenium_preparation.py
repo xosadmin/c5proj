@@ -6,6 +6,7 @@ from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transa
 
 webAddr = "http://127.0.0.1:5000/"
 encryptPasswords = encryptPassword("1234")
+
 def add_test_data():
         datas = [UserInfo(userID="1234567890",email="unittest@unittest.com",password=encryptPasswords,country="Australia",pincode="1234"),
                  UserInfo(userID="666",email="testreceiver@chat.com",password=encryptPasswords,country="None",pincode="1234"),
@@ -22,3 +23,12 @@ def add_test_data():
         for item in datas:
             db.session.add(item)
         db.session.commit()
+
+def login(self):
+        self.driver.get(webAddr + "login")
+        username_input = self.driver.find_element(By.ID, "email")
+        password_input = self.driver.find_element(By.ID, "password")
+        submit_button = self.driver.find_element(By.ID, "btnLogin")
+        username_input.send_keys("unittest@unittest.com")
+        password_input.send_keys("1234")
+        submit_button.click()
