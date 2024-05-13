@@ -3,7 +3,6 @@ from flask import *
 import apps.llm as llm
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import func
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from models.sqlmodels import *
 from models.formModels import *
@@ -11,7 +10,6 @@ from models.loginModels import *
 from apps.get import *
 from apps.randomprofile import *
 
-#app = Flask(__name__)
 migrate = Migrate(app, db) # Create a flask db migration
 login_manager = LoginManager()
 
@@ -123,8 +121,13 @@ try:
             userID = current_user.id # Fetch current logged in user ID
             changeType = request.form["type"]
             if changeType == "email":
+            
                 newemail = request.form["newEmail"]
-                db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+                emailExists = db.session.query(UserInfo.email).filter_by(email=newemail).first()
+                if not emailExists:
+                    db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(email=newemail))
+                else:
+                    return render_template("change_profile.html", infomsg="Email already exists!")
             elif changeType == "country":
                 country = request.form["country"]
                 db.session.execute(update(UserInfo).where(UserInfo.userID==userID).values(country=country))
@@ -214,7 +217,7 @@ try:
         currentuserID = current_user.id
         dstuser = getChatInfo(chatid,"dstuser") # Fetch chat destination user
         srcuser = getChatInfo(chatid,"srcuser") # Fetch chat source user
-        if dstuser == currentuserID or srcuser == currentuserID: # Only userID matches src or dst can delete
+        if int(dstuser) == int(currentuserID) or int(srcuser) == int(currentuserID): # Only userID matches src or dst can delete
             db.session.execute(delete(Chats).where(Chats.chatID == chatid))
             db.session.commit()
             return "<script>alert('Your chat has been deleted.');window.location.href='/chat';</script>"
@@ -225,7 +228,7 @@ try:
     @login_required
     def deleteThread(threaduserid,threadID):
         currentuserID = current_user.id
-        if threaduserid == currentuserID: # Only userID matches can delete
+        if int(threaduserid) == int(currentuserID): # Only userID matches can delete
             db.session.execute(delete(Thread).where(Thread.threadID == threadID))
             db.session.execute(delete(Community).where(Community.threadID == threadID))
             db.session.commit()
@@ -586,7 +589,7 @@ try:
         currentCoins = getUserInfo(userid,"coins")
         currentReqRewards = getRequestInfo(requestid,"rewards")
         remainCoins = int(currentCoins) + int(currentReqRewards) # Refund coins
-        if userid == currentuserID and state == "Available": # Only userID matches and status is Available can delete
+        if int(userid) == int(currentuserID) and state == "Available": # Only userID matches and status is Available can delete
             commands = [delete(Requests).where(Requests.requestID == requestid),
                         update(UserInfo).filter(UserInfo.userID == userid).values(coins=remainCoins)]
             for item in commands:
@@ -594,8 +597,7 @@ try:
             db.session.commit()
             return "<script>alert('Request Deleted Successfully. Your reward has been refunded.');window.location.href='/requests';</script>"
         else:
-            return "<script>alert('You cannot delete it!');window.location.href='/requests';</script>"
-
+            return redirect(url_for('requestPage',infomsg="You cannot delete it"))
     @app.route("/myrequest")
     @login_required
     def myRequest():
@@ -661,10 +663,7 @@ try:
         currentUserID = current_user.id
         infomsg = request.args.get("infomsg","")
         coins = getCoins(currentUserID)
-        result = Todo.query.join(Todo, Requests.requestID == Todo.requestID). \
-                add_columns(Todo.todoID, Todo.requestID, Requests.title, Todo.status). \
-                filter(Todo.userID == currentUserID).all()
-            # Fetch TodoID, requestID, Request Title, Request Status by inner join
+        result = Todo.query.filter(Todo.userID == currentUserID).all()
         if result:
             return render_template("todo.html", result=result, coins=coins, infomsg=infomsg)
         else:
@@ -673,59 +672,11 @@ try:
     @app.route("/leaderboard")
     @login_required
     def leaderBoard():
-        currentUserID = current_user.id
-        requestCount, todoCount = getCountForLeaderboard() 
-            # Count Request Count and Todo Count for each user in DB and get the return subquery objects
-        result = db.session.query(UserInfo). \
-                    outerjoin(requestCount, UserInfo.userID == requestCount.c.userID). \
-                    outerjoin(todoCount, UserInfo.userID == todoCount.c.userID). \
-                    add_columns(UserInfo.userID, UserInfo.coins, 
-                                func.coalesce(requestCount.c.requestcount, 0).label("requestcount"),
-                                func.coalesce(todoCount.c.todocount, 0).label("todoidcount")). \
-                    group_by(UserInfo.userID). \
-                    order_by(UserInfo.coins.desc()).all()
-        # requestCount.c.userID = read userID from subquery object named requestCount
-        # todoCount.c.userID = read userID from subquery object named todoCount
-        # func.coalesce = count of requests and todo, if no request posted, 
-        # mark as 0. And label these columns as requestcount and todoidcount,
-        # and group by the userID to avoid from duplicate count
-        # Ranking user based on coin amounts in decreasing sort. Get all results.
+        result = UserInfo.query.order_by(UserInfo.coins.desc())
         if result:
-            return render_template("leaderboard.html", result=result, curusrid=currentUserID)
+            return render_template("leaderboard.html", result=result)
         else:
             return render_template("leaderboard.html", errmsg=f"We cannot find any content.")
-        
-    @app.route("/help",methods=["GET","POST"])
-    @login_required
-    def helpCenter():
-        currentUserID = current_user.id
-        showTranscription = FaqChatTransaction.query.filter(FaqChatTransaction.userID == currentUserID).all()
-        if request.method == "POST":
-            userInput = request.form["content"]
-            userInputStore = FaqChatTransaction(userID=currentUserID,role="User",content=userInput)
-            userInputSplit = str(userInput).lower().split(" ")
-            for item in userInputSplit:
-                result = Faq.query.filter(or_(Faq.keyword.ilike(f'%{item}%'), Faq.answer.ilike(f'%{item}%'))).first()
-                # Look up answer from both keyword and answer columns
-                if result:
-                    newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content=result.answer)
-                    #break
-                else:
-                    newResult = FaqChatTransaction(userID=currentUserID,role="Help Bot", content="I can't find any answer.")
-            db.session.add(userInputStore)
-            db.session.add(newResult)
-            db.session.commit()
-            return redirect(url_for("helpCenter"))
-        else:
-            return render_template("helpcenter.html",showTranscription=showTranscription)
-    
-    @app.route("/clearhelp")
-    @login_required
-    def ClearHelpCenter():
-        currentUserID = current_user.id
-        db.session.execute(delete(FaqChatTransaction).where(FaqChatTransaction.userID == currentUserID))
-        db.session.commit()
-        return "<script>alert('You have started a new help session.');window.location.href='/help';</script>"
         
     @app.route("/api/searchuser/<type>/<value>",methods=["GET"])
     @login_required
