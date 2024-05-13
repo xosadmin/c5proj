@@ -5,7 +5,6 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 from models.sqlmodels import *
 from datetime import datetime
-from app import *
 import hashlib
 
 app = Flask(__name__)
