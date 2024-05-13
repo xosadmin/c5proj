@@ -1,37 +1,44 @@
 from selenium import webdriver
 import unittest
-from app import create_app,db
-import apps.randomprofile as rp
-from models.sqlmodels import UserInfo,Community,Thread,Requests,Shop,Transaction,Todo,Chats,Signs,Faq,FaqChatTransaction
-from sqlalchemy import update,delete,and_,or_
+import threading
+from app import create_app, db
+from selenium.webdriver.common.by import By
+from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transaction, Todo, Chats, Signs, Faq, FaqChatTransaction
+
+webAddr = "http://127.0.0.1:5000/"
 
 class FlaskAppTest(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app({
+    @classmethod
+    def setUpClass(cls):
+        cls.app = create_app({
             'TESTING': True,
             'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         })
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+        cls.app_context = cls.app.app_context()
+        cls.app_context.push()
         db.create_all()
-        self.add_test_data()
+        cls.add_test_data()
 
-        # self.server_thread = multiprocessing.Process(target=self.app.run)
-        # self.server_thread.start()
+        cls.server_thread = threading.Thread(target=cls.app.run)
+        cls.server_thread.start()
 
         options = webdriver.ChromeOptions()
         options.add_argument("--headless=new")
 
-        self.driver = webdriver.Chrome(options=options)
+        cls.driver = webdriver.Chrome(options=options)
+        cls.driver.get(webAddr)
 
-    def tearDown(self):
-        # self.server_thread.terminate()
-        self.driver.close()
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        cls.server_thread.join()
         db.session.remove()
         db.drop_all()
-        self.app_context.pop()
+        cls.app_context.pop()
+        cls.app_context.destroy()
 
-    def add_test_data(self):
+    @staticmethod
+    def add_test_data():
         datas = [UserInfo(userID="1234567890",email="unittest@unittest.com",password="1234",country="Australia",pincode="1234"),
                  UserInfo(userID="666",email="testreceiver@chat.com",password="987654321",country="None",pincode="1234"),
                  UserInfo(userID="777",email="deleteme@deleteme.com",password="987654321",country="None",pincode="1234"),
@@ -48,21 +55,42 @@ class FlaskAppTest(unittest.TestCase):
             db.session.add(item)
         db.session.commit()
 
+    def test_registration(self):
+        self.driver.get(webAddr + "register")
+        email_input = self.driver.find_element(By.ID, "email")
+        password_input = self.driver.find_element(By.ID, "password")
+        repeat_password_input = self.driver.find_element(By.ID, "repeat_password")
+        pincode_input = self.driver.find_element(By.ID, "repeat_password")
+        submit_button = self.driver.find_element(By.ID, "btnRegister")
+
+        email_input.send_keys("testregistration@testregistration.com")
+        password_input.send_keys("1234")
+        repeat_password_input.send_keys("1234")
+        pincode_input.send_keys("1234")
+        submit_button.click()
+
+        try:
+            expected_text = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Complete')]")
+            self.assertTrue(True)
+        except:
+            self.assertFalse(False)
+        
+
     def test_login(self):
-        self.driver.get("http://127.0.0.1:5000/login")
+        self.driver.get(webAddr + "login")
         username_input = self.driver.find_element(By.ID, "email")
         password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "doSubmit")
+        submit_button = self.driver.find_element(By.ID, "btnLogin")
 
         username_input.send_keys("unittest@unittest.com")
         password_input.send_keys("1234")
         submit_button.click()
 
-        expected_redirect_url = "http://127.0.0.1:5000/signs"
+        expected_redirect_url = webAddr + "signs"
         self.assertIn(expected_redirect_url, self.driver.current_url)
 
     def test_new_request(self):
-        self.driver.get("http://127.0.0.1:5000/newrequest")
+        self.driver.get(webAddr + "newrequest")
         title = self.driver.find_element(By.ID, "title")
         content = self.driver.find_element(By.ID, "content")
         rewards = self.driver.find_element(By.ID, "rewards")
@@ -75,9 +103,7 @@ class FlaskAppTest(unittest.TestCase):
         timelimit.send_keys("1")
         submit_button.click()
 
-        self.assertIn("/requests",self.driver.current_url)
-
-
+        self.assertIn("/requests", self.driver.current_url)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
