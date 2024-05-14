@@ -274,7 +274,7 @@ class FlaskAppTest(unittest.TestCase):
         self.driver.get(webAddr + "login")
         time.sleep(6)  # Waiting for redirection
         if "You+have+already+logged+in" not in self.driver.current_url:
-            self.driver.get(webAddr + "thread/12345678")
+            self.driver.get(webAddr + "thread/1234567")
             time.sleep(10)
             username_input = self.driver.find_element(By.ID, "email")
             password_input = self.driver.find_element(By.ID, "password")
