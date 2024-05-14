@@ -32,11 +32,8 @@ try:
         if current_user.is_authenticated:
             return redirect(url_for('mainBluePrint.profilePage',infomsg="You have already logged in. Welcome Back!"))
         else:
-            if request.method == "GET":
-                errormsg = request.args.get('errormsg', '')
-                return render_template('login.html', errormsg=errormsg, form=form)
-            else:
-                return render_template('login.html',form=form)
+            errormsg = request.args.get('errormsg', '')
+            return render_template('login.html', errormsg=errormsg, form=form)
 
     @mainBluePrint.route("/register", methods=["GET", "POST"])
     def registerPage():
@@ -170,7 +167,7 @@ try:
             else:
                 return render_template("change_profile.html",infomsg="Invalid Change!")
             db.session.commit()
-            return redirect(url_for("mainBluePrint.profilePage",infomsg="Information " + changeType + " has been updated."))
+            return redirect(url_for("mainBluePrint.profilePage",infomsg=changeType + " has been updated."))
         else:
             return render_template("change_profile.html")
 
