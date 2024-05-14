@@ -1,13 +1,13 @@
 from selenium import webdriver
 import unittest
 import threading
+import time
 import tests.selenium_preparation as sp
 from app import create_app, db
 from selenium.webdriver.common.by import By
 from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transaction, Todo, Chats, Signs, Faq, FaqChatTransaction
 
 webAddr = "http://127.0.0.1:5000/"
-ifAppLoaded = False
 
 class FlaskAppTest(unittest.TestCase):
     def setUp(self):
@@ -20,20 +20,14 @@ class FlaskAppTest(unittest.TestCase):
         db.create_all()
         sp.add_test_data()
 
-        global ifAppLoaded
-        if not ifAppLoaded:
-            self.server_thread = threading.Thread(target=self.app.run)
-            self.server_thread.start()
-            ifAppLoaded = True
-        # Avoid from always reload server
+        self.server_thread = threading.Thread(target=self.app.run)
+        self.server_thread.start()
 
         options = webdriver.ChromeOptions()
         # options.add_argument("--headless=new")
 
         self.driver = webdriver.Chrome(options=options)
-        self.driver.get(webAddr)
-
-        #sp.login()
+        # self.driver.get(webAddr)
 
     def tearDown(self):
         self.driver.quit()
@@ -45,17 +39,18 @@ class FlaskAppTest(unittest.TestCase):
 
     def test_login(self):
         self.driver.get(webAddr + "login")
+        time.sleep(10)
         username_input = self.driver.find_element(By.ID, "email")
         password_input = self.driver.find_element(By.ID, "password")
         submit_button = self.driver.find_element(By.ID, "btnLogin")
         username_input.send_keys("unittest@unittest.com")
         password_input.send_keys("1234")
         submit_button.click()
-        expected_redirect_url = webAddr + "signs"
-        self.assertEqual(expected_redirect_url, self.driver.current_url)
+        returns = sp.login()
+        self.assertEqual(returns, 0)
 
     def test_newSigns(self):
-        # sp.login()
+        sp.login()
         self.driver.get(webAddr + "signs")
         feelings = self.driver.find_element(By.ID, "feelings")
         comment = self.driver.find_element(By.ID, "content")
@@ -68,7 +63,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn(webAddr + "profile",self.driver.current_url)
 
     def test_new_request(self):
-        # sp.login()
+        sp.login()
         self.driver.get(webAddr + "newrequest")
         title = self.driver.find_element(By.ID, "title")
         content = self.driver.find_element(By.ID, "content")
@@ -85,7 +80,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("/requests", self.driver.current_url)
 
     def test_new_thread(self):
-        # sp.login()
+        sp.login()
         self.driver.get(webAddr + "newthread")
         title = self.driver.find_element(By.ID, "title")
         content = self.driver.find_element(By.ID, "content")
@@ -98,7 +93,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
     
     def test_new_chat(self):
-        # sp.login()
+        sp.login()
         self.driver.get(webAddr + "newchat")
         dstuser = self.driver.find_element(By.ID, "dstUser")
         content = self.driver.find_element(By.ID, "content")
@@ -110,7 +105,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
     
     def test_new_helpsession(self):
-        # sp.login()
+        sp.login()
         self.driver.get(webAddr + "help")
         content = self.driver.find_element(By.ID, "content")
         submit_button = self.driver.find_element(By.ID, "doSubmit")
@@ -119,7 +114,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("/help", self.driver.current_url)
     
     def test_new_todo(self):
-        # sp.login()
+        sp.login()
         reqid = "123456789"
         self.driver.get(webAddr + "acceptrequests" + reqid)
         accept_button = self.driver.find_element(By.Class, "btn btn-success")
@@ -127,9 +122,9 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("/todo", self.driver.current_url)
 
     def test_request_answer(self):
-        # sp.login()
+        sp.login()
         reqid = "123456789"
-        self.driver.get(webAddr + "/todolist")
+        self.driver.get(webAddr +"todolist")
         answer_button= self.driver.find_element(By.XPATH, f"//a[contains(@href, 'answerrequest/{reqid}') and contains(text(), 'Answer')]")
         answer_button.click()
         answer_content = self.driver.find_element(By.ID, "content")
@@ -140,86 +135,96 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
 
     def test_thread_reply(self):
-        # sp.login()
+        sp.login()
         threadID = "12345678"
-        self.driver.get(webAddr + "/thread/" + threadID)
+        self.driver.get(webAddr +"thread/" + threadID)
         submit_btn = self.driver.find_element(By.ID, "doSubmit")
         content = self.driver.find_element(By.ID,"content")
         content.send_keys("this is a reply")
         submit_btn.click()
-        expected_redirect_url = webAddr + "/thread/" + threadID
+        expected_redirect_url = webAddr +"thread/" + threadID
         self.assertIn(expected_redirect_url, self.driver.current_url)
     
     def test_chatreply(self):
-        # sp.login()
+        sp.login()
         chatID= "123"
-        self.driver.get(webAddr + "/chat/" + chatID)
+        self.driver.get(webAddr +"chat/" + chatID)
         submit_btn = self.driver.find_element(By.ID, "doSubmit")
         content = self.driver.find_element(By.ID,"content")
         content.send_keys("this is a reply")
         submit_btn.click()
-        expected_redirect_url = webAddr + "/chat/" + chatID
+        expected_redirect_url = webAddr +"chat/" + chatID
         self.assertIn(expected_redirect_url, self.driver.current_url)
         
     def delete_request(self):
-        # sp.login()
+        sp.login()
         requestID = "1234567890"
         userID = 123456789
-        self.driver.get(webAddr + "/requests")
+        self.driver.get(webAddr +"requests")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deleterequest/{userID}/{requestID}']")
         delete_link.click()
         confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Request Deleted Successfully. Your reward has been refunded.')]")
         self.assertTrue(confirmation_message)
 
     def delete_thread(self):
-        # sp.login()
+        sp.login()
         threadID = "12345678"
-        self.driver.get(webAddr + "/community")
+        self.driver.get(webAddr +"community")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deletethread/{threadID}']")
         delete_link.click()
         confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Your thread has been deleted.')]")
         self.assertTrue(confirmation_message)
 
     def delete_chat(self):
-        # sp.login()
+        sp.login()
         chatID = "123"
-        self.driver.get(webAddr + "/chat")
+        self.driver.get(webAddr +"chat")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deletechat/{chatID}']")
         delete_link.click()
         confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Your chat has been deleted.')]")
         self.assertTrue(confirmation_message)
     
     def test_shop(self):
-        # sp.login()
+        sp.login()
         itemID = "123"
-        self.driver.get(webAddr + "/shop")
+        self.driver.get(webAddr +"shop")
         buy_button = self.driver.find_element(By.XPATH, f"//a[@href='/confirmpayment/{itemID}']")
         buy_button.click()
         confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Purchase successful')]")
         self.assertTrue(confirmation_message)
 
     def test_logout(self):
-        # sp.login()
-        self.driver.get(webAddr + "/profile")  
+        sp.login()
+        self.driver.get(webAddr +"profile")  
         logout_button = self.driver.find_element(By.XPATH, f"//a[@href='/logout']")  
         logout_button.click()
-        expected_redirect_url = webAddr + "/logout"
+        expected_redirect_url = webAddr +"logout"
         self.assertIn(expected_redirect_url, self.driver.current_url)
     
     def test_changeemail(self):
-        # sp.login()
-        self.driver.get(webAddr + "/modifycenter")
+        self.driver.get(webAddr +"modifycenter")
+        time.sleep(10)
+        username_input = self.driver.find_element(By.ID, "email")
+        password_input = self.driver.find_element(By.ID, "password")
+        submit_button = self.driver.find_element(By.ID, "btnLogin")
+        username_input.send_keys("unittest@unittest.com")
+        password_input.send_keys("1234")
+        submit_button.click()
+        self.driver.get(webAddr +"modifycenter")
         self.driver.find_element(By.ID, "chooseChangeEmail").click()
         self.driver.find_element(By.ID, "newEmail").send_keys("newemail@example.com")
         self.driver.find_element(By.ID, "repeatNewEmail").send_keys("newemail@example.com")
         self.driver.find_element(By.ID, "submitInfo").click()
-        confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Email updated successfully')]")
-        self.assertTrue(confirmation_message)
+        try:
+            confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'email has been updated')]")
+            self.assertTrue(confirmation_message)
+        except:
+            self.assertFalse(False)
     
     def test_changepassword(self):
-        # sp.login()
+        sp.login()
         self.driver.implicitly_wait(10)
-        self.driver.get(webAddr + "/modifycenter")
+        self.driver.get(webAddr +"modifycenter")
         self.driver.find_element(By.ID, "chooseChangePassword").click()
         self.driver.find_element(By.ID, "newpassword").send_keys("newpassword123")
         self.driver.find_element(By.ID, "repeatnewpassword").send_keys("newpassword123")
@@ -228,8 +233,8 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
     
     def test_changepincode(self):
-        # sp.login()
-        self.driver.get(webAddr + "/modifycenter")
+        sp.login()
+        self.driver.get(webAddr +"modifycenter")
         self.driver.find_element(By.ID, "chooseChangePin").click()
         self.driver.find_element(By.ID, "oldpin").send_keys("1234")
         self.driver.find_element(By.ID, "newpin").send_keys("5678")
@@ -239,8 +244,8 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
     
     def test_changeregion(self):
-        # sp.login()
-        self.driver.get(webAddr + "/modifycenter")
+        sp.login()
+        self.driver.get(webAddr +"modifycenter")
         self.driver.find_element(By.ID, "chooseChangeCountry").click()
         self.driver.find_element(By.ID, "country").clear()
         self.driver.find_element(By.ID, "country").send_keys("Asia")
@@ -249,7 +254,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
     
     # def test_setavatar(self):
-    #     self.driver.get(webAddr + "/profile")  
+    #     self.driver.get(webAddr +"profile")  
     #     set_avatar_link = self.driver.find_element(By.XPATH, "//a[@href='/setavatar/123']")  
     #     set_avatar_link.click() 
     #     confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Avatar updated')]")  

@@ -24,11 +24,15 @@ def add_test_data():
             db.session.add(item)
         db.session.commit()
 
-def login(self):
-        self.driver.get(webAddr + "login")
+def login():
         username_input = self.driver.find_element(By.ID, "email")
         password_input = self.driver.find_element(By.ID, "password")
         submit_button = self.driver.find_element(By.ID, "btnLogin")
         username_input.send_keys("unittest@unittest.com")
         password_input.send_keys("1234")
         submit_button.click()
+
+def logout():
+    self.driver.get(webAddr + "logout")
+    self.driver.quit()
+
