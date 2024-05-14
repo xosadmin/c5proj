@@ -37,7 +37,7 @@
     </table>
     <div id="confirmAccept">
         <p>Warning: you cannot cancel the request once you accept it.</p>
-        <button type="button" class="btn btn-success" onclick="confirmAcceptRequest({{ result.requestID }})">Yes, I accept it</button>
+        <button type="button" class="btn btn-success" id="confirmAcceptRequest" onclick="confirmAcceptRequest({{ result.requestID }})">Yes, I accept it</button>
         <button type="button" class="btn btn-danger" id="denyAccept" onclick="denyAcceptRequest()">No, I need to do further consideration</button>
     </div>
 {% endblock %}

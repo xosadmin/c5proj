@@ -30,7 +30,7 @@
     </table>
     <div id="confirmAccept">
         <p>Warning: you cannot ask for refund once you confirm payment.</p>
-        <button type="button" class="btn btn-success" onclick="confirmPayment({{ result.itemID }})">Yes, I confirm</button>
+        <button type="button" class="btn btn-success" id="confirmPayments" onclick="confirmPayment({{ result.itemID }})">Yes, I confirm</button>
         <button type="button" class="btn btn-danger" id="denyAccept" onclick="denyPayment()">No, I need to do further consideration</button>
     </div>
 {% endblock %}
