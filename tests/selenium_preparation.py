@@ -14,7 +14,8 @@ def add_test_data():
                  Requests(requestID=123456789,title="title",content="content",rewards="rewards",timelimit="timelimit",userID="1234567890"),
                  Community(threadID="1234567",title="title",userID="1234567890"),
                  Thread(replyID = 12345678, threadID ="1234567", userID = "666", contents = "content"),
-                 Shop(itemID=123,itemDetail="Test Item",price=1),
+                 Shop(itemID=1,itemDetail="Test Item",price=1),
+                 Transaction(transactionID=123,userID="1234567890",itemID=1),
                  Todo(todoID = 321, userID = "1234567890", requestID = 123456789),
                  Chats(chatID="123",srcUserID="1234567890",dstUserID="666",content="content"),
                  Faq(faqID=123, keyword="UnitTest", answer="UnitTest"),
@@ -24,11 +25,15 @@ def add_test_data():
             db.session.add(item)
         db.session.commit()
 
-def login(self):
-        self.driver.get(webAddr + "login")
+def login():
         username_input = self.driver.find_element(By.ID, "email")
         password_input = self.driver.find_element(By.ID, "password")
         submit_button = self.driver.find_element(By.ID, "btnLogin")
         username_input.send_keys("unittest@unittest.com")
         password_input.send_keys("1234")
         submit_button.click()
+
+def logout():
+    self.driver.get(webAddr + "logout")
+    self.driver.quit()
+
