@@ -282,14 +282,15 @@ try:
         form = newChatForm()
         return render_template("newchat.html", dstuserid=dstuserid, form=form)
 
-    @mainBluePrint.route("/requests")
+    @mainBluePrint.route("/requests",methods=["GET"])
     @login_required
     def requestPage():
         try:
             currentUserID = current_user.id
             coins = getCoins(currentUserID)
-            result = Requests.query.all() # Fetch all requests from DB
-            return render_template('requests.html', result=result, coins=coins, userid=currentUserID)
+            infomsg = request.args.get("infomsg","")
+            result = Requests.query.filter(Requests.status == "Available").all() # Fetch all available requests from DB
+            return render_template('requests.html', result=result, coins=coins, userid=currentUserID,infomsg=infomsg)
         except Exception as e:
             print(e) # Print detailed error on the console
             return render_template('requests.html', errmsg="Internal Error")

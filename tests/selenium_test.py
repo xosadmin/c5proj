@@ -5,6 +5,8 @@ import time
 from apps.get import encryptPassword
 from app import create_app, db
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transaction, Todo, Chats, Faq, \
     FaqChatTransaction
 
@@ -150,8 +152,11 @@ class FlaskAppTest(unittest.TestCase):
         timelimit.send_keys("1")
         submit_button.click()
 
-        expected_text = self.driver.find_element(By.XPATH, "//script[contains(text(), 'New request posted')]")
-        self.assertTrue(expected_text)
+        alert = WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+
+        self.assertTrue("New request", alert.text)
+        alert.accept()
+        time.sleep(5)
 
     def test_new_thread(self):
         self.driver.get(webAddr + "login")
@@ -175,8 +180,11 @@ class FlaskAppTest(unittest.TestCase):
         title.send_keys("Selenium Thread Test")
         content.send_keys("Content for Selenium Test")
         submit_button.click()
-        expected_text = self.driver.find_element(By.XPATH, "//script[contains(text(), 'New thread recorded')]")
-        self.assertTrue(expected_text)
+        alert = WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+
+        self.assertIn("New thread", alert.text)
+        alert.accept()
+        time.sleep(5)
 
     def test_new_chat(self):
         self.driver.get(webAddr + "login")
@@ -198,8 +206,11 @@ class FlaskAppTest(unittest.TestCase):
         dstuser.send_keys("666")
         content.send_keys("Content for Selenium Test")
         submit_button.click()
-        expected_text = self.driver.find_element(By.XPATH, "//script[contains(text(), 'New ticket recorded')]")
-        self.assertTrue(expected_text)
+        alert = WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+
+        self.assertTrue("New ticket",alert.text)
+        alert.accept()
+        time.sleep(5)
 
     def test_new_helpsession(self):
         self.driver.get(webAddr + "login")
@@ -272,7 +283,7 @@ class FlaskAppTest(unittest.TestCase):
             username_input.send_keys(loginEmail)
             password_input.send_keys(loginPassword)
             submit_button.click()
-        self.driver.get(webAddr + "thread/12345678")
+        self.driver.get(webAddr + "thread/1234567")
         submit_btn = self.driver.find_element(By.ID, "doSubmit")
         content = self.driver.find_element(By.ID, "content")
         content.send_keys("this is a reply")
