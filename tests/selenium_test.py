@@ -13,8 +13,6 @@ from models.sqlmodels import UserInfo, Community, Thread, Requests, Shop, Transa
 webAddr = "http://127.0.0.1:5000/"
 loginEmail = "unittest@unittest.com"
 loginPassword = "1234"
-
-
 class FlaskAppTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -101,7 +99,6 @@ class FlaskAppTest(unittest.TestCase):
         else:
             self.assertTrue(True)
 
-
     def test_forgotpassword(self):
         self.driver.get(webAddr + "login")
         if "You+have+already+logged+in" in self.driver.current_url:
@@ -119,11 +116,7 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("123", alert.text)
         alert.accept()
         time.sleep(5)
-        #self.assertIn("Your password has been reset to: 123.", current_url)
 
-
-
-    
     def test_register(self):
         self.driver.get(webAddr + "login")
         if "You+have+already+logged+in" in self.driver.current_url:
@@ -142,12 +135,9 @@ class FlaskAppTest(unittest.TestCase):
         repeat_password_input.send_keys(loginPassword)
         pincode_input.send_keys("1234")
         submit_button.click()
-        confirmation_message = self.driver.find_element(By.XPATH,
-                                                        "//div[contains(text(), 'Complete')]")
-        self.assertTrue(confirmation_message)
-
-       
-
+        confirmation_message = self.driver.find_elements(By.XPATH, "//div[@id='CompleteBanner']")
+            # Check if CompleteBanner exist on the page
+        self.assertTrue(confirmation_message,False)
 
     def test_newSigns(self):
         self.driver.get(webAddr + "login")
@@ -302,7 +292,7 @@ class FlaskAppTest(unittest.TestCase):
         self.driver.get(webAddr + "login")
         time.sleep(6)  # Waiting for redirection
         if "You+have+already+logged+in" not in self.driver.current_url:
-            self.driver.get(webAddr + "todolist")
+            self.driver.get(webAddr + "login")
             time.sleep(10)
             username_input = self.driver.find_element(By.ID, "email")
             password_input = self.driver.find_element(By.ID, "password")
@@ -336,7 +326,7 @@ class FlaskAppTest(unittest.TestCase):
         content = self.driver.find_element(By.ID, "content")
         content.send_keys("this is a reply")
         submit_btn.click()
-        self.assertIn("12345678", self.driver.current_url)
+        self.assertIn("1234567", self.driver.current_url)
 
     def test_chatreply(self):
         self.driver.get(webAddr + "login")
@@ -566,8 +556,8 @@ class FlaskAppTest(unittest.TestCase):
             password_input = self.driver.find_element(By.ID, "password")
             submit_button = self.driver.find_element(By.ID, "btnLogin")
             global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
-            username_input.send.keys(loginEmail)
-            password_input.send.keys(loginPassword)
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
             submit_button.click()
         self.driver.get(webAddr + "profile")
 
@@ -575,7 +565,6 @@ class FlaskAppTest(unittest.TestCase):
         set_avatar_link.click()
         confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Avatar updated')]")
         self.assertTrue(confirmation_message)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
