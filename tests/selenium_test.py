@@ -101,6 +101,54 @@ class FlaskAppTest(unittest.TestCase):
         else:
             self.assertTrue(True)
 
+
+    def test_forgotpassword(self):
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" in self.driver.current_url:
+            self.driver.get(webAddr + "logout")
+        self.driver.get(webAddr + "forgetpassword")
+        time.sleep(2)
+        email_input = self.driver.find_element(By.ID, "email")
+        pincode_input = self.driver.find_element(By.ID, "pin-code")
+        submit_button = self.driver.find_element(By.ID, "btnResetPwd")
+        global loginEmail, loginPassword
+        email_input.send_keys(loginEmail)
+        pincode_input.send_keys("1234")
+        submit_button.click()
+        alert = WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+        self.assertIn("123", alert.text)
+        alert.accept()
+        time.sleep(5)
+        #self.assertIn("Your password has been reset to: 123.", current_url)
+
+
+
+    
+    def test_register(self):
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" in self.driver.current_url:
+            self.driver.get(webAddr + "logout")
+
+        time.sleep(2)
+        self.driver.get(webAddr + "register")
+        email_input = self.driver.find_element(By.ID, "email")
+        password_input = self.driver.find_element(By.ID, "password")
+        repeat_password_input = self.driver.find_element(By.ID, "repeat_password")
+        pincode_input = self.driver.find_element(By.ID, "pin_code")
+        submit_button = self.driver.find_element(By.ID, "btnRegister")
+        global loginEmail, loginPassword   
+        email_input.send_keys("123@gmail.com")
+        password_input.send_keys(loginPassword)
+        repeat_password_input.send_keys(loginPassword)
+        pincode_input.send_keys("1234")
+        submit_button.click()
+        confirmation_message = self.driver.find_element(By.XPATH,
+                                                        "//div[contains(text(), 'Complete')]")
+        self.assertTrue(confirmation_message)
+
+       
+
+
     def test_newSigns(self):
         self.driver.get(webAddr + "login")
         time.sleep(6)  # Waiting for redirection
