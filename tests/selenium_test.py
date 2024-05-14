@@ -40,8 +40,9 @@ class FlaskAppTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.driver.quit()
         cls.server_thread.join(timeout=5)
-        db.session.remove()
-        db.drop_all()
+        if cls.app.config['SQLALCHEMY_DATABASE_URI'] == 'sqlite:///:memory:': # Avoid from drop production DB
+            db.session.remove()
+            db.drop_all()
         cls.app_context.pop()
 
     def setUp(self):
