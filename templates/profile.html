@@ -76,7 +76,7 @@
         </tbody>
     </table>
     <h3>My Items</h3>
-    <p><a href="/setavatar/default" title="Restore Default Avatar">Restore Default Avatar</a></p>
+    <p><a href="/setavatar/default" title="Restore Default Avatar"><ion-icon name="construct-outline"></ion-icon> Restore Default Avatar</a></p>
     <table class="table table-striped listcontents">
         <tbody>
         <tr>
@@ -90,7 +90,7 @@
             <td class="descCol">{{nftitem.transactionID}}</td>
             <td class="descCol"><img src="{{ url_for('static', filename='nft/' + nftitem.itemID|string + '.png') }}" alt="Item Preview" class="itempreview"></td>
             <td class="descCol">{{nftitem.itemDetail}}</td>
-            <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar">Set as avatar</a></td>
+            <td><a href="/setavatar/{{nftitem.itemID}}" title="Set as avatar"><ion-icon name="checkbox-outline"></ion-icon> Set as avatar</a></td>
         </tr>
         {% endfor %}
         </tbody>
