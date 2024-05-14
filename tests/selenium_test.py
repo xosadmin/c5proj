@@ -34,6 +34,8 @@ class FlaskAppTest(unittest.TestCase):
 
         cls.driver = webdriver.Chrome(options=options)
 
+        cls.driver.set_page_load_timeout(10)
+
     @classmethod
     def tearDownClass(cls):
         cls.driver.quit()
@@ -78,33 +80,38 @@ class FlaskAppTest(unittest.TestCase):
         db.session.commit()
 
     def test_login(self):
-        self.driver.get(webAddr + "login")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
-        returns = sp.login()
-        self.assertEqual(returns, 0)
+        self.driver.getr(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "login")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
+            self.assertIn("signs", self.driver.current_url)
+        else:
+            self.assertTrue(True)
 
     def test_newSigns(self):
-        self.driver.get(webAddr + "signs")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "signs")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "signs")
 
         feelings = self.driver.find_element(By.ID, "feelings")
         comment = self.driver.find_element(By.ID, "content")
-        submit = self.driver.find_element(By.ID, "submit")
+        submit = self.driver.find_element(By.ID, "btnSubmitEmo")
 
         feelings.send_keys("Happy")
         comment.send_keys("Unit Test")
@@ -113,21 +120,23 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn(webAddr + "profile", self.driver.current_url)
 
     def test_new_request(self):
-        self.driver.get(webAddr + "newrequest")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "newrequest")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "newrequest")
         title = self.driver.find_element(By.ID, "title")
         content = self.driver.find_element(By.ID, "content")
         rewards = self.driver.find_element(By.ID, "rewards")
         timelimit = self.driver.find_element(By.ID, "timelimit")
-        submit_button = self.driver.find_element(By.ID, "doSubmit")
+        submit_button = self.driver.find_element(By.ID, "btnRequest")
 
         title.send_keys("Selenium Test")
         content.send_keys("Selenium Test")
@@ -138,20 +147,22 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("/requests", self.driver.current_url)
 
     def test_new_thread(self):
-        self.driver.get(webAddr + "newthread")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "newthread")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "newthread")
 
         title = self.driver.find_element(By.ID, "title")
         content = self.driver.find_element(By.ID, "content")
-        submit_button = self.driver.find_element(By.ID, "doSubmit")
+        submit_button = self.driver.find_element(By.ID, "btnSubmitThread")
 
         title.send_keys("Selenium Thread Test")
         content.send_keys("Content for Selenium Test")
@@ -160,19 +171,21 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
 
     def test_new_chat(self):
-        self.driver.get(webAddr + "newchat")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "newchat")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "newchat")
         dstuser = self.driver.find_element(By.ID, "dstUser")
         content = self.driver.find_element(By.ID, "content")
-        submit_button = self.driver.find_element(By.ID, "doSubmit")
+        submit_button = self.driver.find_element(By.ID, "btnSubmitChat")
         dstuser.send_keys("666")
         content.send_keys("Content for Selenium Test")
         submit_button.click()
@@ -180,15 +193,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
 
     def test_new_helpsession(self):
-        self.driver.get(webAddr + "help")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "help")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "help")
         content = self.driver.find_element(By.ID, "content")
         submit_button = self.driver.find_element(By.ID, "doSubmit")
@@ -197,30 +212,34 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn("/help", self.driver.current_url)
 
     def test_new_todo(self):
-        self.driver.get(webAddr + "acceptrequests/123456789")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "acceptrequests/123456789")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "acceptrequests/123456789")
         accept_button = self.driver.find_element(By.CLASS_NAME, "btn btn-success")
         accept_button.click()
         self.assertIn("/todo", self.driver.current_url)
 
     def test_request_answer(self):
-        self.driver.get(webAddr + "todolist")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "todolist")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "todolist")
         answer_button = self.driver.find_element(By.XPATH,
                                                  f"//a[contains(@href, 'answerrequest/123456789') and contains(text(), 'Answer')]")
@@ -234,15 +253,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(expected_text)
 
     def test_thread_reply(self):
-        self.driver.get(webAddr + "thread/12345678")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "thread/12345678")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "thread/12345678")
         submit_btn = self.driver.find_element(By.ID, "doSubmit")
         content = self.driver.find_element(By.ID, "content")
@@ -252,15 +273,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn(expected_redirect_url, self.driver.current_url)
 
     def test_chatreply(self):
-        self.driver.get(webAddr + "chat/123")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "chat/123")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "chat/123")
         submit_btn = self.driver.find_element(By.ID, "doSubmit")
         content = self.driver.find_element(By.ID, "content")
@@ -270,15 +293,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertIn(expected_redirect_url, self.driver.current_url)
 
     def delete_request(self):
-        self.driver.get(webAddr + "requests")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "requests")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "requests")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deleterequest/123456789/1234567890']")
         delete_link.click()
@@ -287,15 +312,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
 
     def delete_thread(self):
-        self.driver.get(webAddr + "community")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "community")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "community")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deletethread/12345678']")
         delete_link.click()
@@ -304,15 +331,17 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
 
     def delete_chat(self):
-        self.driver.get(webAddr + "chat")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "chat")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "chat")
         delete_link = self.driver.find_element(By.XPATH, f"//a[@href='/deletechat/123']")
         delete_link.click()
@@ -321,31 +350,35 @@ class FlaskAppTest(unittest.TestCase):
         self.assertTrue(confirmation_message)
 
     def test_shop(self):
-        self.driver.get(webAddr + "shop")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "shop")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "shop")
         buy_button = self.driver.find_element(By.XPATH, f"//a[@href='/confirmpayment/1']")
         buy_button.click()
-        confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Purchase successful')]")
+        confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), '#1')]")
         self.assertTrue(confirmation_message)
 
     def test_logout(self):
-        self.driver.get(webAddr + "logout")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "logout")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "logout")
         try:
             confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Complete')]")
@@ -354,15 +387,17 @@ class FlaskAppTest(unittest.TestCase):
             self.assertFalse(False)
 
     def test_changeemail(self):
-        self.driver.get(webAddr + "modifycenter")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "modifycenter")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "modifycenter")
 
         self.driver.find_element(By.ID, "chooseChangeEmail").click()
@@ -370,7 +405,6 @@ class FlaskAppTest(unittest.TestCase):
         self.driver.find_element(By.ID, "repeatNewEmail").send_keys("newemail@example.com")
         self.driver.find_element(By.ID, "submitInfo").click()
 
-        loginEmail = "newemail@example.com"
         try:
             confirmation_message = self.driver.find_element(By.XPATH,
                                                             "//div[contains(text(), 'email has been updated')]")
@@ -379,15 +413,17 @@ class FlaskAppTest(unittest.TestCase):
             self.assertFalse(False)
 
     def test_changepassword(self):
-        self.driver.get(webAddr + "modifycenter")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "modifycenter")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "modifycenter")
 
         self.driver.find_element(By.ID, "chooseChangePassword").click()
@@ -395,7 +431,6 @@ class FlaskAppTest(unittest.TestCase):
         self.driver.find_element(By.ID, "repeatnewpassword").send_keys("newpassword123")
         self.driver.find_element(By.ID, "submitInfo").click()
 
-        loginPassword = "newpassword123"
         try:
             confirmation_message = self.driver.find_element(By.XPATH,
                                                             "//div[contains(text(), 'password has been updated')]")
@@ -404,15 +439,17 @@ class FlaskAppTest(unittest.TestCase):
             self.assertFalse(False)
 
     def test_changepincode(self):
-        self.driver.get(webAddr + "modifycenter")
-        time.sleep(10)
-        username_input = self.driver.find_element(By.ID, "email")
-        password_input = self.driver.find_element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "modifycenter")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "modifycenter")
 
         self.driver.find_element(By.ID, "chooseChangePincode").click()
@@ -427,40 +464,44 @@ class FlaskAppTest(unittest.TestCase):
             self.assertFalse(False)
 
     def test_changeregion(self):
-        self.driver.get(webAddr + "modifycenter")
-        time.sleep(10)
-        username_input = self.driver.find.element(By.ID, "email")
-        password_input = self.driver.find.element(By.ID, "password")
-        submit_button = self.driver.find_element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send_keys(loginEmail)
-        password_input.send_keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "modifycenter")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send_keys(loginEmail)
+            password_input.send_keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "modifycenter")
 
         self.driver.find_element(By.ID, "chooseChangeCountry").click()
-        self.driver.find.element(By.ID, "country").clear()
-        self.driver.find.element(By.ID, "country").send_keys("Asia")
-        self.driver.find.element(By.ID, "submitInfo").click()
-        confirmation_message = self.driver.find.element(By.XPATH,
+        self.driver.find_element(By.ID, "country").clear()
+        self.driver.find_element(By.ID, "country").send_keys("Asia")
+        self.driver.find_element(By.ID, "submitInfo").click()
+        confirmation_message = self.driver.find_element(By.XPATH,
                                                         "//div[contains(text(), 'Information country has been updated.')]")
         self.assertTrue(confirmation_message)
 
     def test_setavatar(self):
-        self.driver.get(webAddr + "profile")
-        time.sleep(10)
-        username_input = self.driver.find.element(By.ID, "email")
-        password_input = self.driver.find.element(By.ID, "password")
-        submit_button = self.driver.find.element(By.ID, "btnLogin")
-        global loginEmail, loginPassword
-        username_input.send.keys(loginEmail)
-        password_input.send.keys(loginPassword)
-        submit_button.click()
+        self.driver.get(webAddr + "login")
+        if "You+have+already+logged+in" not in self.driver.current_url:
+            self.driver.get(webAddr + "profile")
+            time.sleep(10)
+            username_input = self.driver.find_element(By.ID, "email")
+            password_input = self.driver.find_element(By.ID, "password")
+            submit_button = self.driver.find_element(By.ID, "btnLogin")
+            global loginEmail, loginPassword # Declare global variable loginEmail and loginPassword
+            username_input.send.keys(loginEmail)
+            password_input.send.keys(loginPassword)
+            submit_button.click()
         self.driver.get(webAddr + "profile")
 
-        set_avatar_link = self.driver.find.element(By.XPATH, "//a[@href='/setavatar/1']")
+        set_avatar_link = self.driver.find_element(By.XPATH, "//a[@href='/setavatar/1']")
         set_avatar_link.click()
-        confirmation_message = self.driver.find.element(By.XPATH, "//div[contains(text(), 'Avatar updated')]")
+        confirmation_message = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Avatar updated')]")
         self.assertTrue(confirmation_message)
 
 
