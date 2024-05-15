@@ -19,8 +19,9 @@ class testDB(unittest.TestCase):
         self.add_test_data()
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        if self.app.config['SQLALCHEMY_DATABASE_URI'] == 'sqlite:///:memory:':  # Avoid from drop production DB
+            db.session.remove()
+            db.drop_all()
         self.app_context.pop()
 
     def add_test_data(self):
