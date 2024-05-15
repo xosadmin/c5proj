@@ -25,7 +25,11 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 #### How to do unit test
 - Clone this project
 - Navigate to the root of the program
-- Use command `python -m unittest tests/Unittest.py -v`
+- Use command `python -m unittest tests/<filename> -v`
+
+#### Unit Test available
+- sql_unittest.py = Unit Test for SQLite
+- selenium_test.py = Selenium Unit Test (Chrome Browser is required)
   
 #### Group members  
 | Name  | Student ID | Github ID |
