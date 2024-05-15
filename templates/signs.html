@@ -3,6 +3,7 @@
 {% block title %}Signs - Requests - Adventurer Guild{% endblock %}
 
 {% block javascript %}
+    <script src="{{url_for('static',filename='js/llm.js')}}"></script>
 {% endblock %}
 
 <!-- Main content goes here -->
@@ -25,7 +26,7 @@
             <div class="form-group fillForms">
                 <label for="content">Comments</label>
                 {{ form.comments(class="form-control", id="content", rows="4", cols="50", required=true) }}
-                <small>Do you need LLM for compose contents? <a href="#mainContent" onclick="loadLLM(3)">Click here to ask LLM to generate content for you</a></small>
+                <small>Do you need LLM for compose contents? <a href="#mainContent" title="llmGenerate" id="llmSigns">Click here to ask LLM to generate content for you</a></small>
             </div>
             {{ form.submit() }}
             </form>

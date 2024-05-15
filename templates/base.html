@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Website{% endblock %}</title>
-    <!-- Include common CSS/JavaScript files -->
+    <title>{% block title %}Base{% endblock %}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">    
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <!-- Include custom JavaScript files -->
     {% block javascript %}
     {% endblock %}
 </head>
@@ -21,7 +19,7 @@
     <nav class="navbar navbar-default navigationBar rounded-pill">
         <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Adventurer Guild</a>
+          <a class="navbar-brand" href="/" title="Back to homepage">Adventurer Guild</a>
         </div>
         <div>
             <ul class="nav navbar-nav">

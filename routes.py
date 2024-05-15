@@ -461,7 +461,7 @@ try:
             nft_details = Transaction.query.join(Transaction, Transaction.itemID == Shop.itemID). \
                         add_columns(Transaction.transactionID, Shop.itemID, Shop.itemDetail). \
                         filter(Transaction.userID==userID).all()
-            signHistory = Signs.query.filter(Signs.userID == userID).limit(5).all()
+            signHistory = Signs.query.filter(Signs.userID == userID).order_by(Signs.signID.desc()).limit(5).all()
             nftid = str(getUserInfo(userID, "avatar"))  # Get avatar ID
             if "-" in userID: # If "-" is in the userID
                 userID_Show_On_Browser = userID.split("-")[0] # Get the first part of the UUID
@@ -543,8 +543,12 @@ try:
                 add_columns(UserInfo.avatar, Thread.userID, Thread.contents). \
                 filter(Thread.threadID == id).all()
             # Show UserID, contents and user's avatar based on inner join
+        if "-" in id:
+            id_on_browser = id.split("-")[0] # Shorten the id on browser title
+        else:
+            id_on_browser = id
         if result:
-            return render_template("thread_details.html", result=result, threadID=id, threadName=thread_title)
+            return render_template("thread_details.html", result=result, id_on_browser=id_on_browser, threadID=id, threadName=thread_title)
         else:
             return render_template("thread_details.html", errmsg=f"We cannot find any content.")
     
