@@ -30,14 +30,4 @@ Note: the main database (`database/main.db`) contains some test data. You could 
 #### Unit Test available
 - sql_unittest.py = Unit Test for SQLite
 - selenium_test.py = Selenium Unit Test (Chrome Browser is required)
-  
-#### Group members  
-| Name  | Student ID | Github ID |
-| ------------- | ------------- | ------------- |
-| Hanxun Xu  | 23885505  | [https://github.com/xosadmin](xosadmin) |
-| Jikang Song  | 23877962  | [https://github.com/jikang1116](jikang1116) |
-| Phyo Phyo Wut Yee Khine | 23650578 | [https://github.com/Phyo09](Phyo09) |
-| Chunhui Chu | 24074951 | [https://github.com/TonyChyu](TonyChyu) |
-------  
-
 
